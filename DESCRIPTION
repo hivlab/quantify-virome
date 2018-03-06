@@ -7,3 +7,5 @@ Depends: R (>= 3.4.3)
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+URL: https://github.com/tpall/vs
+BugReports: https://github.com/tpall/vs/issues
