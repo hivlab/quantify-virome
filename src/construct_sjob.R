@@ -3,7 +3,7 @@ library(glue)
 library(tidyverse)
 
 input <- yaml_load_file_utf8("sbatch.yaml")
-input
+input <- "sbatch.yaml"
 
 parse_key_value_pairs <- function(x) {
   key <- names(x)
@@ -30,9 +30,9 @@ parse_sbatch_yaml <- function(input) {
   srun <- glue_data(srun, "{key} {value}") %>% glue::collapse(sep = "\n")
   cm <- glue_data(cm, "{key} {value}") %>% glue::collapse(sep = "\n")
   script <- glue("#!/bin/bash\n\n# Arguments to SBATCH\n{sbatch}\n\n# Load modules\n{modules}\n\n# Run commands\n{srun}\n{cm}")
-  con <- file("scr/test.sh")
-  write_file(script, con)
-  close(con)
+  file.create("test.sh")
+  write_file(script, "test.sh")
+  closeAllConnections()
 }
 
 parse_sbatch_yaml("sbatch.yaml")
