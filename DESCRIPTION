@@ -1,8 +1,8 @@
 Package: vs
-Title: What the Package Does (one line, title case)
+Title: Replicate VirusSeeker Pipeline
 Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Authors@R: person("Taavi", "Päll", email = "taavi.pall@ut.ee", role = c("aut", "cre"))
+Description: Replicates VirusSeeker pipeline to characterise the type and abundance of both known and novel viral sequences in metagenomic datasets.
 Depends: R (>= 3.4.3)
 License: MIT + file LICENSE
 Encoding: UTF-8
