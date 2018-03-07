@@ -28,8 +28,9 @@ module load adapterremoval/2.1.7 python-3.6.0 fastq-join
 
 cd /gpfs/hpchome/taavi74/Projects/vs
 
-SAMPLE = I1164_12629_Harvard_SIV_196_06_2_24_12
+SAMPLE=I1164_12629_Harvard_SIV_196_06_2_24_12
 
 source activate
 snakemake --snakefile src/snakefile.py output/stitched_reads/$SAMPLE.stitch-length-report
 source deactivate
+
