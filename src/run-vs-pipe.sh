@@ -21,14 +21,17 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=tapa741@gmail.com
 
-##SBATCH -o /gpfs/hpchome/taavi74/Projects/vs/output/stdout.%j
-##SBATCH -e /gpfs/hpchome/taavi74/Projects/vs/output/stderr.%j
+#SBATCH -o /gpfs/hpchome/taavi74/Projects/vs/output/stdout.%j
+#SBATCH -e /gpfs/hpchome/taavi74/Projects/vs/output/stderr.%j
 
 #Here we call srun to launch the uname command in parallel
-module load adapterremoval/2.1.7
-module load python-3.6.0
+module purge
+module load adapterremoval/2.1.7 python-3.6.0 fastq-join
 
 cd /gpfs/hpchome/taavi74/Projects/vs
+
+SAMPLE=I1164_12629_Harvard_SIV_196_06_2_24_12
+
 source activate
-snakemake --snakefile src/snakefile.py output/trimmed_reads/I1164_12629_Harvard_SIV_196_06_2_24_12_{SE1,SE2}.truncated.gz
+snakemake --snakefile src/snakefile.py output/trimmed_reads/$SAMPLE_{SE1,SE2}.truncated.gz
 source deactivate
