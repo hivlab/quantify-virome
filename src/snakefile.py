@@ -3,39 +3,43 @@
 
 rule adapter_removal:
     input:
-        reads = "data/samples/{sample}_{read}.fastq.gz",
+        reads1 = "data/samples/{sample}_SE1.fastq.gz",
+        reads2 = "data/samples/{sample}_SE2.fastq.gz",
         adapter_list = "data/samples/{sample}_adapter.txt"
     output:
-        reads = "output/trimmed_reads/{sample}_{read}.truncated.gz"
+        pair1 = "output/trimmed_reads/{sample}.pair1.truncated.gz",
+        pair2 = "output/trimmed_reads/{sample}.pair2.truncated.gz",
+        singleton = "output/trimmed_reads/{sample}.singletons.truncated.gz",
     shell:
         """
         AdapterRemoval \
-        --file1 {input.reads} \
-        --output1 {output.reads} \
+        --file1 {input.reads1} \
+        --file2 {input.reads2} \
+        --output1 {output.pair1} \
+        --output2 {output.pair2} \
+        --singleton {output.singleton} \
         --gzip \
         --trimqualities \
         --trimns \
         --adapter-list {input.adapter_list}
         """
 
-
 ## Stitch paired reads --------------------------------------
 
-rule $stitching_report_filefix:
+rule stitch_reads:
   input:
-    reads1 = "output/trimmed_reads/{sample}_SE1.truncated.gz",
-    reads2 = "output/trimmed_reads/{sample}_SE2.truncated.gz"
+    pair1 = "output/trimmed_reads/{sample}.pair1.truncated.gz",
+    pair2 = "output/trimmed_reads/{sample}.pair2.truncated.gz"
   output:
     report = "output/stitched_reads/{sample}.stitch-length-report",
-    dir = "output/stitched_reads/"
+    out = "output/stitched_reads/{sample}.%.fq.gz"
   shell:
     """
     fastq-join \
     -p 5 \
     -m 10 \
-    -r {output.report}  \
-    {input.reads1} \
-    {input.reads2} \
-    -o {output.dir}/{wildcards.batch}.%.fq.gz
+    -r {output.report} \
+    {input.pair1} \
+    {input.pair2} \
+    -o {output.out}
     """
-

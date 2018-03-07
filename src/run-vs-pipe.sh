@@ -16,13 +16,11 @@
 #SBATCH -t 00:30:00
 
 # Send remainders
-#SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=tapa741@gmail.com
 
 #SBATCH -o /gpfs/hpchome/taavi74/Projects/vs/output/logs/stdout.%j
-#SBATCH -e /gpfs/hpchome/taavi74/Projects/vs/output/logs/stderr.%j
 
 #Here we call srun to launch the uname command in parallel
 module purge
@@ -30,8 +28,8 @@ module load adapterremoval/2.1.7 python-3.6.0 fastq-join
 
 cd /gpfs/hpchome/taavi74/Projects/vs
 
-SAMPLE=I1164_12629_Harvard_SIV_196_06_2_24_12
+SAMPLE = I1164_12629_Harvard_SIV_196_06_2_24_12
 
 source activate
-snakemake -np --snakefile src/snakefile.py output/stitched_reads/$SAMPLE.stitch-length-report
+snakemake --snakefile src/snakefile.py output/stitched_reads/$SAMPLE.stitch-length-report
 source deactivate
