@@ -1,9 +1,7 @@
 
 #SAMPLES = ["SE1", "SE2"]
 
-##--------------------------------------##
-## 1. Adapter removal                   ##
-##--------------------------------------##
+## Adapter removal --------------------------------------
 
 rule adapter_removal:
     input:
@@ -21,3 +19,24 @@ rule adapter_removal:
         --trimns \
         --adapter-list {input.adapter_list}
         """
+
+
+## Stitch paired reads --------------------------------------
+
+rule $stitching_report_filefix:
+  input:
+    reads1 = "output/trimmed_reads/{batch}_SE1.truncated.gz",
+    reads2 = "output/trimmed_reads/{batch}_SE2.truncated.gz"
+  output:
+    report = "_stitch-length-report"
+  shell:
+    """
+    fastq-join \
+    -p 5 \
+    -m 10 \
+    -r \${OVERLAPLENGTH}  \
+    {input.reads1} \
+    {input.reads2} \
+    -o {batch}.%.fq
+    """
+
