@@ -4,10 +4,10 @@
 #SBATCH -p testing
 
 #The name of the job
-#SBATCH -J parallel_uname
+#SBATCH -J parallel_snakemake
 
-#The job requires 4 compute nodes
-#SBATCH -N 4
+#Number of compute nodes the job requires
+#SBATCH -N 2
 
 #The job requires 1 task per node
 #SBATCH --ntasks-per-node=1
@@ -21,10 +21,14 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=tapa741@gmail.com
 
-#SBATCH -o /gpfs/hpchome/taavi74/Projects/vs/output/stdout.%j
-#SBATCH -e /gpfs/hpchome/taavi74/Projects/vs/output/stderr.%j
+##SBATCH -o /gpfs/hpchome/taavi74/Projects/vs/output/stdout.%j
+##SBATCH -e /gpfs/hpchome/taavi74/Projects/vs/output/stderr.%j
 
 #Here we call srun to launch the uname command in parallel
-srun uname -a
-sleep 30
+module load adapterremoval/2.1.7
+module load python-3.6.0
 
+cd /gpfs/hpchome/taavi74/Projects/vs
+source activate
+snakemake --snakefile src/snakefile.py output/trimmed_reads/I1164_12629_Harvard_SIV_196_06_2_24_12_{SE1,SE2}.truncated.gz
+source deactivate
