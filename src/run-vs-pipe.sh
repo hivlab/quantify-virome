@@ -10,7 +10,7 @@
 #SBATCH -N 2
 
 #The job requires 1 task per node
-#SBATCH --ntasks-per-node=1
+#SBATCH --ntasks-per-node=2
 
 #The maximum walltime of the job is a half hour
 #SBATCH -t 00:30:00
@@ -21,8 +21,8 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=tapa741@gmail.com
 
-#SBATCH -o /gpfs/hpchome/taavi74/Projects/vs/output/stdout.%j
-#SBATCH -e /gpfs/hpchome/taavi74/Projects/vs/output/stderr.%j
+#SBATCH -o /gpfs/hpchome/taavi74/Projects/vs/output/logs/stdout.%j
+#SBATCH -e /gpfs/hpchome/taavi74/Projects/vs/output/logs/stderr.%j
 
 #Here we call srun to launch the uname command in parallel
 module purge
@@ -33,5 +33,5 @@ cd /gpfs/hpchome/taavi74/Projects/vs
 SAMPLE=I1164_12629_Harvard_SIV_196_06_2_24_12
 
 source activate
-snakemake --snakefile src/snakefile.py output/trimmed_reads/$SAMPLE_{SE1,SE2}.truncated.gz
+snakemake -np --snakefile src/snakefile.py output/stitched_reads/$SAMPLE.stitch-length-report
 source deactivate
