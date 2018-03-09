@@ -43,3 +43,30 @@ rule stitch_reads:
     {input.pair2} \
     -o {output.out}
     """
+
+## Merge stitched reads --------------------------------------
+
+rule merge_reads:
+  input:
+    join = "output/stitched_reads/{sample}.join.fq.gz",
+    un1 = "output/stitched_reads/{sample}.un1.fq.gz",
+    un2 = "output/stitched_reads/{sample}.un2.fq.gz"
+  output:
+    merged = "output/stitched_reads/{sample}.stitched.merged.fq.gz"
+  shell:
+    """
+    cat {input.join} {input.un1} {input.un2} > {output.merged}
+    """
+
+## Run FastQC -------------------------------------
+
+rule fastqc:
+    input:
+        "output/stitched_reads/{sample}.stitched.merged.fq.gz"
+    output:
+        html = "output/qc/{sample}.html",
+        zip = "output/qc/{sample}.zip",
+        dir = "output/qc/"
+    params: ""
+    wrapper:
+        "fastqc --outdir {output.dir} {input}"
