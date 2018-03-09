@@ -64,9 +64,9 @@ rule fastqc:
     input:
         "output/stitched_reads/{sample}.stitched.merged.fq.gz"
     output:
-        html = "output/qc/{sample}.html",
-        zip = "output/qc/{sample}.zip",
-        dir = "output/qc/"
+        "output/qc/{sample}.stitched.merged_fastqc.html",
+        "output/qc/{sample}.stitched.merged_fastqc.zip",
+        dir="output/qc/"
     params: ""
-    wrapper:
+    shell:
         "fastqc --outdir {output.dir} {input}"
