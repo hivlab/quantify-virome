@@ -1,4 +1,6 @@
 
+configfile: "config.yaml"
+
 ## Adapter removal --------------------------------------
 
 rule adapter_removal:
