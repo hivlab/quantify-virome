@@ -1,0 +1,12 @@
+appdirs==1.4.3
+certifi==2018.1.18
+chardet==3.0.4
+ConfigArgParse==0.13.0
+datrie==0.7.1
+idna==2.6
+PyYAML==3.12
+ratelimiter==1.2.0.post0
+requests==2.18.4
+snakemake==4.7.0
+urllib3==1.22
+wrapt==1.10.11
