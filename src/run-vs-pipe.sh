@@ -10,7 +10,7 @@
 #SBATCH -N 2
 
 #The job requires 1 task per node
-#SBATCH --ntasks-per-node=2
+#SBATCH --ntasks-per-node=8
 
 #The maximum walltime of the job is a half hour
 #SBATCH -t 00:30:00
@@ -30,7 +30,7 @@ cd /gpfs/hpchome/taavi74/Projects/vs
 
 SAMPLE=I1164_12629_Harvard_SIV_196_06_2_24_12
 
-source activate
+source env/bin/activate
 snakemake --snakefile src/snakefile.py output/stitched_reads/$SAMPLE.stitch-length-report
-source deactivate
+deactivate
 

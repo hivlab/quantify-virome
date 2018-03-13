@@ -4,12 +4,12 @@
 rule adapter_removal:
     input:
         reads1 = "data/samples/{sample}_SE1.fastq.gz",
-        reads2 = "data/samples/{sample}_SE2.fastq.gz",
-        adapter_list = "data/samples/{sample}_adapter.txt"
+        reads2 = "data/samples/{sample}_SE2.fastq.gz"#,
+        # adapter_list = "data/samples/{sample}_adapter.txt"
     output:
         pair1 = "output/trimmed_reads/{sample}.pair1.truncated.gz",
         pair2 = "output/trimmed_reads/{sample}.pair2.truncated.gz",
-        singleton = "output/trimmed_reads/{sample}.singletons.truncated.gz",
+        singleton = "output/trimmed_reads/{sample}.singletons.truncated.gz"
     shell:
         """
         AdapterRemoval \
@@ -21,7 +21,8 @@ rule adapter_removal:
         --gzip \
         --trimqualities \
         --trimns \
-        --adapter-list {input.adapter_list}
+        --trim5p 9 \
+        --trim3p 9
         """
 
 ## Stitch paired reads --------------------------------------
