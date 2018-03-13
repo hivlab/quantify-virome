@@ -1,0 +1,5 @@
+name: virome
+channels:
+  - defaults
+prefix: /gpfs/hpchome/taavi74/miniconda3/envs/virome
+
