@@ -1,26 +1,26 @@
 
 configfile: "config.yaml"
 
-SAMPLES = config["sample"][0]["name"]
+SAMPLES = config["samples"]
 RAW = config["rawseqs"]
-OUT = config["outputs"]
+OUT = config["output"]
 
 ## Target rule
 rule all:
     input:
-        expand("{out}/qc/{sample}/{sample}.stitched.merged_fastqc.html", out = OUT, sample = SAMPLES),
-        expand("{out}/qc/{sample}/{sample}.stitched.merged_fastqc.zip", out = OUT, sample = SAMPLES)
+        expand("{out}/qc/{sample}.stitched.merged_fastqc.html", out = OUT, sample = SAMPLES),
+        expand("{out}/qc/{sample}.stitched.merged_fastqc.zip", out = OUT, sample = SAMPLES)
 
 ## Adapter removal --------------------------------------
 
 rule adapter_removal:
     input:
-        R1 = expand("{raw}/{sample}/{sample}_SE1.fastq.gz", raw = RAW, sample = SAMPLES),
-        R2 = expand("{raw}/{sample}/{sample}_SE2.fastq.gz", raw = RAW, sample = SAMPLES)
+        R1 = expand("{raw}/{sample}_SE1.fastq.gz", raw = RAW, sample = SAMPLES),
+        R2 = expand("{raw}/{sample}_SE2.fastq.gz", raw = RAW, sample = SAMPLES)
     output:
-        pair1 = expand("{out}/trimmed_reads/{sample}/{sample}.pair1.truncated.gz", out = OUT, sample = SAMPLES),
-        pair2 = expand("{out}/trimmed_reads/{sample}/{sample}.pair2.truncated.gz", out = OUT, sample = SAMPLES),
-        singletons = expand("{out}/trimmed_reads/{sample}/{sample}.singletons.truncated.gz", out = OUT, sample = SAMPLES)
+        pair1 = expand("{out}/trimmed/{sample}.pair1.truncated.gz", out = OUT, sample = SAMPLES),
+        pair2 = expand("{out}/trimmed/{sample}.pair2.truncated.gz", out = OUT, sample = SAMPLES),
+        singletons = expand("{out}/trimmed/{sample}.singletons.truncated.gz", out = OUT, sample = SAMPLES)
     shell:
         """
         AdapterRemoval \
@@ -38,30 +38,29 @@ rule adapter_removal:
 
 rule stitch_reads:
   input:
-    pair1 = expand("{out}/trimmed_reads/{sample}/{sample}.pair1.truncated.gz", out = OUT, sample = SAMPLES),
-    pair2 = expand("{out}/trimmed_reads/{sample}/{sample}.pair2.truncated.gz", out = OUT, sample = SAMPLES)
+    pair1 = expand("{out}/trimmed/{sample}.pair1.truncated.gz", out = OUT, sample = SAMPLES),
+    pair2 = expand("{out}/trimmed/{sample}.pair2.truncated.gz", out = OUT, sample = SAMPLES)
   output:
-    expand("{out}/stitched_reads/{sample}/{sample}.join.fq.gz", out = OUT, sample = SAMPLES),
-    expand("{out}/stitched_reads/{sample}/{sample}.un2.fq.gz", out = OUT, sample = SAMPLES),
-    expand("{out}/stitched_reads/{sample}/{sample}.un1.fq.gz", out = OUT, sample = SAMPLES)
+    template = expand("{sample}.%.fq.gz", out = OUT, sample = SAMPLES)
   shell:
     """
     fastq-join \
     -p 5 \
     -m 10 \
     {input.pair1} \
-    {input.pair2}
+    {input.pair2} \
+    -o {output.template}
     """
 
 ## Merge stitched reads --------------------------------------
 
 rule merge_reads:
   input:
-    join = expand("{out}/stitched_reads/{sample}/{sample}.join.fq.gz", out = OUT, sample = SAMPLES),
-    un1 = expand("{out}/stitched_reads/{sample}/{sample}.un2.fq.gz", out = OUT, sample = SAMPLES),
-    un2 = expand("{out}/stitched_reads/{sample}/{sample}.un1.fq.gz", out = OUT, sample = SAMPLES)
+    join = expand("{out}/stitched/{sample}.join.fq.gz", out = OUT, sample = SAMPLES),
+    un1 = expand("{out}/stitched/{sample}.un1.fq.gz", out = OUT, sample = SAMPLES),
+    un2 = expand("{out}/stitched/{sample}.un2.fq.gz", out = OUT, sample = SAMPLES)
   output:
-    merged = expand("{out}/stitched_reads/{sample}/{sample}.stitched.merged.fq.gz", out = OUT, sample = SAMPLES)
+    merged = expand("{out}/stitched/{sample}.stitched.merged.fq.gz", out = OUT, sample = SAMPLES)
   shell:
     """
     cat {input.join} {input.un1} {input.un2} > {output.merged}
@@ -71,10 +70,10 @@ rule merge_reads:
 
 rule fastqc:
     input:
-        merged = expand("{out}/stitched_reads/{sample}/{sample}.stitched.merged.fq.gz", out = OUT, sample = SAMPLES)
+        merged = expand("{out}/stitched/{sample}.stitched.merged.fq.gz", out = OUT, sample = SAMPLES)
     output:
-        expand("{out}/qc/{sample}/{sample}.stitched.merged_fastqc.html", out = OUT, sample = SAMPLES),
-        expand("{out}/qc/{sample}/{sample}.stitched.merged_fastqc.zip", out = OUT, sample = SAMPLES)
+        expand("{out}/qc/{sample}.stitched.merged_fastqc.html", out = OUT, sample = SAMPLES),
+        expand("{out}/qc/{sample}.stitched.merged_fastqc.zip", out = OUT, sample = SAMPLES)
     params: ""
     shell:
         "fastqc {input}"
