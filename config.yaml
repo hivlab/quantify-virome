@@ -1,14 +1,10 @@
 
 # file paths
 rawseqs: "/gpfs/hpchome/taavi74/seqs/raw"
-outputs: "/gpfs/hpchome/taavi74/seqs/output"
+output: "/gpfs/hpchome/taavi74/seqs/output"
 
 # Path to the samples relative to working directory
-sample:
-  -
-    name: "I1164_12629_Harvard_SIV_196_06_2_24_12"
-    R1: "I1164_12629_Harvard_SIV_196_06_2_24_12_SE1.fastq.gz"
-    R2: "I1164_12629_Harvard_SIV_196_06_2_24_12_SE2.fastq.gz"
-    adapters: "I1164_12629_Harvard_SIV_196_06_2_24_12_adapter.txt"
+samples:
+  - "I1164_12629_Harvard_SIV_196_06_2_24_12"
 
 
