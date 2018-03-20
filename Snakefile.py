@@ -1,21 +1,21 @@
 
-configfile: "/gpfs/hpchome/taavi74/Projects/vs/config.yaml"
+configfile: "config.yaml"
 
 ## Target rule
 rule all:
     input:
-        expand("output/fastqc/{sample}.stitched.merged_fastqc.html", sample = config["samples"]),
-        expand("output/fastqc/{sample}.stitched.merged_fastqc.zip", sample = config["samples"]),
-        expand("output/fasta/{sample}.stitched.merged.prinseq.fasta", sample = config["samples"])
+        expand("fastqc/{sample}.stitched.merged_fastqc.html", sample = config["samples"]),
+        expand("fastqc/{sample}.stitched.merged_fastqc.zip", sample = config["samples"]),
+        expand("cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.fa", sample = config["samples"])
 
 ## Run FastQC -------------------------------------
 
 rule fastqc:
     input:
-        "output/merged/{sample}.stitched.merged.fq.gz"
+        "merged/{sample}.stitched.merged.fq.gz"
     output:
-        html = "output/fastqc/{sample}.stitched.merged_fastqc.html",
-        zip = "output/fastqc/{sample}.stitched.merged_fastqc.zip"
+        html = "fastqc/{sample}.stitched.merged_fastqc.html",
+        zip = "fastqc/{sample}.stitched.merged_fastqc.zip"
     wrapper:
         "0.22.0/bio/fastqc"
 
@@ -24,24 +24,22 @@ rule fastqc:
 
 rule cd_hit:
   input:
-    "output/fasta/{sample}.stitched.merged.prinseq.fasta"
+    "fasta/{sample}.stitched.merged.prinseq.fasta"
   output:
-    clusters = "output/cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.fa",
-    report = "output/cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.report"
+    clusters = "cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.fa",
+    report = "cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.report"
   params:
     ""
   shell:
     """
-    cd-hit -i {input} -o {output.clusters} {params} > {report.report}
+    cd-hit -i {input} -o {output.clusters} {params} > {output.report}
     """
-
-
 
 ## Convert fastq to fasta format
 
 rule fastq2fasta:
-  input: "output/prinseq/{sample}.stitched.merged.prinseq.fastq"
-  output: "output/fasta/{sample}.stitched.merged.prinseq.fasta"
+  input: "prinseq/{sample}.stitched.merged.prinseq.fastq"
+  output: "fasta/{sample}.stitched.merged.prinseq.fasta"
   shell:
     """
     sed -n '1~4s/^@/>/p;2~4p' {input} > {output}
@@ -51,12 +49,12 @@ rule fastq2fasta:
 ## Prinseq
 
 rule prinseq:
-    input: "output/merged/{sample}.stitched.merged.fq.gz"
+    input: "merged/{sample}.stitched.merged.fq.gz"
     output:
-      "output/prinseq/{sample}.stitched.merged.prinseq.fastq"
+      "prinseq/{sample}.stitched.merged.prinseq.fastq"
     params:
       settings = "-no_qual_header -min_len 50 -ns_max_p 4 -min_gc 10 -max_gc 90 -derep 14 -lc_method dust -lc_threshold 8 -trim_tail_left 5 -trim_tail_right 5 -trim_ns_left 1 -trim_ns_right 1 -min_qual_mean 25 -trim_qual_left 25 -trim_qual_right 25 -min_qual_score 10",
-      stub = "output/prinseq/{sample}.stitched.merged.prinseq"
+      stub = "prinseq/{sample}.stitched.merged.prinseq"
     shell:
       """
       gzip -dc {input} | prinseq-lite.pl -fastq stdin {params.settings} -out_good {params.stub}
@@ -67,11 +65,11 @@ rule prinseq:
 
 rule merge_reads:
   input:
-    join = "output/stitched/{sample}.join.fq.gz",
-    un1 = "output/stitched/{sample}.un1.fq.gz",
-    un2 = "output/stitched/{sample}.un2.fq.gz"
+    join = "stitched/{sample}.join.fq.gz",
+    un1 = "stitched/{sample}.un1.fq.gz",
+    un2 = "stitched/{sample}.un2.fq.gz"
   output:
-    merged = "output/merged/{sample}.stitched.merged.fq.gz"
+    merged = "merged/{sample}.stitched.merged.fq.gz"
   shell:
     """
     cat {input.join} {input.un1} {input.un2} > {output.merged}
@@ -82,32 +80,41 @@ rule merge_reads:
 
 rule stitch_reads:
   input:
-    pair1 = "output/adapter_removal/{sample}.pair1.truncated.gz",
-    pair2 = "output/adapter_removal/{sample}.pair2.truncated.gz"
+    pair1 = "adapter_removal/{sample}.pair1.truncated.gz",
+    pair2 = "adapter_removal/{sample}.pair2.truncated.gz"
   output:
-    "output/stitched/{sample}.join.fq.gz",
-    "output/stitched/{sample}.un1.fq.gz",
-    "output/stitched/{sample}.un2.fq.gz"
+    "stitched/{sample}.join.fq.gz",
+    "stitched/{sample}.un1.fq.gz",
+    "stitched/{sample}.un2.fq.gz"
   params:
-    "output/stitched/{sample}.%.fq.gz"
+    maximum_difference = 5,
+    minimum_overlap = 10,
+    template = "stitched/{sample}.%.fq.gz"
   shell:
     """
-    fastq-join -p 5 -m 10 {input.pair1} {input.pair2} -o {params}
+    fastq-join \
+    -p {params.maximum_difference} \
+    -m {params.minimum_overlap} \
+    {input.pair1} \
+    {input.pair2} \
+    -o {params.template}
     """
 
 ## Adapter removal --------------------------------------
 
 rule adapter_removal:
     input:
-        R1 = "raw/{sample}_SE1.fastq.gz",
-        R2 = "raw/{sample}_SE2.fastq.gz"
+        R1 = "data/{sample}_SE1.fastq.gz",
+        R2 = "data/{sample}_SE2.fastq.gz"
     output:
-        pair1 = "output/adapter_removal/{sample}.pair1.truncated.gz",
-        pair2 = "output/adapter_removal/{sample}.pair2.truncated.gz",
-        singletons = "output/adapter_removal/{sample}.singletons.truncated.gz"
+        pair1 = "adapter_removal/{sample}.pair1.truncated.gz",
+        pair2 = "adapter_removal/{sample}.pair2.truncated.gz",
+        singletons = "adapter_removal/{sample}.singletons.truncated.gz"
+    threads: 8
     shell:
         """
         AdapterRemoval \
+        --threads {threads} \
         --file1 {input.R1} \
         --file2 {input.R2} \
         --output1 {output.pair1} \
