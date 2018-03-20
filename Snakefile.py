@@ -26,12 +26,13 @@ rule cd_hit:
   input:
     "output/fasta/{sample}.stitched.merged.prinseq.fasta"
   output:
-    "output/cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.fa"
+    clusters = "output/cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.fa",
+    report = "output/cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.report"
   params:
     ""
   shell:
     """
-    cdhit -i {input} -o {output} {params} > {report}
+    cd-hit -i {input} -o {output.clusters} {params} > {report.report}
     """
 
 
