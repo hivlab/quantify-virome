@@ -4,43 +4,43 @@ configfile: "/gpfs/hpchome/taavi74/Projects/vs/config.yaml"
 ## Target rule
 rule all:
     input:
-        expand("output/qc/{sample}.stitched.merged_fastqc.html", sample = config["samples"]),
-        expand("output/qc/{sample}.stitched.merged_fastqc.zip", sample = config["samples"]),
-        expand("output/stitched/{sample}.stitched.merged.prinseq.fasta", sample = config["samples"])
+        expand("output/fastqc/{sample}.stitched.merged_fastqc.html", sample = config["samples"]),
+        expand("output/fastqc/{sample}.stitched.merged_fastqc.zip", sample = config["samples"]),
+        expand("output/fasta/{sample}.stitched.merged.prinseq.fasta", sample = config["samples"])
 
 ## Run FastQC -------------------------------------
 
 rule fastqc:
     input:
-        "output/stitched/{sample}.stitched.merged.fq.gz"
+        "output/merged/{sample}.stitched.merged.fq.gz"
     output:
-        html = "output/qc/{sample}.stitched.merged_fastqc.html",
-        zip = "output/qc/{sample}.stitched.merged_fastqc.zip"
+        html = "output/fastqc/{sample}.stitched.merged_fastqc.html",
+        zip = "output/fastqc/{sample}.stitched.merged_fastqc.zip"
     wrapper:
         "0.22.0/bio/fastqc"
 
 
 ## Run cd-hit
 
-rule cd-hit:
-  input: 
-    "output/stitched/{sample}.stitched.merged.prinseq.fasta"
-  output: 
+rule cd_hit:
+  input:
+    "output/fasta/{sample}.stitched.merged.prinseq.fasta"
+  output:
     "output/cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.fa"
-  params: 
+  params:
     ""
   shell:
-  """
-  cdhit -i {input} -o {output} {params} > {report}
-  """
+    """
+    cdhit -i {input} -o {output} {params} > {report}
+    """
 
 
 
 ## Convert fastq to fasta format
 
 rule fastq2fasta:
-  input: "output/stitched/{sample}.stitched.merged.prinseq.fastq"
-  output: "output/stitched/{sample}.stitched.merged.prinseq.fasta"
+  input: "output/prinseq/{sample}.stitched.merged.prinseq.fastq"
+  output: "output/fasta/{sample}.stitched.merged.prinseq.fasta"
   shell:
     """
     sed -n '1~4s/^@/>/p;2~4p' {input} > {output}
@@ -50,12 +50,12 @@ rule fastq2fasta:
 ## Prinseq
 
 rule prinseq:
-    input: "output/stitched/{sample}.stitched.merged.fq.gz"
-    output: 
-      "output/stitched/{sample}.stitched.merged.prinseq.fastq"
-    params: 
+    input: "output/merged/{sample}.stitched.merged.fq.gz"
+    output:
+      "output/prinseq/{sample}.stitched.merged.prinseq.fastq"
+    params:
       settings = "-no_qual_header -min_len 50 -ns_max_p 4 -min_gc 10 -max_gc 90 -derep 14 -lc_method dust -lc_threshold 8 -trim_tail_left 5 -trim_tail_right 5 -trim_ns_left 1 -trim_ns_right 1 -min_qual_mean 25 -trim_qual_left 25 -trim_qual_right 25 -min_qual_score 10",
-      stub = "output/stitched/{sample}.stitched.merged.prinseq"
+      stub = "output/prinseq/{sample}.stitched.merged.prinseq"
     shell:
       """
       gzip -dc {input} | prinseq-lite.pl -fastq stdin {params.settings} -out_good {params.stub}
@@ -70,7 +70,7 @@ rule merge_reads:
     un1 = "output/stitched/{sample}.un1.fq.gz",
     un2 = "output/stitched/{sample}.un2.fq.gz"
   output:
-    merged = "output/stitched/{sample}.stitched.merged.fq.gz"
+    merged = "output/merged/{sample}.stitched.merged.fq.gz"
   shell:
     """
     cat {input.join} {input.un1} {input.un2} > {output.merged}
@@ -81,8 +81,8 @@ rule merge_reads:
 
 rule stitch_reads:
   input:
-    pair1 = "output/trimmed/{sample}.pair1.truncated.gz",
-    pair2 = "output/trimmed/{sample}.pair2.truncated.gz"
+    pair1 = "output/adapter_removal/{sample}.pair1.truncated.gz",
+    pair2 = "output/adapter_removal/{sample}.pair2.truncated.gz"
   output:
     "output/stitched/{sample}.join.fq.gz",
     "output/stitched/{sample}.un1.fq.gz",
@@ -101,9 +101,9 @@ rule adapter_removal:
         R1 = "raw/{sample}_SE1.fastq.gz",
         R2 = "raw/{sample}_SE2.fastq.gz"
     output:
-        pair1 = "output/trimmed/{sample}.pair1.truncated.gz",
-        pair2 = "output/trimmed/{sample}.pair2.truncated.gz",
-        singletons = "output/trimmed/{sample}.singletons.truncated.gz"
+        pair1 = "output/adapter_removal/{sample}.pair1.truncated.gz",
+        pair2 = "output/adapter_removal/{sample}.pair2.truncated.gz",
+        singletons = "output/adapter_removal/{sample}.singletons.truncated.gz"
     shell:
         """
         AdapterRemoval \
