@@ -30,9 +30,10 @@ rule cd_hit:
     report = "cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.report"
   params:
     ""
+  threads: 8
   shell:
     """
-    cd-hit -i {input} -o {output.clusters} {params} > {output.report}
+    cd-hit -i {input} -o {output.clusters} {params} -T {threads} > {output.report}
     """
 
 ## Convert fastq to fasta format
@@ -73,7 +74,6 @@ rule merge_reads:
   shell:
     """
     cat {input.join} {input.un1} {input.un2} > {output.merged}
-    rm {input.join} {input.un1} {input.un2}
     """
 
 ## Stitch paired reads --------------------------------------
