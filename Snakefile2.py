@@ -15,12 +15,15 @@ rule cd_hit:
   output:
     clusters = "cdhit/{sample}.stitched.merged.cdhit.fa",
     report = "cdhit/{sample}.stitched.merged.cdhit.report"
+  resources:
+    mem = 8
   params:
-    "-M 10000"
-  threads: 8
+    "-M 8000"
+  threads:
+    20
   shell:
     """
-    cd-hit -i {input} -o {output.clusters} {params} -T {threads} > {output.report}
+    cd-hit -i {input} -o {output.clusters} {params} -T {threads} {params} > {output.report}
     """
 
 ## Convert fastq to fasta format
@@ -76,6 +79,7 @@ rule stitch_reads:
 ## All-in-one preprocessing for FastQ files -----------------------------------
 # Adapter trimming is enabled by default
 # Quality filtering is enabled by default
+# Replaces AdapteRemoval, prinseq and fastqc
 
 rule fastp:
     input:
