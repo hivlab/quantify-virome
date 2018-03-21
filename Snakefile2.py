@@ -4,20 +4,19 @@ configfile: "config.yaml"
 ## Target rule
 rule all:
     input:
-        expand("fastqc/{sample}.stitched.merged_fastqc.html", sample = config["samples"]),
-        expand("fastqc/{sample}.stitched.merged_fastqc.zip", sample = config["samples"]),
-        expand("cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.fa", sample = config["samples"])
+        expand("cdhit/{sample}.stitched.merged.cdhit.fa", sample = config["samples"]),
+        expand("cdhit/{sample}.stitched.merged.cdhit.report", sample = config["samples"])
 
 ## Run cd-hit
 
 rule cd_hit:
   input:
-    "fasta/{sample}.stitched.merged.prinseq.fasta"
+    "fasta/{sample}.stitched.merged.fasta"
   output:
-    clusters = "cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.fa",
-    report = "cdhit/{sample}.stitched.merged.prinseq.QCed.cdhit.report"
+    clusters = "cdhit/{sample}.stitched.merged.cdhit.fa",
+    report = "cdhit/{sample}.stitched.merged.cdhit.report"
   params:
-    ""
+    "-M 10000"
   threads: 8
   shell:
     """
@@ -27,11 +26,11 @@ rule cd_hit:
 ## Convert fastq to fasta format
 
 rule fastq2fasta:
-  input: "prinseq/{sample}.stitched.merged.fq.gz"
-  output: "fasta/{sample}.stitched.merged.prinseq.fasta"
+  input: "merged/{sample}.stitched.merged.fq.gz"
+  output: "fasta/{sample}.stitched.merged.fasta"
   shell:
     """
-    zcat | sed -n '1~4s/^@/>/p;2~4p' {input} > {output}
+    zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
     rm {input}
     """
 
@@ -84,21 +83,11 @@ rule fastp:
         R2 = "data/{sample}_SE2.fastq.gz"
     output:
         pair1 = "fastp/{sample}.pair1.truncated.gz",
-        pair2 = "fastp/{sample}.pair2.truncated.gz",
+        pair2 = "fastp/{sample}.pair2.truncated.gz"
+    params:
         report = "fastp/{sample}.report.html"
     threads: 8
     shell:
         """
-        fastp -i {input.R1} \
-        -I {input.R2} \
-        -o {output.pair1} \
-        -O {output.pair2} \
-        --trim-front1 5 \
-        --trim-tail1 5 \
-        --cut_mean_quality 25 \
-        --length-required 50 \
-        --low_complexity_filter \
-        --complexity_threshold 8 \
-        -h {output.report} \
-        -w {threads}
+        fastp -i {input.R1} -I {input.R2} -o {output.pair1} -O {output.pair2} -f 5 -t 5 -M 25 -l 50 -y -Y 8 -h {params.report} -w {threads}
         """
