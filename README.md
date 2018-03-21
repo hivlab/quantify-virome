@@ -5,7 +5,7 @@ The goal of this repo is to reproducibly recreate VirusSeeker Virome workflow.
 
 # VirusSeeker Virome workflow
 
-Workflow description is copy-paste from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5326578/
+Following workflow description is a copy-paste from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5326578/
 
 ## Sequence preprocessing
 The preprocessing of sequence files consists of the following steps: 
@@ -16,7 +16,7 @@ The preprocessing of sequence files consists of the following steps:
 
 3. **Quality filtering of reads** (trim low quality nucleotides, poly A sequences, remove reads with low average quality score) to obtain good quality sequences using PRINSEQ [56].
 
-4. **Remove redundant sequences.** Identical or nearly-identical sequences are frequently present in NGS data, either due to the sheer depth of NGS or because many of the pre-sequencing sample preparation methods involve PCR amplification. To reduce the computing cost of downstream analysis and to reduce amplification artifacts, CD-HIT [57] is used to cluster similar sequences. The default parameters in VS-Virome are set to cluster sequences that share ≥ 95% identity over 95% of the sequence length. The longest sequence from each cluster is retained as the representative sequence and used for downstream analysis. These are the “unique sequences”. 
+4. **Remove redundant sequences.** Identical or nearly-identical sequences are frequently present in NGS data, either due to the sheer depth of NGS or because many of the pre-sequencing sample preparation methods involve PCR amplification. To reduce the computing cost of downstream analysis and to reduce amplification artifacts, CD-HIT [57] is used to cluster similar sequences. **The default parameters in VS-Virome are set to cluster sequences that share ≥ 95% identity over 95% of the sequence length.** The longest sequence from each cluster is retained as the representative sequence and used for downstream analysis. These are the “unique sequences”. 
 
 5. **Mask repetitive sequences and sequence quality control.** Many eukaryotic genomes contain stretches of highly repetitive DNA sequences which cause problems in BLAST-based similarity searches and result in high rates of false-positive alignments. Tantan [58] and RepeatMasker (http://www.repeatmasker.org) [59] are used to mask interspersed repeats and low complexity DNA sequences. A sequence fails the quality control criteria if it does not contain a stretch of at least 50 consecutive non-“N” nucleotides (i.e., “Filtered sequence”) or if greater than 40% of the total length of the sequence is masked (i.e., “low complexity sequence”). These sequences are removed from further analysis. Remaining sequences are “good sequences”.
 
