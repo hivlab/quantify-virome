@@ -1,0 +1,12 @@
+{
+    "__default__" :
+    {
+        "profile" : "normal",
+        "hours": 8,
+        "days": 0
+    },
+    "cd_hit":
+    {
+        "profile": "large"
+    }
+}
