@@ -22,6 +22,14 @@ The preprocessing of sequence files consists of the following steps:
 
 6. **Remove host sequences by aligning sequences to reference genome using BWA-MEM [60] and MegaBLAST.** Any sequence mapped to “Host” genomic sequence is removed from further analysis. After sequence preprocessing we obtain high quality, unique, non-host sequences.
 
+
+## Workflow graph
+
+![Virome workflow](graph/dag.svg)
+
+## Installation
+
+
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
