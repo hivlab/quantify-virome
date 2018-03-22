@@ -20,14 +20,14 @@ rule cd_hit:
     clusters = os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.fa"),
     report = os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.report")
   resources:
-    mem = 21
+    mem = 20480
   params:
-    "-c 0.984 -G 0 -M 20480 -n 8 -d 0 -aS 0.984 -g 1 -r 1"
+    "-c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1"
   threads:
-    20
+    40
   shell:
     """
-    cd-hit-est -i {input} -o {output.clusters} {params} -T {threads} {params} > {output.report}
+    cd-hit-est -i {input} -o {output.clusters} {params} -T {threads} -M {resources.mem} {params} > {output.report}
     """
 
 ## Convert fastq to fasta format
@@ -80,7 +80,7 @@ rule fastq_join:
     -o {params.template}
     """
 
-## All-in-one preprocessing for FastQ files -----------------------------------
+## All-in-one preprocessing for FastQ files
 # Adapter trimming is enabled by default
 # Quality filtering is enabled by default
 # Replaces AdapteRemoval, prinseq and fastqc
@@ -96,7 +96,7 @@ rule fastp:
         options = "-f 5 -t 5 -l 50 -y -Y 8",
         html = os.path.join(config["outdir"], "fastp/{sample}.report.html"),
         json = os.path.join(config["outdir"], "fastp/{sample}.report.json")
-    threads: 8
+    threads: 16
     shell:
         """
         fastp -i {input.R1} -I {input.R2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
