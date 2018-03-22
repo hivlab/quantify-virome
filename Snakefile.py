@@ -8,11 +8,22 @@ configfile: "config.yaml"
 ## Target rule
 rule all:
     input:
-        expand(os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.fa"), sample = config["samples"]),
-        expand(os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.report"), sample = config["samples"])
+      expand(os.path.join(config["outdir"], "tantan/{sample}.stitched.merged.cdhit.tantan.fa"), sample = config["samples"])
+
+## Tantan mask of low complexity DNA sequences
+rule tantan:
+  input:
+    os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.fa")
+  output:
+    os.path.join(config["outdir"], "tantan/{sample}.stitched.merged.cdhit.tantan.fa")
+  params:
+    "-x N"
+  shell:
+    """
+    tantan {params} {input} > {output}
+    """
 
 ## Run cd-hit to find and munge duplicate reads
-
 rule cd_hit:
   input:
     os.path.join(config["outdir"], "fasta/{sample}.stitched.merged.fasta")
@@ -31,7 +42,6 @@ rule cd_hit:
     """
 
 ## Convert fastq to fasta format
-
 rule fastq2fasta:
   input: os.path.join(config["outdir"], "merged/{sample}.stitched.merged.fq.gz")
   output: os.path.join(config["outdir"], "fasta/{sample}.stitched.merged.fasta")
@@ -43,7 +53,6 @@ rule fastq2fasta:
 
 
 ## Merge stitched reads
-
 rule merge_reads:
   input:
     join = os.path.join(config["outdir"], "stitched/{sample}.join.fq.gz"),
@@ -57,7 +66,6 @@ rule merge_reads:
     """
 
 ## Stitch paired reads
-
 rule fastq_join:
   input:
     pair1 = os.path.join(config["outdir"], "fastp/{sample}.pair1.truncated.gz"),
@@ -84,7 +92,6 @@ rule fastq_join:
 # Adapter trimming is enabled by default
 # Quality filtering is enabled by default
 # Replaces AdapteRemoval, prinseq and fastqc
-
 rule fastp:
     input:
         R1 = os.path.join(config["datadir"], "{sample}_SE1.fastq.gz"),
