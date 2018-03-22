@@ -1,6 +1,8 @@
 
+## Use os.path to update file paths from config file
 import os.path
 
+## Load configuration file with sample and path info
 configfile: "config.yaml"
 
 ## Target rule
@@ -9,7 +11,7 @@ rule all:
         expand(os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.fa"), sample = config["samples"]),
         expand(os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.report"), sample = config["samples"])
 
-## Run cd-hit
+## Run cd-hit to find and munge duplicate reads
 
 rule cd_hit:
   input:
@@ -40,7 +42,7 @@ rule fastq2fasta:
     """
 
 
-## Merge stitched reads --------------------------------------
+## Merge stitched reads
 
 rule merge_reads:
   input:
@@ -54,7 +56,7 @@ rule merge_reads:
     cat {input.join} {input.un1} {input.un2} > {output.merged}
     """
 
-## Stitch paired reads --------------------------------------
+## Stitch paired reads
 
 rule fastq_join:
   input:
@@ -91,9 +93,11 @@ rule fastp:
         pair1 = os.path.join(config["outdir"], "fastp/{sample}.pair1.truncated.gz"),
         pair2 = os.path.join(config["outdir"], "fastp/{sample}.pair2.truncated.gz")
     params:
-        report = "fastp/{sample}.report.html"
+        options = "-f 5 -t 5 -l 50 -y -Y 8",
+        html = os.path.join(config["outdir"], "fastp/{sample}.report.html"),
+        json = os.path.join(config["outdir"], "fastp/{sample}.report.json")
     threads: 8
     shell:
         """
-        fastp -i {input.R1} -I {input.R2} -o {output.pair1} -O {output.pair2} -f 5 -t 5 -M 25 -l 50 -y -Y 8 -h {params.report} -w {threads}
+        fastp -i {input.R1} -I {input.R2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
         """
