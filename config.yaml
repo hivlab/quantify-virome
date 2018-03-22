@@ -1,0 +1,10 @@
+
+# Raw data directory
+datadir: "data"
+
+# Output directory or empty string
+outdir: "output"
+
+# Path to the samples relative to working directory
+samples:
+  - "I1164_12629_Harvard_SIV_196_06_2_24_12_mini"
