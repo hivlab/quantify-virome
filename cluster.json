@@ -1,0 +1,13 @@
+{
+    "__default__" :
+    {
+        "account" : "",
+        "time" : "00:30:00",
+        "n" : 1,
+        "partition" : "testing"
+    },
+    "cd_hit" :
+    {
+        "mem": 20480
+    }
+}
