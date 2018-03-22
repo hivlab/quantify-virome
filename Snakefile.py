@@ -56,7 +56,7 @@ rule merge_reads:
 
 ## Stitch paired reads --------------------------------------
 
-rule stitch_reads:
+rule fastq_join:
   input:
     pair1 = os.path.join(config["outdir"], "fastp/{sample}.pair1.truncated.gz"),
     pair2 = os.path.join(config["outdir"], "fastp/{sample}.pair2.truncated.gz")
