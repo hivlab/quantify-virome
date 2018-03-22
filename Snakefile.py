@@ -20,14 +20,14 @@ rule cd_hit:
     clusters = os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.fa"),
     report = os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.report")
   resources:
-    mem = 8
+    mem = 21
   params:
-    "-M 8000"
+    "-c 0.984 -G 0 -M 20480 -n 8 -d 0 -aS 0.984 -g 1 -r 1"
   threads:
     20
   shell:
     """
-    cd-hit -i {input} -o {output.clusters} {params} -T {threads} {params} > {output.report}
+    cd-hit-est -i {input} -o {output.clusters} {params} -T {threads} {params} > {output.report}
     """
 
 ## Convert fastq to fasta format
