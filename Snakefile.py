@@ -8,7 +8,26 @@ configfile: "config.yaml"
 ## Target rule
 rule all:
     input:
-      expand(os.path.join(config["outdir"], "tantan/{sample}.stitched.merged.cdhit.tantan.fa"), sample = config["samples"])
+      expand(os.path.join(config["outdir"], "tantan/{sample}.stitched.merged.cdhit.tantan.fa"), sample = config["samples"]),
+      expand(os.path.join(config["outdir"], "tantan_goodreads/{sample}.tantan.goodseq.fa"), sample = config["samples"])
+
+## Repeatmasker
+
+
+## Filter tantan output
+# 1) Sequences that do not have greater than 50 nt of consecutive
+# sequence without N
+# 2) Sequences with >= 40% of total length of being masked
+rule tantan_goodreads:
+  input:
+    os.path.join(config["outdir"], "tantan/{sample}.stitched.merged.cdhit.tantan.fa")
+  output:
+    os.path.join(config["outdir"], "tantan_goodreads/{sample}.tantan.goodseq.fa")
+  params:
+    min_length = 50,
+    por_n = 40
+  script:
+    "src/sequence_cleaner.py"
 
 ## Tantan mask of low complexity DNA sequences
 rule tantan:
@@ -48,7 +67,6 @@ rule fastq2fasta:
   shell:
     """
     zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
-    rm {input}
     """
 
 
