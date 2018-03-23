@@ -8,7 +8,6 @@ configfile: "config.yaml"
 ## Target rule
 rule all:
     input:
-      expand(os.path.join(config["outdir"], "tantan/{sample}.stitched.merged.cdhit.tantan.fa"), sample = config["samples"]),
       expand(os.path.join(config["outdir"], "tantan_goodreads/{sample}.tantan.goodseq.fa"), sample = config["samples"])
 
 ## Repeatmasker
