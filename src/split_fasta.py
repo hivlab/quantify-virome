@@ -35,5 +35,4 @@ for i, batch in enumerate(batch_iterator(record_iter, snakemake.params["batch_si
     filename = snakemake.output["stub"] % (i + 1)
     with open(filename, "w") as handle:
         count = SeqIO.write(batch, handle, "fasta")
-    print("Wrote %i records to %s" % (count, filename))
 
