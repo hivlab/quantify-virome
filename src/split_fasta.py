@@ -1,4 +1,5 @@
 
+# http://biopython.org/wiki/Split_large_file
 
 def batch_iterator(iterator, batch_size):
     """Returns lists of length batch_size.
@@ -17,7 +18,7 @@ def batch_iterator(iterator, batch_size):
         batch = []
         while len(batch) < batch_size:
             try:
-                entry = iterator.next()
+                entry = next(iterator)
             except StopIteration:
                 entry = None
             if entry is None:
@@ -32,7 +33,6 @@ from Bio import SeqIO
 
 record_iter = SeqIO.parse(snakemake.input[0], "fasta")
 for i, batch in enumerate(batch_iterator(record_iter, snakemake.params["batch_size"])):
-    filename = snakemake.output["stub"] % (i + 1)
+    filename = snakemake.params["stub"] % (i + 1)
     with open(filename, "w") as handle:
         count = SeqIO.write(batch, handle, "fasta")
-
