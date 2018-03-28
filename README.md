@@ -7,13 +7,13 @@ The goal of this repo is to reproducibly recreate VirusSeeker Virome workflow.
 
 - Install miniconda https://conda.io/docs/user-guide/install/index.html
 
-- Clone this repo and cd to repo
+## Clone this repo and cd to repo
 
 ```
 git clone ...
 ```
 
-- Install environment
+## Install environment
 
 
 ```
@@ -21,7 +21,7 @@ conda env create -f envs/environment.yml
 ```
 
 
-- Activate environment
+## Activate environment
 
 
 ```
@@ -51,6 +51,12 @@ snakemake --dag -j --snakefile Snakefile.py \
 ```
 snakemake  -j --snakefile Snakefile.py \
   --cluster-config cluster.json
+```
+
+## Exit/deactivate environment
+
+```
+source deactivate
 ```
 
 
