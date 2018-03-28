@@ -9,18 +9,20 @@ The goal of this repo is to reproducibly recreate VirusSeeker Virome workflow.
 
 - Clone this repo and cd to repo
 
-- Install environment 
+- Install environment
 
-´´´
+
+```
 conda env create -f envs/environment.yml
-´´´
+```
+
 
 - Activate environment
 
 
-´´´
+```
 source activate virome
-´´´
+```
 
 # Run workflow
 
@@ -28,24 +30,24 @@ Pay attention to partitition and time arguments in cluster.json. Snakefile has .
 
 ## Dry run
 
-´´´
+```
 snakemake -np -j --snakefile Snakefile.py \
   --cluster "sbatch -p testing -t 02:00:00"
-´´´
+```
 
-## Create graph
+## Create workflow graph
 
-´´´
+```
 snakemake --dag -j --snakefile Snakefile.py \
   --cluster "sbatch -p testing -t 00:30:00" | dot -Tsvg > graph/dag.svg
-´´´
+```
 
 ## Real stuff
 
-´´´
+```
 snakemake  -j --snakefile Snakefile.py \
   --cluster-config cluster.json
-´´´
+```
 
 
 # VirusSeeker Virome workflow
