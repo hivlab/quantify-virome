@@ -9,6 +9,10 @@ The goal of this repo is to reproducibly recreate VirusSeeker Virome workflow.
 
 - Clone this repo and cd to repo
 
+```
+git clone ...
+```
+
 - Install environment
 
 
