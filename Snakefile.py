@@ -8,10 +8,31 @@ configfile: "config.yaml"
 ## Target rule
 rule all:
     input:
-      expand(os.path.join(config["outdir"], "tantan_goodreads/{sample}.tantan.goodseq.fa"), sample = config["samples"])
+      expand(os.path.join(config["outdir"], "repeatmasker/{sample}.masked.{n}.fa"), sample = config["samples"], n = [1,2,3,4,5,6])
 
 ## Repeatmasker
+rule repeatmasker:
+  input: os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa"))
+  output: os.path.join(config["outdir"], dynamic("repeatmasker/{sample}.masked.{n}.fa"))
+  params:
+    cluster = "-cwd -V"
+  threads:
+    6
+  shell:
+    """
+    RepeatMasker -pa {threads} {input}
+    """
 
+## Split reads to smaller files for Repeatmasker
+rule split_fasta:
+  input: os.path.join(config["outdir"], "tantan_goodreads/{sample}.tantan.goodseq.fa")
+  output:
+    os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa"))
+  params:
+    batch_size = 1000,
+    stub = os.path.join(config["outdir"], "split_fasta/{sample}.tantan.goodseq.%i.fa")
+  script:
+    "src/split_fasta.py"
 
 ## Filter tantan output
 # 1) Sequences that do not have greater than 50 nt of consecutive

@@ -3,6 +3,33 @@
 
 The goal of this repo is to reproducibly recreate VirusSeeker Virome workflow.
 
+# Setup environment and install prerequisites
+
+- Install miniconda https://conda.io/docs/user-guide/install/index.html
+
+- Clone this repo and cd to repo
+
+- Install environment 
+
+´´´
+conda env create -f envs/environment.yml
+´´´
+
+- Activate environment
+
+
+´´´
+source activate virome
+´´´
+
+- Run workflow. Pay attention to partitition and time arguments in cluster.json.
+
+´´´
+snakemake  -j --snakefile Snakefile.py \
+  --cluster-config cluster.json
+´´´
+
+
 # VirusSeeker Virome workflow
 
 Following workflow description is a copy-paste from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5326578/
