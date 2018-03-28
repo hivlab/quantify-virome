@@ -22,7 +22,25 @@ conda env create -f envs/environment.yml
 source activate virome
 ´´´
 
-- Run workflow. Pay attention to partitition and time arguments in cluster.json.
+# Run workflow
+
+Pay attention to partitition and time arguments in cluster.json. Snakefile has .py extension only to get the code highlighting to work in Rstudio...
+
+## Dry run
+
+´´´
+snakemake -np -j --snakefile Snakefile.py \
+  --cluster "sbatch -p testing -t 02:00:00"
+´´´
+
+## Create graph
+
+´´´
+snakemake --dag -j --snakefile Snakefile.py \
+  --cluster "sbatch -p testing -t 00:30:00" | dot -Tsvg > graph/dag.svg
+´´´
+
+## Real stuff
 
 ´´´
 snakemake  -j --snakefile Snakefile.py \
