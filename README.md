@@ -31,19 +31,22 @@ source activate virome
 ```
 
 ## Install RepBase
-Obtain access to RepBase from www.girinst.org and set environment variables for GIRUSER and GIRPASS.
+Obtain access to RepBase from www.girinst.org. For downloading set environment variables for GIRUSER and GIRPASS.
 
 ```
 GIRUSER=<your-gir-user-name>
 GIRPASS=<your-gir-password>
+
 cd miniconda3/envs/virome/share/RepeatMasker/
+
 wget --user $GIRUSER --password $GIRPASS http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/RepBaseRepeatMaskerEdition-20170127.tar.gz
+
 gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz
 tar xvf RepBaseRepeatMaskerEdition-20170127.tar
 rm RepBaseRepeatMaskerEdition-20170127.tar
 ```
 
-The location of rmblastn is `~/miniconda3/envs/virome/bin/`. You need it during configuration of Search Engine (option 2).
+The location of rmblastn is `~/miniconda3/envs/virome/bin/`. You need it during configuration of the Search Engine (when asked, select option 2 and provide this path).
 ```
 perl ./configure
 ```
