@@ -8,16 +8,17 @@ configfile: "config.yaml"
 ## Target rule
 rule all:
     input:
-      expand(os.path.join(config["outdir"], "repeatmasker/{sample}.masked.{n}.fa"), sample = config["samples"], n = [1,2,3,4,5,6])
+      expand(os.path.join(config["outdir"], "split_fasta/{sample}.tantan.goodseq.{n}.fa.masked"), sample = config["samples"], n = [1,2,3])
 
 ## Repeatmasker
 rule repeatmasker:
   input: os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa"))
-  output: os.path.join(config["outdir"], dynamic("repeatmasker/{sample}.masked.{n}.fa"))
+  output:
+    os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa.masked"))
   params:
     cluster = "-cwd -V"
   threads:
-    6
+    12
   shell:
     """
     RepeatMasker -pa {threads} {input}
@@ -29,7 +30,7 @@ rule split_fasta:
   output:
     os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa"))
   params:
-    batch_size = 1800,
+    batch_size = 2000,
     stub = os.path.join(config["outdir"], "split_fasta/{sample}.tantan.goodseq.%i.fa")
   script:
     "src/split_fasta.py"
