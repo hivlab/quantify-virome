@@ -35,7 +35,7 @@ conda env create -f envs/environment.yml
 source activate virome
 ```
 
-## Install RepBase
+## Install RepBase for RepeatMasker
 Obtain access to RepBase from www.girinst.org. For downloading set environment variables for GIRUSER and GIRPASS.
 
 ```
