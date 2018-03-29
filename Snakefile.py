@@ -29,7 +29,7 @@ rule split_fasta:
   output:
     os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa"))
   params:
-    batch_size = 1000,
+    batch_size = 1800,
     stub = os.path.join(config["outdir"], "split_fasta/{sample}.tantan.goodseq.%i.fa")
   script:
     "src/split_fasta.py"
