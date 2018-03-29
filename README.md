@@ -18,6 +18,7 @@ git clone git@github.com:avilab/vs.git
 
 
 ```
+cd vs
 conda env create -f envs/environment.yml
 ```
 
