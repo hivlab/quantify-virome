@@ -5,7 +5,13 @@ The goal of this repo is to reproducibly recreate VirusSeeker Virome workflow.
 
 # Setup environment and install prerequisites
 
-- Install miniconda https://conda.io/docs/user-guide/install/index.html
+- Download and install miniconda https://conda.io/docs/user-guide/install/index.html.
+
+In case of Linux, following should work:
+```
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
+```
 
 ## Clone this repo and cd to repo
 (Change this URL if using HTTPS)
@@ -15,7 +21,6 @@ git clone git@github.com:avilab/vs.git
 ```
 
 ## Install environment
-
 
 ```
 cd vs
