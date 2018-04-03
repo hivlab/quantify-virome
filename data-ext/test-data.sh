@@ -1,0 +1,11 @@
+#!/bin/bash
+
+cd data
+wget https://wupathlabs.wustl.edu/FileShare/VirusSeeker/I1164_12629_Harvard_SIV_196_06_2_24_12_rawData.tgz
+tar -xvzf I1164_12629_Harvard_SIV_196_06_2_24_12_rawData.tgz
+
+head -4000 I1164_12629_Harvard_SIV_196_06_2_24_12/I1164_12629_Harvard_SIV_196_06_2_24_12_SE1.fastq.gz > I1164_12629_Harvard_SIV_196_06_2_24_12_mini_SE1.fastq.gz
+head -4000 I1164_12629_Harvard_SIV_196_06_2_24_12/I1164_12629_Harvard_SIV_196_06_2_24_12_SE2.fastq.gz > I1164_12629_Harvard_SIV_196_06_2_24_12_mini_SE2.fastq.gz
+
+rm I1164_12629_Harvard_SIV_196_06_2_24_12_rawData.tgz
+rm -r I1164_12629_Harvard_SIV_196_06_2_24_12
