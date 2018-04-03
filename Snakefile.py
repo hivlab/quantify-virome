@@ -8,23 +8,33 @@ configfile: "config.yaml"
 ## Target rule
 rule all:
     input:
-      expand(os.path.join(config["outdir"], "split_fasta/{sample}.tantan.goodseq.{n}.fa.masked"), sample = config["samples"], n = [1,2,3])
+      expand(os.path.join(config["outdir"], "repeatmasker/{sample}.tantan.goodseq.{n}.fa.masked"), sample = config["samples"], n = [1,2,3])
 
-## Repeatmasker
+# ## Filter repeatmasker output
+# rule repeatmasker_filter:
+#   input:
+#   output:
+#   script:
+
+
+## Repeatmasker [9]
 rule repeatmasker:
   input: os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa"))
   output:
-    os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa.masked"))
+    os.path.join(config["outdir"], dynamic("repeatmasker/{sample}.tantan.goodseq.{n}.fa.masked"))
   params:
-    cluster = "-cwd -V"
+    cluster = "-cwd -V",
+    dir = os.path.join(config["outdir"], "split_fasta")
   threads:
     12
   shell:
     """
     RepeatMasker -pa {threads} {input}
+    cd {params.dir}
+    mv *.fa.* ../repeatmasker/
     """
 
-## Split reads to smaller files for Repeatmasker
+## Split reads to smaller files for Repeatmasker [8]
 rule split_fasta:
   input: os.path.join(config["outdir"], "tantan_goodreads/{sample}.tantan.goodseq.fa")
   output:
@@ -33,9 +43,9 @@ rule split_fasta:
     batch_size = 2000,
     stub = os.path.join(config["outdir"], "split_fasta/{sample}.tantan.goodseq.%i.fa")
   script:
-    "src/split_fasta.py"
+    "lib/split_fasta.py"
 
-## Filter tantan output
+## Filter tantan output [7]
 # 1) Sequences that do not have greater than 50 nt of consecutive
 # sequence without N
 # 2) Sequences with >= 40% of total length of being masked
@@ -48,9 +58,9 @@ rule tantan_goodreads:
     min_length = 50,
     por_n = 40
   script:
-    "src/sequence_cleaner.py"
+    "lib/sequence_cleaner.py"
 
-## Tantan mask of low complexity DNA sequences
+## Tantan mask of low complexity DNA sequences [6]
 rule tantan:
   input:
     os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.fa")
@@ -63,7 +73,7 @@ rule tantan:
     tantan {params} {input} > {output}
     """
 
-## Run cd-hit to find and munge duplicate reads
+## Run cd-hit to find and munge duplicate reads [5]
 rule cd_hit:
   input:
     os.path.join(config["outdir"], "fasta/{sample}.stitched.merged.fasta")
@@ -81,7 +91,7 @@ rule cd_hit:
     cd-hit-est -i {input} -o {output.clusters} {params} -T {threads} -M {resources.mem} {params} > {output.report}
     """
 
-## Convert fastq to fasta format
+## Convert fastq to fasta format [4]
 rule fastq2fasta:
   input: os.path.join(config["outdir"], "merged/{sample}.stitched.merged.fq.gz")
   output: os.path.join(config["outdir"], "fasta/{sample}.stitched.merged.fasta")
@@ -104,7 +114,7 @@ rule merge_reads:
     cat {input.join} {input.un1} {input.un2} > {output.merged}
     """
 
-## Stitch paired reads
+## Stitch paired reads [2]
 rule fastq_join:
   input:
     pair1 = os.path.join(config["outdir"], "fastp/{sample}.pair1.truncated.gz"),
@@ -127,7 +137,7 @@ rule fastq_join:
     -o {params.template}
     """
 
-## All-in-one preprocessing for FastQ files
+## All-in-one preprocessing for FastQ files [1,3]
 # Adapter trimming is enabled by default
 # Quality filtering is enabled by default
 # Replaces AdapteRemoval, prinseq and fastqc
