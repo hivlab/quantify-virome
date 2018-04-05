@@ -4,6 +4,8 @@
 snakemake  -j --snakefile Snakefile.py \
   --cluster-config cluster.json
 
+mv __init__.py scripts/
+
 # Dry run
 snakemake -np -j --snakefile Snakefile.py \
   --cluster "sbatch -p testing -t 02:00:00"

@@ -41,7 +41,7 @@ rule repeatmasker:
     """
     RepeatMasker -pa {threads} {input}
     cd {params.dir}
-    mv *.fa.* ../repeatmasker/
+    mv *.fa.* ../repeatmasker
     """
 
 ## Split reads to smaller files for Repeatmasker [8]

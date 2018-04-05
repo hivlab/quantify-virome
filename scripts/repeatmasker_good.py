@@ -1,27 +1,8 @@
 
 from Bio import SeqIO
-
-def filter_records(source, min_length, por_n):
-  """Function to filter sequences
-
-  min_length =  Minimum sequence length after Ns
-  por_n = Maximum percent of masked bases (Ns)
-  """
-  for seq_record in source:
-    sequence = str(seq_record.seq).upper()
-    if ((float(len(sequence)) - float(sequence.count("N"))) >= min_length and
-      (float(sequence.count("N")) / float(len(sequence))) * 100 <= por_n):
-        yield seq_record
-
-# https://www.biostars.org/p/10162/
-def get_ids(source):
-  ids = map(lambda x: x.id, source)
-  return set(ids)
-
-def subset_records(source, ids):
-  for record in source:
-    if record.id in ids:
-      yield record
+from helpers import filter_records
+from helpers import subset_records
+from helpers import get_ids
 
 # Filter masked sequences
 masked_filt = list(filter_records(SeqIO.parse(snakemake.input[0], "fasta"), min_length = snakemake.params["min_length"], por_n = snakemake.params["por_n"]))
