@@ -39,5 +39,5 @@ tantan_filt = subset_records(SeqIO.parse(snakemake.input[1], "fasta"), masked_fi
 tantan_filt_count = SeqIO.write(tantan_filt, snakemake.output[1], 'fasta')
 
 with open(snakemake.output[0] + ".log", "w") as text_file:
-  print(f"Number of sequences before filtering: {len(list(SeqIO.parse(masked_in, 'fasta')))}\nNumber of sequences after filtering: {masked_filt_count}", file = text_file)
+  print(f"Number of sequences before filtering: {len(list(SeqIO.parse(snakemake.input[0], 'fasta')))}\nNumber of sequences after filtering: {masked_filt_count}", file = text_file)
 
