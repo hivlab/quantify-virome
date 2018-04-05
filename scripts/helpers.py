@@ -1,5 +1,25 @@
 
-# http://biopython.org/wiki/Split_large_file
+def filter_records(source, min_length, por_n):
+  """Function to filter sequences
+
+  min_length =  Minimum sequence length after Ns
+  por_n = Maximum percent of masked bases (Ns)
+  """
+    for seq_record in source:
+        sequence = str(seq_record.seq).upper()
+        if ((float(len(sequence)) - float(sequence.count("N"))) >= min_length and
+      (float(sequence.count("N")) / float(len(sequence))) * 100 <= por_n):
+             yield seq_record
+
+# https://www.biostars.org/p/10162/
+def get_ids(source):
+    ids = map(lambda x: x.id, source)
+    return set(ids)
+
+def subset_records(source, ids):
+    for record in source:
+        if record.id in ids:
+            yield record
 
 def batch_iterator(iterator, batch_size):
     """Returns lists of length batch_size.
@@ -28,11 +48,3 @@ def batch_iterator(iterator, batch_size):
         if batch:
             yield batch
 
-
-from Bio import SeqIO
-
-record_iter = SeqIO.parse(snakemake.input[0], "fasta")
-for i, batch in enumerate(batch_iterator(record_iter, snakemake.params["batch_size"])):
-    filename = snakemake.params["stub"] % (i + 1)
-    with open(filename, "w") as handle:
-        count = SeqIO.write(batch, handle, "fasta")

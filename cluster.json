@@ -8,5 +8,9 @@
     "cd_hit" :
     {
         "mem": 20480
+    },
+    "repeatmasker_good" :
+    {
+        "n" : 3
     }
 }
