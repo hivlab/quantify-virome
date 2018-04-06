@@ -6,14 +6,12 @@ shell.executable("bash")
 
 ## Load configuration file with sample and path info
 configfile: "config.yaml"
-#samples = pd.read_table(config["samples"], index_col = "sample", dtype = str)
-
-# samples = pd.read_table("samples.csv", sep = ",", index_col = "sample", dtype = str)
+samples = pd.read_table(config["samples"], sep = ",", index_col = "sample", dtype = str)
 
 ## Target rule
 rule all:
     input:
-      expand(os.path.join(config["outdir"], "repeatmasker_good/{sample}.repeatmasker.goodseq.{mask}.{n}.fa"), sample = config["samples"], n = [1,2], mask = ["masked", "unmasked"])
+      expand(os.path.join(config["outdir"], "repeatmasker_good/{sample}.repeatmasker.goodseq.{mask}.{n}.fa"), sample = "I1164_12629_Harvard_SIV_196_06_2_24_12_mini", n = [1,2], mask = ["masked", "unmasked"])
 
 include: "rules/munge.smk"
 include: "rules/mask.smk"

@@ -1,6 +1,6 @@
 
 def get_fastq(wildcards):
-    return samples.loc[(wildcards.sample), ["fq1", "fq2"]].dropna()
+ return config["datadir"] + samples.loc[wildcards.sample, ["fq1", "fq2"]].dropna()
 
 ## Run cd-hit to find and munge duplicate reads [5]
 rule cd_hit:
@@ -72,8 +72,7 @@ rule fastq_join:
 # Replaces AdapteRemoval, prinseq and fastqc
 rule fastp:
     input:
-        R1 = os.path.join(config["datadir"], "{sample}_SE1.fastq.gz"),
-        R2 = os.path.join(config["datadir"], "{sample}_SE2.fastq.gz")
+        get_fastq
     output:
         pair1 = os.path.join(config["outdir"], "fastp/{sample}.pair1.truncated.gz"),
         pair2 = os.path.join(config["outdir"], "fastp/{sample}.pair2.truncated.gz")
@@ -84,5 +83,5 @@ rule fastp:
     threads: 16
     shell:
         """
-        fastp -i {input.R1} -I {input.R2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
+        fastp -i {input[0]} -I {input[1]} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
         """
