@@ -5,6 +5,12 @@ datadir: "data"
 # Output directory or empty string
 outdir: "output"
 
+# Path to reference genome
+ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fasta"
+
 # Path to the samples relative to working directory
 samples:
   - "I1164_12629_Harvard_SIV_196_06_2_24_12_mini"
+
+# path or URL to sample sheet (CSV format, columns: sample, condition, ...)
+#samples: samples.csv

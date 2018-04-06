@@ -4,8 +4,6 @@
 snakemake  -j --snakefile Snakefile.py \
   --cluster-config cluster.json
 
-mv __init__.py scripts/
-
 # Dry run
 snakemake -np -j --snakefile Snakefile.py \
   --cluster "sbatch -p testing -t 02:00:00"
@@ -39,3 +37,21 @@ faSplit sequence  {params.n} {output.stub}
 wget http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/RepBaseRepeatMaskerEdition-20170127.tar.gz
 
 conda env export > envs/environment.yml
+
+git add --all
+git commit -m "not necessary"
+git push
+git config --global push.default simple
+git pull
+
+rm scripts/__init__.py
+rm output/repeatmasker_good/*.*
+
+source activate virome
+pwd > ~/Projects/vs/db.txt
+source deactivate
+cd ~/Projects/vs
+touch samples.csv
+mkdir rules
+touch rules/munge.smk
+touch rules/mask.smk

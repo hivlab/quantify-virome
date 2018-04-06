@@ -14,7 +14,7 @@ rule repeatmasker_good:
     min_length = 50,
     por_n = 40
   script:
-    "scripts/repeatmasker_good.py"
+    "../scripts/repeatmasker_good.py"
 
 ## Repeatmasker [9]
 rule repeatmasker:
@@ -42,7 +42,7 @@ rule split_fasta:
     batch_size = 2000,
     stub = os.path.join(config["outdir"], "split_fasta/{sample}.tantan.goodseq.%i.fa")
   script:
-    "scripts/split_fasta.py"
+    "../scripts/split_fasta.py"
 
 ## Filter tantan output [7]
 # 1) Sequences that do not have greater than 50 nt of consecutive
@@ -57,7 +57,7 @@ rule tantan_good:
     min_length = 50,
     por_n = 40
   script:
-      "scripts/tantan_good.py"
+      "../scripts/tantan_good.py"
 
 ## Tantan mask of low complexity DNA sequences [6]
 rule tantan:

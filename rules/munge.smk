@@ -1,4 +1,7 @@
 
+def get_fastq(wildcards):
+    return samples.loc[(wildcards.sample), ["fq1", "fq2"]].dropna()
+
 ## Run cd-hit to find and munge duplicate reads [5]
 rule cd_hit:
   input:
