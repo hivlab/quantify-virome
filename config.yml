@@ -14,3 +14,6 @@ ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fast
 
 # path or URL to sample sheet (CSV format, columns: sample, condition, ...)
 samples: samples.csv
+
+
+

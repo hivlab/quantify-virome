@@ -5,7 +5,7 @@ import pandas as pd
 shell.executable("bash")
 
 ## Load configuration file with sample and path info
-configfile: "config.yaml"
+configfile: "config.yml"
 samples = pd.read_table(config["samples"], sep = ",", index_col = "sample", dtype = str)
 
 ## Target rule
