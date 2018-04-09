@@ -5,11 +5,11 @@
 # 2) Sequences with >= 40% of total length of being masked
 rule repeatmasker_good:
   input:
-    masked = os.path.join(config["outdir"], dynamic("repeatmasker/{sample}.tantan.goodseq.{n}.fa.masked")),
-    unmasked = os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa"))
+    masked = os.path.join(config["outdir"], dynamic("{sample}/repeatmasker/tantan.goodseq.{n}.fa.masked")),
+    unmasked = os.path.join(config["outdir"], dynamic("{sample}/split_fasta/tantan.goodseq.{n}.fa"))
   output:
-    masked = os.path.join(config["outdir"], dynamic("repeatmasker_good/{sample}.repeatmasker.goodseq.masked.{n}.fa")),
-    unmasked = os.path.join(config["outdir"], dynamic("repeatmasker_good/{sample}.repeatmasker.goodseq.unmasked.{n}.fa"))
+    masked = os.path.join(config["outdir"], dynamic("{sample}/repeatmasker_good/masked.{n}.fa")),
+    unmasked = os.path.join(config["outdir"], dynamic("{sample}/repeatmasker_good/unmasked.{n}.fa"))
   params:
     min_length = 50,
     por_n = 40
@@ -18,12 +18,12 @@ rule repeatmasker_good:
 
 ## Repeatmasker [9]
 rule repeatmasker:
-  input: os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa"))
+  input: os.path.join(config["outdir"], dynamic("{sample}/split_fasta/tantan.goodseq.{n}.fa"))
   output:
-    os.path.join(config["outdir"], dynamic("repeatmasker/{sample}.tantan.goodseq.{n}.fa.masked"))
+    os.path.join(config["outdir"], dynamic("{sample}/repeatmasker/tantan.goodseq.{n}.fa.masked"))
   params:
     cluster = "-cwd -V",
-    dir = os.path.join(config["outdir"], "split_fasta")
+    dir = os.path.join(config["outdir"], "{sample}/split_fasta")
   threads:
     12
   shell:
@@ -35,12 +35,12 @@ rule repeatmasker:
 
 ## Split reads to smaller files for Repeatmasker [8]
 rule split_fasta:
-  input: os.path.join(config["outdir"], "tantan_good/{sample}.tantan.goodseq.fa")
+  input: os.path.join(config["outdir"], "{sample}/tantan_good/tantan.goodseq.fa")
   output:
-    os.path.join(config["outdir"], dynamic("split_fasta/{sample}.tantan.goodseq.{n}.fa"))
+    os.path.join(config["outdir"], dynamic("{sample}/split_fasta/tantan.goodseq.{n}.fa"))
   params:
     batch_size = 2000,
-    stub = os.path.join(config["outdir"], "split_fasta/{sample}.tantan.goodseq.%i.fa")
+    stub = os.path.join(config["outdir"], "{sample}/split_fasta/tantan.goodseq.%i.fa")
   script:
     "../scripts/split_fasta.py"
 
@@ -50,9 +50,9 @@ rule split_fasta:
 # 2) Sequences with >= 40% of total length of being masked
 rule tantan_good:
   input:
-    os.path.join(config["outdir"], "tantan/{sample}.stitched.merged.cdhit.tantan.fa")
+    os.path.join(config["outdir"], "{sample}/tantan/cdhit.tantan.fa")
   output:
-    os.path.join(config["outdir"], "tantan_good/{sample}.tantan.goodseq.fa")
+    os.path.join(config["outdir"], "{sample}/tantan_good/tantan.goodseq.fa")
   params:
     min_length = 50,
     por_n = 40
@@ -62,9 +62,9 @@ rule tantan_good:
 ## Tantan mask of low complexity DNA sequences [6]
 rule tantan:
   input:
-    os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.fa")
+    os.path.join(config["outdir"], "{sample}/cdhit/merged.cdhit.fa")
   output:
-    os.path.join(config["outdir"], "tantan/{sample}.stitched.merged.cdhit.tantan.fa")
+    os.path.join(config["outdir"], "{sample}/tantan/cdhit.tantan.fa")
   params:
     "-x N"
   shell:
