@@ -10,10 +10,10 @@ def get_fastq(wildcards):
 ## Run cd-hit to find and munge duplicate reads [5]
 rule cd_hit:
   input:
-    os.path.join(config["outdir"], "fasta/{sample}.stitched.merged.fasta")
+    os.path.join(config["outdir"], "{sample}/04_fasta/stitched.merged.fasta")
   output:
-    clusters = os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.fa"),
-    report = os.path.join(config["outdir"], "cdhit/{sample}.stitched.merged.cdhit.report")
+    clusters = os.path.join(config["outdir"], "{sample}/05_cdhit/merged.cdhit.fa"),
+    report = os.path.join(config["outdir"], "{sample}/05_cdhit/stitched.merged.cdhit.report")
   resources:
     mem = 20480
   params:
@@ -27,8 +27,8 @@ rule cd_hit:
 
 ## Convert fastq to fasta format [4]
 rule fastq2fasta:
-  input: os.path.join(config["outdir"], "merged/{sample}.stitched.merged.fq.gz")
-  output: os.path.join(config["outdir"], "fasta/{sample}.stitched.merged.fasta")
+  input: os.path.join(config["outdir"], "{sample}/03_merged/stitched.merged.fq.gz")
+  output: os.path.join(config["outdir"], "{sample}/04_fasta/stitched.merged.fasta")
   shell:
     """
     zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
@@ -38,36 +38,33 @@ rule fastq2fasta:
 ## Merge stitched reads
 rule merge_reads:
   input:
-    join = os.path.join(config["outdir"], "stitched/{sample}.join.fq.gz"),
-    un1 = os.path.join(config["outdir"], "stitched/{sample}.un1.fq.gz"),
-    un2 = os.path.join(config["outdir"], "stitched/{sample}.un2.fq.gz")
+    lambda wildcards: expand(os.path.join(config["outdir"], "{sample}/02_stitched/{pair}.fq.gz"), sample = wildcards.sample, pair = ["join", "un1", "un2"])
   output:
-    merged = os.path.join(config["outdir"], "merged/{sample}.stitched.merged.fq.gz")
+    os.path.join(config["outdir"], "{sample}/03_merged/stitched.merged.fq.gz")
   shell:
     """
-    cat {input.join} {input.un1} {input.un2} > {output.merged}
+    cat {input[0]} {input[1]} {input[2]} > {output[0]}
     """
 
 ## Stitch paired reads [2]
 rule fastq_join:
   input:
-    pair1 = os.path.join(config["outdir"], "fastp/{sample}.pair1.truncated.gz"),
-    pair2 = os.path.join(config["outdir"], "fastp/{sample}.pair2.truncated.gz")
+    lambda wildcards: expand(os.path.join(config["outdir"], "{sample}/01_fastp/pair{n}.truncated.gz"), sample = wildcards.sample, n = [1, 2])
   output:
-    os.path.join(config["outdir"], "stitched/{sample}.join.fq.gz"),
-    os.path.join(config["outdir"], "stitched/{sample}.un1.fq.gz"),
-    os.path.join(config["outdir"], "stitched/{sample}.un2.fq.gz")
+    os.path.join(config["outdir"], "{sample}/02_stitched/join.fq.gz"),
+    os.path.join(config["outdir"], "{sample}/02_stitched/un1.fq.gz"),
+    os.path.join(config["outdir"], "{sample}/02_stitched/un2.fq.gz")
   params:
     maximum_difference = 5,
     minimum_overlap = 10,
-    template = os.path.join(config["outdir"], "stitched/{sample}.%.fq.gz")
+    template = os.path.join(config["outdir"], "{sample}/02_stitched/%.fq.gz")
   shell:
     """
     fastq-join \
     -p {params.maximum_difference} \
     -m {params.minimum_overlap} \
-    {input.pair1} \
-    {input.pair2} \
+    {input[0]} \
+    {input[1]} \
     -o {params.template}
     """
 
@@ -79,12 +76,12 @@ rule fastp:
     input:
         get_fastq
     output:
-        pair1 = os.path.join(config["outdir"], "fastp/{sample}.pair1.truncated.gz"),
-        pair2 = os.path.join(config["outdir"], "fastp/{sample}.pair2.truncated.gz")
+        pair1 = os.path.join(config["outdir"], "{sample}/01_fastp/pair1.truncated.gz"),
+        pair2 = os.path.join(config["outdir"], "{sample}/01_fastp/pair2.truncated.gz")
     params:
         options = "-f 5 -t 5 -l 50 -y -Y 8",
-        html = os.path.join(config["outdir"], "fastp/{sample}.report.html"),
-        json = os.path.join(config["outdir"], "fastp/{sample}.report.json")
+        html = os.path.join(config["outdir"], "{sample}/01_fastp/report.html"),
+        json = os.path.join(config["outdir"], "{sample}/01_fastp/report.json")
     threads: 16
     shell:
         """
