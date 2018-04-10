@@ -17,6 +17,7 @@ install:
   - conda config --add channels conda-forge
   - conda config --add channels bioconda
   - conda create -n virome python=$TRAVIS_PYTHON_VERSION
+  - ls -ls
   - conda env update -n virome -f envs/environment.yml
   - conda info --envs
 
