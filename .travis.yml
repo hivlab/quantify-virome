@@ -21,4 +21,4 @@ install:
 script:
   - source activate snakemake
   # run the workflow
-  - snakemake --use-conda --directory .test
+  - snakemake --use-conda
