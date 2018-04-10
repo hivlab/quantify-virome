@@ -16,9 +16,9 @@ install:
   - conda config --add channels defaults
   - conda config --add channels conda-forge
   - conda config --add channels bioconda
-  - conda create -q -n snakemake snakemake python=$TRAVIS_PYTHON_VERSION
+  - conda env create -f envs/environment.yml python=$TRAVIS_PYTHON_VERSION
 
 script:
-  - source activate snakemake
+  - source activate virome
   # run the workflow
   - snakemake --use-conda
