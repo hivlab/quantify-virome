@@ -1,16 +1,24 @@
 {
     "__default__" :
     {
+        "name" : "{rule}.{wildcards}",
         "time" : "00:30:00",
+        "partition" : "testing",
+        "mem" : "10G",
         "n" : 1,
-        "partition" : "testing"
+        "output" : "{rule}_slurm_%j.log"
     },
-    "cd_hit" :
+    "repeatmasker" :
     {
-        "mem": 20480
+        "n" : 2
     },
     "repeatmasker_good" :
     {
-        "n" : 3
+        "n" : 2
+    },
+    "bwa_mem" :
+    {
+        "n" : 2,
+        "mem" : "10G"
     }
 }
