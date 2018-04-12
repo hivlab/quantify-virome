@@ -63,22 +63,31 @@ Pay attention to partitition and time arguments in cluster.json. Snakefile has .
 ## Dry run
 
 ```
-snakemake -np -j --snakefile Snakefile.py \
-  --cluster "sbatch -p testing -t 02:00:00"
+snakemake -np -j --cluster-config cluster.json \
+             --cluster "sbatch -J {cluster.name} \
+             -p {cluster.partition} \
+             -t {cluster.time} \
+             --mem {cluster.mem} \
+             --output {cluster.output}"
 ```
 
 ## Create workflow graph
 
 ```
-snakemake --dag -j --snakefile Snakefile.py \
-  --cluster "sbatch -p testing -t 00:30:00" | dot -Tsvg > graph/dag.svg
+snakemake --dag -j --cluster-config cluster.json \
+                  --cluster "sbatch -p {cluster.partition} \
+                  -t {cluster.time}" | dot -Tsvg > graph/dag.svg
 ```
 
 ## Real stuff
 
 ```
-snakemake  -j --snakefile Snakefile.py \
-  --cluster-config cluster.json
+snakemake -j --cluster-config cluster.json \
+             --cluster "sbatch -J {cluster.name} \
+             -p {cluster.partition} \
+             -t {cluster.time} \
+             --mem {cluster.mem} \
+             --output {cluster.output}"
 ```
 
 ## Exit/deactivate environment
