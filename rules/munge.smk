@@ -3,7 +3,7 @@ def get_fastq(wildcards):
  fastq_files = samples.loc[wildcards.sample, ["fq1", "fq2"]].dropna()
  paths = []
  for x in fastq_files:
-   path = os.path.join("data", x)
+   path = os.path.join(config["datadir"], x)
    paths.append(path)
  return paths
 
