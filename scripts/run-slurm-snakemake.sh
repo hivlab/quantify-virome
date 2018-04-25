@@ -1,16 +1,24 @@
 #!/bin/bash
 
 # Run snakemake
-snakemake  -j --snakefile Snakefile.py \
-  --cluster-config cluster.json
+snakemake -j --cluster-config cluster.json \
+             --cluster "sbatch -J {cluster.name} \
+             -p {cluster.partition} \
+             -t {cluster.time} \
+             --mem {cluster.mem} \
+             --output {cluster.output}"
 
 # Dry run
-snakemake -np -j --snakefile Snakefile.py \
-  --cluster "sbatch -p testing -t 02:00:00"
+snakemake -np -j --cluster-config cluster.json \
+             --cluster "sbatch -J {cluster.name} \
+             -p {cluster.partition} \
+             -t {cluster.time} \
+             --mem {cluster.mem} \
+             --output {cluster.output}"
 
 # Create graph
-snakemake --dag -j --snakefile Snakefile.py \
-  --cluster "sbatch -p testing -t 00:30:00" | dot -Tsvg > graph/dag.svg
+snakemake --dag -j --cluster-config cluster.json \
+                  --cluster "sbatch -p testing -t 00:30:00" | dot -Tsvg > graph/dag.svg
 
 # Delete all files
 rm $(snakemake --snakefile Snakefile.py --summary | tail -n+2 | cut -f1)
@@ -55,3 +63,15 @@ touch samples.csv
 mkdir rules
 touch rules/munge.smk
 touch rules/mask.smk
+
+conda install -c bioconda bwa
+conda install -c bioconda picard
+export GIRUSER=taavipall >> ~/.bashrc
+export GIRPASS=lk563m >> ~/.bashrc
+wget --user taavipall --password lk563m http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/RepBaseRepeatMaskerEdition-20170127.tar.gz
+
+cd /gpfs/software/VirusSeeker/databases/ref_genomes/
+cat .snakemake/log/2018-04-10T234450.700272.snakemake.log
+sbatch test.sh
+squeue -u taavi74
+which bwa
