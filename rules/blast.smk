@@ -1,5 +1,4 @@
-#
-#bam2fastq --output {output.unmappfq} -q {output.unmapped}
+
 ## Extract unmapped reads
 rule unmapped_reads:
     input:
