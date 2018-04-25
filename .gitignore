@@ -4,5 +4,5 @@
 .Ruserdata
 .snakemake
 output
-slurm*
+*.log
 RM_*
