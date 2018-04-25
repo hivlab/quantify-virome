@@ -11,5 +11,11 @@ ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fast
 # path or URL to sample sheet (CSV format, columns: sample, condition, ...)
 samples: samples.tsv
 
+# Rule parameters
+tantan_good:
+      min_length: 50
+      por_n: 40
 
-
+repeatmasker_good:
+      min_length: 25
+      por_n: 40

@@ -11,26 +11,31 @@ rule repeatmasker_good:
     masked = os.path.join(config["outdir"], dynamic("{sample}/10_repeatmasker_good/masked.{n}.fa")),
     unmasked = os.path.join(config["outdir"], dynamic("{sample}/10_repeatmasker_good/unmasked.{n}.fa"))
   params:
-    min_length = 50,
-    por_n = 40
+    min_length = config["repeatmasker_good"]["min_length"],
+    por_n = config["repeatmasker_good"]["por_n"]
   script:
     "../scripts/repeatmasker_good.py"
 
 ## Repeatmasker [9]
+# When no repeats are present, Repeatmasker will not create .masked file. We need to create one empty file 'manually'.
 rule repeatmasker:
   input: os.path.join(config["outdir"], dynamic("{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
   output:
     os.path.join(config["outdir"], dynamic("{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked"))
   params:
     cluster = "-cwd -V",
-    dir = os.path.join(config["outdir"], "{sample}/08_split_fasta")
+    dir = os.path.join(config["outdir"], "{sample}")
   threads:
     12
   shell:
     """
     RepeatMasker -pa {threads} {input}
-    cd {params.dir}
-    mv *.fa.* ../09_repeatmasker
+    mv {params.dir}/08_split_fasta/*.fa.* {params.dir}/09_repeatmasker
+    cd {params.dir}/09_repeatmasker
+    if [ ! -n "$(find . -maxdepth 1 -name 'tantan.goodseq.*.fa.masked' -print -quit)" ]
+    then
+       touch tantan.goodseq.1.fa.masked
+    fi
     """
 
 ## Split reads to smaller files for Repeatmasker [8]
@@ -54,8 +59,8 @@ rule tantan_good:
   output:
     os.path.join(config["outdir"], "{sample}/07_tantan_good/tantan.goodseq.fa")
   params:
-    min_length = 50,
-    por_n = 40
+    min_length = config["tantan_good"]["min_length"],
+    por_n = config["tantan_good"]["por_n"]
   script:
       "../scripts/tantan_good.py"
 
