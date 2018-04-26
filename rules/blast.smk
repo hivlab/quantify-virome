@@ -14,6 +14,7 @@ rule unmapped_reads:
         cat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
       """
 
+## Subset repeatmasker maskes reads using unmaped ids [13]
 rule unmapped_masked:
     input:
       os.path.join(config["outdir"], dynamic("{sample}/12_unmapped_reads/RefGenome_unmapped.{n}.fa")),
@@ -22,3 +23,5 @@ rule unmapped_masked:
       os.path.join(config["outdir"], dynamic("{sample}/13_unmapped_masked/RefGenome_unmapped.{n}.masked.fa"))
     script:
       "../scripts/unmapped_masked_ids.py"
+
+
