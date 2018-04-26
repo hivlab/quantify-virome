@@ -1,4 +1,6 @@
 
+# Global parameters -------------------
+
 # Raw data directory
 datadir: "data"
 
@@ -11,11 +13,22 @@ ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fast
 # path or URL to sample sheet (CSV format, columns: sample, condition, ...)
 samples: samples.tsv
 
-# Rule parameters
+# Rule parameters ---------------------
+
+# Filter tantan output
 tantan_good:
       min_length: 50
       por_n: 40
 
+# Filter repeatmasker output
 repeatmasker_good:
-      min_length: 25
+      min_length: 50
       por_n: 40
+
+# MegaBlast against reference genome to remove more host sequences
+megablast_ref_genome:
+      perc_identity: 85
+      evalue: 1e-9
+      word_size: 16
+      num_descriptions: 1
+      num_alignments: 1
