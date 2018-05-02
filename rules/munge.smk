@@ -75,18 +75,19 @@ rule fastq_join:
 # Replaces AdapteRemoval, prinseq and fastqc
 rule fastp:
     input:
-        get_fastq
+      get_fastq
     output:
-        pair1 = os.path.join(config["outdir"], "{sample}/01_fastp/pair1.truncated.gz"),
-        pair2 = os.path.join(config["outdir"], "{sample}/01_fastp/pair2.truncated.gz")
+      pair1 = os.path.join(config["outdir"], "{sample}/01_fastp/pair1.truncated.gz"),
+      pair2 = os.path.join(config["outdir"], "{sample}/01_fastp/pair2.truncated.gz")
     params:
-        options = "-f 5 -t 5 -l 50 -y -Y 8",
-        html = os.path.join(config["outdir"], "{sample}/01_fastp/report.html"),
-        json = os.path.join(config["outdir"], "{sample}/01_fastp/report.json")
-    threads: config["fastp"]["threads"]
+      options = "-f 5 -t 5 -l 50 -y -Y 8",
+      html = os.path.join(config["outdir"], "{sample}/01_fastp/report.html"),
+      json = os.path.join(config["outdir"], "{sample}/01_fastp/report.json")
+    threads:
+      config["fastp"]["threads"]
     conda:
-        "envs/fastp.yml"
+      "envs/fastp.yml"
     shell:
-        """
-        fastp -i {input[0]} -I {input[1]} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
-        """
+      """
+      fastp -i {input[0]} -I {input[1]} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
+      """
