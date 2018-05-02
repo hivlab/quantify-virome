@@ -15,6 +15,19 @@ samples: samples.tsv
 
 # Rule parameters ---------------------
 
+# cd-hit
+cd-hit:
+    threads: 40
+
+# fastq-join
+fastq-join:
+    maximum_difference: 5
+    minimum_overlap: 10
+
+# Fastp
+fastp:
+    threads: 16
+
 # Filter tantan output
 tantan_good:
       min_length: 50

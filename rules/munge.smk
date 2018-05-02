@@ -14,15 +14,15 @@ rule cd_hit:
   output:
     clusters = os.path.join(config["outdir"], "{sample}/05_cdhit/merged.cdhit.fa"),
     report = os.path.join(config["outdir"], "{sample}/05_cdhit/stitched.merged.cdhit.report")
-  resources:
-    mem = 20480
   params:
-    "-c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1"
+    "-c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0"
   threads:
-    40
+    config["cd-hit"]["threads"]
+  conda:
+    "envs/cd-hit.yml"
   shell:
     """
-    cd-hit-est -i {input} -o {output.clusters} {params} -T {threads} -M {resources.mem} {params} > {output.report}
+    cd-hit-est -i {input} -o {output.clusters} {params} -T {threads} {params} > {output.report}
     """
 
 ## Convert fastq to fasta format [4]
@@ -33,7 +33,6 @@ rule fastq2fasta:
     """
     zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
     """
-
 
 ## Merge stitched reads
 rule merge_reads:
@@ -55,9 +54,11 @@ rule fastq_join:
     os.path.join(config["outdir"], "{sample}/02_stitched/un1.fq.gz"),
     os.path.join(config["outdir"], "{sample}/02_stitched/un2.fq.gz")
   params:
-    maximum_difference = 5,
-    minimum_overlap = 10,
+    config["fastq-join"]["maximum_difference"],
+    config["fastq-join"]["minimum_overlap"],
     template = os.path.join(config["outdir"], "{sample}/02_stitched/%.fq.gz")
+  conda:
+    "envs/fastq-join.yml"
   shell:
     """
     fastq-join \
@@ -82,7 +83,9 @@ rule fastp:
         options = "-f 5 -t 5 -l 50 -y -Y 8",
         html = os.path.join(config["outdir"], "{sample}/01_fastp/report.html"),
         json = os.path.join(config["outdir"], "{sample}/01_fastp/report.json")
-    threads: 16
+    threads: config["fastp"]["threads"]
+    conda:
+        "envs/fastp.yml"
     shell:
         """
         fastp -i {input[0]} -I {input[1]} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
