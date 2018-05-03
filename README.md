@@ -44,7 +44,7 @@ GIRPASS=<your-gir-password>
 
 cd miniconda3/envs/virome/share/RepeatMasker/
 
-wget --user $GIRUSER --password $GIRPASS http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/RepBaseRepeatMaskerEdition-20170127.tar.gz
+wget --user $GIRUSER --password $GIRPASS --no-check-certificate http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/RepBaseRepeatMaskerEdition-20170127.tar.gz
 
 gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz
 tar xvf RepBaseRepeatMaskerEdition-20170127.tar

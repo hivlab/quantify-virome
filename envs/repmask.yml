@@ -3,4 +3,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - fastp=0.12.5=0
+  - repeatmasker=4.0.7=pl5.22.0_10

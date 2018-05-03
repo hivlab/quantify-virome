@@ -44,8 +44,10 @@ rule split_fasta:
   output:
     os.path.join(config["outdir"], dynamic("{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
   params:
-    batch_size = 2000,
-    stub = os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.%i.fa")
+    config["split_fasta"]["batch_size"],
+    os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.%i.fa")
+  conda:
+      "../envs/biopython.yml"
   script:
     "../scripts/split_fasta.py"
 
@@ -61,6 +63,8 @@ rule tantan_good:
   params:
     min_length = config["tantan_good"]["min_length"],
     por_n = config["tantan_good"]["por_n"]
+  conda:
+      "../envs/biopython.yml"
   script:
       "../scripts/tantan_good.py"
 
@@ -72,6 +76,8 @@ rule tantan:
     os.path.join(config["outdir"], "{sample}/06_tantan/cdhit.tantan.fa")
   params:
     "-x N"
+  conda:
+      "../envs/tantan.yml"
   shell:
     """
     tantan {params} {input} > {output}

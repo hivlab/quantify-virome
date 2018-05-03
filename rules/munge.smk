@@ -19,7 +19,7 @@ rule cd_hit:
   threads:
     config["cd-hit"]["threads"]
   conda:
-    "envs/cd-hit.yml"
+    "../envs/cd-hit.yml"
   shell:
     """
     cd-hit-est -i {input} -o {output.clusters} {params} -T {threads} {params} > {output.report}
@@ -58,15 +58,15 @@ rule fastq_join:
     config["fastq-join"]["minimum_overlap"],
     template = os.path.join(config["outdir"], "{sample}/02_stitched/%.fq.gz")
   conda:
-    "envs/fastq-join.yml"
+    "../envs/fastq-join.yml"
   shell:
     """
     fastq-join \
-    -p {params.maximum_difference} \
-    -m {params.minimum_overlap} \
+    -p {params[0]} \
+    -m {params[1]} \
     {input[0]} \
     {input[1]} \
-    -o {params.template}
+    -o {params[2]}
     """
 
 ## All-in-one preprocessing for FastQ files [1,3]
@@ -86,7 +86,7 @@ rule fastp:
     threads:
       config["fastp"]["threads"]
     conda:
-      "envs/fastp.yml"
+      "../envs/fastp.yml"
     shell:
       """
       fastp -i {input[0]} -I {input[1]} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
