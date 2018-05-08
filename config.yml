@@ -1,17 +1,20 @@
 
 # Global parameters -------------------
 
+# path or URL to sample sheet (CSV format, columns: sample, condition, ...)
+samples: samples.tsv
+
+# Path to reference genome
+ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fasta"
+
+# Path to RepeatMasker Repbase file (path/to/RMRBSeqs.embl)
+repbase_file: "/gpfs/hpchome/taavi74/databases/Repbase/Libraries/RMRBSeqs.embl"
+
 # Raw data directory
 datadir: "data"
 
 # Output directory or empty string
 outdir: "output"
-
-# Path to reference genome
-ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fasta"
-
-# path or URL to sample sheet (CSV format, columns: sample, condition, ...)
-samples: samples.tsv
 
 # Rule parameters ---------------------
 
