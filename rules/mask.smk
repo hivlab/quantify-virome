@@ -1,5 +1,5 @@
 
-## Filter repeatmasker output
+## Filter repeatmasker output [10]
 # 1) Sequences that do not have greater than 50 nt of consecutive
 # sequence without N
 # 2) Sequences with >= 40% of total length of being masked
@@ -13,30 +13,39 @@ rule repeatmasker_good:
   params:
     min_length = config["repeatmasker_good"]["min_length"],
     por_n = config["repeatmasker_good"]["por_n"]
+  conda:
+    "../envs/biopython.yml"
   script:
     "../scripts/repeatmasker_good.py"
 
 ## Repeatmasker [9]
-# When no repeats are present, Repeatmasker will not create .masked file. We need to create one empty file 'manually'.
+
+## Set RepBase library location environment variable and copy repeatmasker configuration file
+shell(
+"""
+export REPEATMASKER_REPBASE_FILE=config["repbase_file"]
+if [ ! -n "$(find $CONDA_PREFIX/share/RepeatMasker/ -maxdepth 1 -name 'RepeatMaskerConfig.pm' -print -quit)" ]
+then
+  cp envs/RepeatMaskerConfig.pm $CONDA_PREFIX/share/RepeatMasker/
+fi
+"""
+)
+
 rule repeatmasker:
-  input: os.path.join(config["outdir"], dynamic("{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
+  input:
+    fa = os.path.join(config["outdir"], dynamic("{sample}/08_split_fasta/tantan.goodseq.{n}.fa")),
+    repbase = config["repbase_file"]
   output:
     os.path.join(config["outdir"], dynamic("{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked"))
   params:
     cluster = "-cwd -V",
     dir = os.path.join(config["outdir"], "{sample}")
-  threads:
-    12
+  threads: 8
   shell:
     """
-    RepeatMasker -pa {threads} {input}
-    mv {params.dir}/08_split_fasta/*.fa.* {params.dir}/09_repeatmasker
-    cd {params.dir}/09_repeatmasker
-    if [ ! -n "$(find . -maxdepth 1 -name 'tantan.goodseq.*.fa.masked' -print -quit)" ]
-    then
-       touch tantan.goodseq.1.fa.masked
-    fi
+    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.dir}/09_repeatmasker
     """
+
 
 ## Split reads to smaller files for Repeatmasker [8]
 rule split_fasta:
