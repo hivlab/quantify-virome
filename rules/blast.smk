@@ -7,6 +7,8 @@ rule unmapped_reads:
       bam = os.path.join(config["outdir"], dynamic("{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.bam")),
       fq = os.path.join(config["outdir"], dynamic("{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fq")),
       fa = os.path.join(config["outdir"], dynamic("{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fa"))
+    conda:
+      "../envs/bwa-sam-bed.yml"
     shell:
       """
         samtools view -b -f 4 {input} > {output.bam}
@@ -21,6 +23,8 @@ rule unmapped_masked:
       os.path.join(config["outdir"], dynamic("{sample}/10_repeatmasker_good/masked.{n}.fa"))
     output:
       os.path.join(config["outdir"], dynamic("{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa"))
+    conda:
+      "../envs/biopython.yml"
     script:
       "../scripts/unmapped_masked_ids.py"
 
@@ -38,20 +42,11 @@ rule megablast_ref_genome:
       num_desc = config["megablast_ref_genome"]["num_descriptions"],
       num_align = config["megablast_ref_genome"]["num_alignments"]
     threads: 8
-    run:
-      from Bio.Blast.Applications import NcbiblastnCommandline
+    conda:
+      "../envs/biopython.yml"
+    script:
+      "../scripts/megablast_ref_genome.py"
 
-      blastn_cline = NcbiblastnCommandline(query = input.query,
-                                      db = input.db,
-                                      num_threads = threads,
-                                      perc_identity = params.perc_ident,
-                                      evalue = params.evalue,
-                                      word_size = params.word_size,
-                                      num_descriptions = params.num_desc,
-                                      num_alignments = params.num_align,
-                                      outfmt = 5,
-                                      out = output)
-      stdout, stderr = blastn_cline()
 
 # Filter megablast records for the cutoff value
 rule parse_megablast:
@@ -61,23 +56,11 @@ rule parse_megablast:
       os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/megablast_parsed.{n}.out"))
     params:
       e_cutoff = 1e-10
-    run:
-      from Bio.Blast import NCBIXML
-      result_handle = open(input[0])
-      blast_records = NCBIXML.parse(result_handle)
+    conda:
+      "../envs/biopython.yml"
+    script:
+      "../scripts/parse_megablast.py"
 
-      with open(output[0], "w") as out:
-          for blast_record in blast_records:
-             for alignment in blast_record.alignments:
-                   for hsp in alignment.hsps:
-                      if hsp.expect < params.e_cutoff:
-                           out.write("****Alignment****" + "\n")
-                           out.write("sequence:", alignment.title + "\n")
-                           out.write("length:", alignment.length + "\n")
-                           out.write("e value:", hsp.expect + "\n")
-                           out.write(hsp.query[0:75] + "...\n")
-                           out.write(hsp.match[0:75] + "...\n")
-                           out.write(hsp.sbjct[0:75] + "...\n")
 
 
 
