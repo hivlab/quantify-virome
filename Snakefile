@@ -1,4 +1,9 @@
 
+__author__ = "Taavi Päll"
+__copyright__ = "Copyright 2018, Taavi Päll"
+__email__ = "taavi.pall@ut.ee"
+__license__ = "MIT"
+
 ## Use os.path to update file paths from config file
 import os.path
 import pandas as pd
