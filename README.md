@@ -5,44 +5,17 @@ The goal of this repo is to reproducibly recreate VirusSeeker Virome workflow.
 
 # Setup environment and install prerequisites
 
-- Download and install miniconda https://conda.io/docs/user-guide/install/index.html.
+## Download RepBase for RepeatMasker
 
-In case of Linux, following should work:
+Obtain access to RepBase from www.girinst.org. 
+Download RepBase into separate directory e.g. "databases/repbase" under your home directory or whatever other location is good for you. 
+For downloading set environment variables for GIRUSER and GIRPASS. 
 ```
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-bash Miniconda3-latest-Linux-x86_64.sh
-```
+mkdir databases/repbase
+cd databases/repbase
 
-## Clone this repo and cd to repo
-(Change this URL if using HTTPS)
-
-```
-git clone git@github.com:avilab/vs.git
-```
-
-## Install environment
-
-```
-cd vs
-conda env create -f envs/environment.yml
-```
-
-
-## Activate environment
-
-
-```
-source activate virome
-```
-
-## Install RepBase for RepeatMasker
-Obtain access to RepBase from www.girinst.org. For downloading set environment variables for GIRUSER and GIRPASS.
-
-```
 GIRUSER=<your-gir-user-name>
 GIRPASS=<your-gir-password>
-
-cd miniconda3/envs/virome/share/RepeatMasker/
 
 wget --user $GIRUSER --password $GIRPASS --no-check-certificate http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/RepBaseRepeatMaskerEdition-20170127.tar.gz
 
@@ -51,10 +24,37 @@ tar xvf RepBaseRepeatMaskerEdition-20170127.tar
 rm RepBaseRepeatMaskerEdition-20170127.tar
 ```
 
-The location of rmblastn is `~/miniconda3/envs/virome/bin/`. You need it during configuration of the Search Engine (when asked, select option 2 and provide this path).
+## Install miniconda
+
+Download and install miniconda https://conda.io/docs/user-guide/install/index.html.
+In case of Linux, following should work:
 ```
-perl ./configure
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash Miniconda3-latest-Linux-x86_64.sh
 ```
+
+## Install environment
+
+Create conda environment with preinstalled **snakemake**, **repeatmasker**, **trf** and **rmblast**:
+```
+conda create -n <your-env-name> -c bioconda snakemake repeatmasker trf rmblast
+```
+
+## Activate environment
+
+```
+source activate <your-env-name>
+```
+
+## Clone this repo and cd to repo
+(Change URL accordingly if using HTTPS)
+
+```
+git clone git@github.com:avilab/vs.git
+```
+
+## 
+
 
 # Run workflow
 

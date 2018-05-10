@@ -47,8 +47,7 @@ rule megablast_ref_genome:
     script:
       "../scripts/megablast_ref_genome.py"
 
-
-# Filter megablast records for the cutoff value
+## Filter megablast records for the cutoff value [14]
 rule parse_megablast:
     input:
       os.path.join(config["outdir"], dynamic("{sample}/13_megablast/megablast.{n}.xml"))
@@ -60,7 +59,4 @@ rule parse_megablast:
       "../envs/biopython.yml"
     script:
       "../scripts/parse_megablast.py"
-
-
-
 

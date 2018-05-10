@@ -1,5 +1,5 @@
 
-# Align sequences to reference genome[11]
+## Align sequences to reference genome [11]
 rule bwa_mem:
     input:
         config["ref_genome"],
