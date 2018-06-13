@@ -35,7 +35,7 @@ rule tantan_good:
 rule split_fasta:
   input: os.path.join(config["outdir"], "{sample}/07_tantan_good/tantan.goodseq.fa")
   output:
-    dynamic(str(Path(config["outdir"]) / "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
+    dynamic(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
   params:
     config["split_fasta"]["batch_size"],
     os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.%i.fa")
@@ -78,11 +78,11 @@ rule repeatmasker:
 # 2) Sequences with >= 40% of total length of being masked
 rule repeatmasker_good:
   input:
-    masked = dynamic(os.path.join(config["outdir"], "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked")),
-    unmasked = dynamic(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
+    masked = dynamic(str(outdir / "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked")),
+    unmasked = dynamic(str(outdir / "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
   output:
-    masked = dynamic(os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/masked.{n}.fa")),
-    unmasked = dynamic(os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/unmasked.{n}.fa"))
+    masked = dynamic(str(outdir / "{sample}/10_repeatmasker_good/masked.{n}.fa")),
+    unmasked = dynamic(str(outdir / "{sample}/10_repeatmasker_good/unmasked.{n}.fa"))
   params:
     min_length = config["repeatmasker_good"]["min_length"],
     por_n = config["repeatmasker_good"]["por_n"]
