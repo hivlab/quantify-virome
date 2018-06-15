@@ -16,7 +16,7 @@ rule unmapped_reads:
         cat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
       """
 
-## Subset repeatmasker maskes reads using unmapped ids [12b]
+## Subset repeatmasker masked reads using unmapped ids [12b]
 rule unmapped_masked:
     input:
       os.path.join(config["outdir"], dynamic("{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fa")),
@@ -59,4 +59,6 @@ rule parse_megablast:
       "../envs/biopython.yml"
     script:
       "../scripts/parse_megablast.py"
+
+## Pool megablast output
 

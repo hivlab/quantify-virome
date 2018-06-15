@@ -83,12 +83,10 @@ rule cd_hit:
     clusters = os.path.join(config["outdir"], "{sample}/05_cdhit/merged.cdhit.fa"),
     report = os.path.join(config["outdir"], "{sample}/05_cdhit/stitched.merged.cdhit.report")
   params:
-    "-c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0"
-  threads:
-    config["cd-hit"]["threads"]
+    "-c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0 -T 0"
   conda:
     "../envs/cd-hit.yml"
   shell:
     """
-    cd-hit-est -i {input} -o {output.clusters} {params} -T {threads} {params} > {output.report}
+    cd-hit-est -i {input} -o {output.clusters} {params} > {output.report}
     """
