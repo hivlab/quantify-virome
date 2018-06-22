@@ -78,11 +78,19 @@ rule repeatmasker:
 # 2) Sequences with >= 40% of total length of being masked
 rule repeatmasker_good:
   input:
+<<<<<<< HEAD
     masked = os.path.join(config["outdir"], dynamic("{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked")),
     unmasked = os.path.join(config["outdir"], dynamic("{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
   output:
     masked = os.path.join(config["outdir"], dynamic("{sample}/10_repeatmasker_good/masked.{n}.fa")),
     unmasked = os.path.join(config["outdir"], dynamic("{sample}/10_repeatmasker_good/unmasked.{n}.fa"))
+=======
+    masked = dynamic(str(outdir / "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked")),
+    unmasked = dynamic(str(outdir / "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
+  output:
+    masked = dynamic(str(outdir / "{sample}/10_repeatmasker_good/masked.{n}.fa")),
+    unmasked = dynamic(str(outdir / "{sample}/10_repeatmasker_good/unmasked.{n}.fa"))
+>>>>>>> 7785b61d11a97103038da2e84fba068e6fa423d8
   params:
     min_length = config["repeatmasker_good"]["min_length"],
     por_n = config["repeatmasker_good"]["por_n"]
