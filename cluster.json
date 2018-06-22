@@ -2,8 +2,8 @@
     "__default__" :
     {
         "name" : "{rule}.{wildcards}",
-        "time" : "12:00:00",
-        "partition" : "main",
+        "time" : "2:00:00",
+        "partition" : "testing",
         "mem" : "20G",
         "output" : "{rule}_slurm_%j.log"
     },
