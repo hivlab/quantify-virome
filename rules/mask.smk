@@ -47,9 +47,10 @@ rule split_fasta:
 ## Repeatmasker [9]
 # Set RepBase library location environment variable and copy repeatmasker configuration file
 
+## add extra step to install repeatmasker!!!
+
 shell(
 """
-export REPEATMASKER_REPBASE_FILE=config["repbase_file"]
 if [ ! -n "$(find $CONDA_PREFIX/share/RepeatMasker/ -maxdepth 1 -name 'RepeatMaskerConfig.pm' -print -quit)" ]
 then
   cp envs/RepeatMaskerConfig.pm $CONDA_PREFIX/share/RepeatMasker/
@@ -69,6 +70,7 @@ rule repeatmasker:
   threads: 8
   shell:
     """
+    export REPEATMASKER_REPBASE_FILE={input.repbase}
     RepeatMasker -qq -pa {threads} {input.fa} -dir {params.dir}/09_repeatmasker
     """
 

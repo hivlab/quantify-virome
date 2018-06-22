@@ -1,16 +1,12 @@
-from Bio.Blast import NCBIXML
-result_handle = open(snakemake.input[0])
-blast_records = NCBIXML.parse(result_handle)
+# This script accepts a MegaBLAST output file that were blasted against human
+# genome, find out whether the best hit has a e value lower than the cutoff. If
+# yes, output query information. If no, the sequence will be kept for further analysis.
+# http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc93
+from Bio import SearchIO
+blast_results = SearchIO.parse(snakemake.input[0], 'blast-xml')
 
 with open(snakemake.output[0], "w") as out:
-    for blast_record in blast_records:
-       for alignment in blast_record.alignments:
-             for hsp in alignment.hsps:
-                if hsp.expect < snakemake.params["e_cutoff"]:
-                     out.write("****Alignment****" + "\n")
-                     out.write("sequence:", alignment.title + "\n")
-                     out.write("length:", alignment.length + "\n")
-                     out.write("e value:", hsp.expect + "\n")
-                     out.write(hsp.query[0:75] + "...\n")
-                     out.write(hsp.match[0:75] + "...\n")
-                     out.write(hsp.sbjct[0:75] + "...\n")
+  for blast_qresult in blast_results:
+    if len(blast_qresult) > 0:
+        if blast_qresult[0][0].evalue < snakemake.params["e_cutoff"]:
+          print(blast_qresult[0][0], file = out)

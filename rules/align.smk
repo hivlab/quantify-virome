@@ -7,7 +7,7 @@ rule bwa_mem:
     output:
         os.path.join(config["outdir"], dynamic("{sample}/11_bwa_mem/mapped.{n}.bam"))
     log:
-        os.path.join(config["outdir"], "{sample}/logs/bwa_mem.log")
+        os.path.join(config["outdir"], "{sample}/logs/bwa_mem.{n}.log")
     params: "-L 100,100 -k 15"
     threads: 8
     conda:
