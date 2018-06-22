@@ -44,7 +44,7 @@ repeatmasker_good:
 # MegaBlast against reference genome to remove more host sequences
 megablast_ref_genome:
       perc_identity: 85
-      evalue: 1e-9
+      evalue: 1e-10
       word_size: 16
       num_descriptions: 1
       num_alignments: 1
