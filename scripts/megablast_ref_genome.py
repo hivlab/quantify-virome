@@ -2,6 +2,7 @@ from Bio.Blast.Applications import NcbiblastnCommandline
 
 blastn_cline = NcbiblastnCommandline(query = snakemake.input[1],
                                 db = snakemake.input[0],
+                                task = "megablast",
                                 num_threads = snakemake.threads,
                                 perc_identity = snakemake.params["perc_ident"],
                                 evalue = snakemake.params["evalue"],
