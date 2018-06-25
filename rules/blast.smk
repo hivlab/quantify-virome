@@ -53,8 +53,8 @@ rule parse_megablast:
       blastxml = os.path.join(config["outdir"], dynamic("{sample}/13_megablast/megablast.{n}.xml")),
       query = os.path.join(config["outdir"], dynamic("{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa"))
     output:
-      known = os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/megablast.non-viral.{n}.out")),
-      unmapped = os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/megablast.unmapped.{n}.out"))
+      known = os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/RefGenome_megablast.{n}.non-viral.out")),
+      unmapped = os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa"))
     params:
       e_cutoff = 1e-10
     conda:
