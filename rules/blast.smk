@@ -50,9 +50,11 @@ rule megablast_ref_genome:
 ## Filter megablast records for the cutoff value [14]
 rule parse_megablast:
     input:
-      os.path.join(config["outdir"], dynamic("{sample}/13_megablast/megablast.{n}.xml"))
+      blastxml = os.path.join(config["outdir"], dynamic("{sample}/13_megablast/megablast.{n}.xml")),
+      query = os.path.join(config["outdir"], dynamic("{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa"))
     output:
-      os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/megablast_parsed.{n}.out"))
+      known = os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/megablast.non-viral.{n}.out")),
+      unmapped = os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/megablast.unmapped.{n}.out"))
     params:
       e_cutoff = 1e-10
     conda:
