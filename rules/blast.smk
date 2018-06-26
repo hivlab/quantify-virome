@@ -60,7 +60,38 @@ rule parse_megablast:
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_megablast.py"
+      "../scripts/parse_blast_xml.py"
 
-## Pool megablast output
+## Blast against virus database [15]
+rule blastn_virus_nt:
+    input:
+      db = config["virus_nt"],
+      query = os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa"))
+    output:
+      out = os.path.join(config["outdir"], dynamic("{sample}/15_blast_virusnt/blast_virusnt.{n}.xml"))
+    params:
+      task = "blastn",
+      show_gis = True,
+      evalue = 1e-4,
+      db_soft_mask = 100,
+      num_threads = 8
+    conda:
+      "../envs/biopython.yml"
+    script:
+      "../scripts/blastn_virus_db.py"
+
+## Filter blastn records for the cutoff value [16]
+rule parse_virusntblast:
+    input:
+      blastxml = os.path.join(config["outdir"], dynamic("{sample}/15_blast_virusnt/blast_virusnt.{n}.xml")),
+      query = os.path.join(config["outdir"], dynamic("{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa"))
+    output:
+      known = os.path.join(config["outdir"], dynamic("{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out")),
+      unmapped = os.path.join(config["outdir"], dynamic("{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.unmapped.fa"))
+    params:
+      e_cutoff = 1e-5
+    conda:
+      "../envs/biopython.yml"
+    script:
+      "../scripts/parse_blast_xml.py"
 

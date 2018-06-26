@@ -7,6 +7,9 @@ samples: samples.tsv
 # Path to reference genome
 ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fasta"
 
+# Path to virus databases
+virus_nt: "/gpfs/software/VirusSeeker/databases/VirusDBNT_20160802/VirusDBNT_20160802_ID98.fa"
+
 # Path to RepeatMasker Repbase file (path/to/RMRBSeqs.embl)
 repbase_file: "/gpfs/hpchome/taavi74/databases/Repbase/Libraries/RMRBSeqs.embl"
 
