@@ -36,24 +36,29 @@ gi_tab <- nucl_db %>%
 known_unnested <- left_join(known_unnested, gi_tab)
 # source("https://bioconductor.org/biocLite.R")
 # biocLite("GenomeInfoDbData")
-library(GenomeInfoDbData)
-data(specData)
-known_unnested <- left_join(known_unnested, specData)
-known_unnested %>%
-  mutate_at(vars(genus), str_replace_all, c("[^[:alnum:]]$" = "",  "s$" = "", "(\\(\\d*)" = "\\1\\)" )) %>%
-  mutate_at(vars(genus, species), str_to_lower) %>%
-  select(tax_id, genus, species) %>%
-  distinct()
+# library(GenomeInfoDbData)
+# data(specData)
+# known_unnested <- left_join(known_unnested, specData)
+# known_unnested %>%
+#   mutate_at(vars(genus), str_replace_all, c("[^[:alnum:]]$" = "",  "s$" = "", "(\\(\\d*)" = "\\1\\)" )) %>%
+#   mutate_at(vars(genus, species), str_to_lower) %>%
+#   select(tax_id, genus, species) %>%
+#   distinct()
+
+# import names for tax_id
 names <- read_delim("~/databases/taxdump/names.dmp", delim = "|",
                     escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 names <- names %>%
   mutate_all(str_remove_all, "\\t")
 names <- select(names, -5)
 colnames(names) <- c("tax_id", "name_txt", "unique name", "name class")
-names
 names <- mutate_at(names, "tax_id", parse_integer)
+
+# merge names by tax_id to known sequences
 known_names <- left_join(known_unnested, names)
 known_names_ids <- select(known_names, query, gi, tax_id, name_txt, `unique name`, `name class`)
+
+# keep only scientific names
 unique_taxa <- filter(known_names_ids, str_detect(`name class`, "scientific")) %>%
   select(-query) %>%
   distinct()
