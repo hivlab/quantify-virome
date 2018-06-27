@@ -97,10 +97,28 @@ rule parse_virusntblast:
 
 # Download taxonomy names [17a]
 rule download_taxonomy:
-    output: "data/names.csv", "data/nodes.csv"
+    output:
+      os.path.join(config["datadir"], "names.csv"),
+      os.path.join(config["datadir"], "nodes.csv")
+    params:
+      datadir = config["datadir"]
     conda:
       "../envs/tidyverse.yml"
     script:
       "../scripts/download_taxonomy_names.R"
+
+# Add taxonomy to virus nt blast [17b]
+rule virus_nt_taxonomy:
+    input:
+      known = os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/"),
+      vhunter = config["vhunter"],
+      names = os.path.join(config["datadir"], "names.csv"),
+      nodes = os.path.join(config["datadir"], "nodes.csv")
+    output:
+      os.path.join(config["outdir"], "{sample}/17_virus_nt_taxonomy/known_taxa.csv")
+    conda:
+      "../envs/tidyverse.yml"
+    script:
+      "../scripts/munge_taxonomy.R"
 
 

@@ -10,7 +10,7 @@
 library(tidyverse)
 
 # Import blast hits and munge to data frame
-files <- list.files(snakemake@params[["known_dir"]], full.names = TRUE)
+files <- list.files(snakemake@input[["known"]], full.names = TRUE)
 known <- data_frame(files) %>%
   filter(str_detect(files, "known"))
 known <- mutate(known, lines = map(files, read_lines))
@@ -55,4 +55,4 @@ nodes <- read_csv(snakemake@input[["nodes"]])
 # Merge names by tax_id to known sequences
 known_names <- left_join(known_unnested, names)
 known_taxa <- left_join(known_names, nodes)
-write_csv(known_taxa, snakemake@output[[0]])
+write_csv(known_taxa, snakemake@output[[1]])
