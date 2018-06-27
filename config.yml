@@ -4,14 +4,15 @@
 # path or URL to sample sheet (CSV format, columns: sample, condition, ...)
 samples: samples.tsv
 
+# Path to RepeatMasker Repbase file (path/to/RMRBSeqs.embl)
+repbase_file: "/gpfs/hpchome/taavi74/databases/Repbase/Libraries/RMRBSeqs.embl"
+
 # Path to reference genome
 ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fasta"
 
 # Path to virus databases
 virus_nt: "/gpfs/software/VirusSeeker/databases/VirusDBNT_20160802/VirusDBNT_20160802_ID98.fa"
-
-# Path to RepeatMasker Repbase file (path/to/RMRBSeqs.embl)
-repbase_file: "/gpfs/hpchome/taavi74/databases/Repbase/Libraries/RMRBSeqs.embl"
+vhunter: "/gpfs/software/VirusSeeker/databases/taxdump_300817/vhunter.db"
 
 # Raw data directory
 datadir: "data"
