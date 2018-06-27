@@ -17,7 +17,7 @@ samples = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dt
 ## Target rule
 rule all:
     input:
-      expand(os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.{ext}"), sample = "I1164_12629_Harvard_SIV_196_06_2_24_12", n = list(range(1, 25)), ext = ['known-viral.out', 'unmapped.fa'])
+      "data/nodes.csv", "data/names.csv"
 
 include: "rules/munge.smk"
 include: "rules/mask.smk"
