@@ -95,3 +95,12 @@ rule parse_virusntblast:
     script:
       "../scripts/parse_blast_xml.py"
 
+# Download taxonomy names [17a]
+rule download_taxonomy:
+    output: "data/names.csv", "data/nodes.csv"
+    conda:
+      "../envs/tidyverse.yml"
+    script:
+      "../scripts/download_taxonomy_names.R"
+
+
