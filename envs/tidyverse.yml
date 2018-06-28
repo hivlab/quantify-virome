@@ -3,6 +3,8 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - r-base=3.4.3
-  - r-tidyverse=1.2.1
-  - r-knitr=1.18
+  - r-base
+  - r-tidyverse
+  - r-dt
+  - r-formattable
+  - pandoc

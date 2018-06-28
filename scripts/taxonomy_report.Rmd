@@ -1,7 +1,12 @@
 ---
 title: "Blast virus NT report"
 date: "`r Sys.Date()`"
-output: html_document
+params:
+  rmd: "taxonomy_report.Rmd"
+output: 
+  html_document:
+    theme: united
+    highlight: tango
 ---
 
 ```{r setup, include=FALSE}
@@ -12,14 +17,15 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 library(tidyverse)
 library(DT)
 library(formattable)
-known_taxa <- read_csv("../output/I1164_12629_Harvard_SIV_196_06_2_24_12/17_virus_nt_taxonomy/known_taxa.csv")
+input_1 <- file.path("..", snakemake@input[[1]])
+known_taxa <- read_csv(input_1)
 ```
 
-## Number of unique queries per tax_id
+## Sample `r snakemake@params[[1]]`
 
-`r snakemake@params[["sample"]]`
+### Number of unique queries per tax_id
+**Only top hits were selected**. Only scientific names were used for summary.
 
-Only top hits were selected. Keep only scientific names.
 ```{r}
 taxa_sci <- filter(known_taxa, str_detect(name_class, "scientific"))
 ```
@@ -51,8 +57,8 @@ by_gi %>%
 
 Add names of parent taxa.
 ```{r}
-# snakemake@input[["names"]]
-names <- read_csv("../data/names.csv")
+input_names <- file.path("..", snakemake@input[["names"]])
+names <- read_csv(input_names)
 ```
 
 ```{r}
@@ -63,8 +69,7 @@ colnames(parent_sci) <- paste0("parent_", colnames(parent_sci))
 parent_taxa <- left_join(taxa_sci, parent_sci)
 ```
 
-## Number of unique queries per parent tax_id
-
+### Number of unique queries per parent tax_id
 
 ```{r}
 unique_parents <- parent_taxa %>%
@@ -78,14 +83,15 @@ unique_parents %>%
   as.datatable(rownames = FALSE, caption = paste0("Number of sequence reads (unique queries) per parent tax_id-s. Number of unique parent tax_id-s is ", nrow(unique_parents),"."))
 ```
 
-Approximate number of tax_id-s belonging to virus or bacteriophage class:
+### Number of phage and other virus hits
+
+Approximate number of tax_id-s belonging to virus or bacteriophage class. Putative bacterial virus names were detected using following regular expression: "phag|bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla".
 ```{r}
 phage_or_virus <- taxa_sci %>%
   mutate(name_txt = str_to_lower(name_txt),
     Class = case_when(
-    (str_detect(name_txt, "vir") & str_detect(name_txt, "bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla")) ~ "phage",
+    (str_detect(name_txt, "vir") & str_detect(name_txt, "phag|bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla")) ~ "phage",
     (str_detect(name_txt, "vir") & !str_detect(name_txt, "bac")) ~ "virus",
-    str_detect(name_txt, "phag") ~ "phage",
     TRUE ~ name_txt
   )) %>%
   group_by(Class) %>%
@@ -97,4 +103,7 @@ phage_or_virus <- taxa_sci %>%
 phage_or_virus %>% 
   as.datatable(rownames = FALSE, caption = "Number of sequence reads belonging to virus or bacteriophage classes. Unclassified taxa are shown by name.")
 ```
+
+### Source
+<a download="taxonomy_report.Rmd" href="`r base64enc::dataURI(file = params$rmd, mime = 'text/rmd', encoding = 'base64')`">R Markdown source file (to produce this document)</a>
 

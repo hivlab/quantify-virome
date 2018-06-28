@@ -121,4 +121,16 @@ rule virus_nt_taxonomy:
     script:
       "../scripts/munge_taxonomy.R"
 
-
+# Taxonomy report to virus nt blast [17c]
+rule virus_nt_taxonomy_report:
+    input:
+      os.path.join(config["outdir"], "{sample}/17_virus_nt_taxonomy/known_taxa.csv"),
+      names = os.path.join(config["datadir"], "names.csv")
+    output:
+      os.path.join(config["outdir"], "{sample}/17_virus_nt_taxonomy/taxonomy_report.html")
+    params:
+      lambda wildcards: wildcards.sample
+    conda:
+      "../envs/tidyverse.yml"
+    script:
+        "../scripts/taxonomy_report.Rmd"
