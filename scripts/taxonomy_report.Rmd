@@ -1,0 +1,100 @@
+---
+title: "Blast virus NT report"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(DT)
+library(formattable)
+known_taxa <- read_csv("../output/I1164_12629_Harvard_SIV_196_06_2_24_12/17_virus_nt_taxonomy/known_taxa.csv")
+```
+
+## Number of unique queries per tax_id
+
+`r snakemake@params[["sample"]]`
+
+Only top hits were selected. Keep only scientific names.
+```{r}
+taxa_sci <- filter(known_taxa, str_detect(name_class, "scientific"))
+```
+
+```{r, fig.cap="Number of sequence reads (unique queries) per tax_id."}
+seq_reads <- taxa_sci %>%
+  group_by(tax_id, unique_name) %>%
+  summarise(N = n(),
+            `%` = percent(N / nrow(.))) %>%
+  ungroup() %>%
+  arrange(desc(N)) %>% 
+  formattable()
+seq_reads %>% 
+  as.datatable(rownames = FALSE, caption = paste0("Number of sequence reads (unique queries) per tax_id. Number of unique tax_id-s is ", nrow(seq_reads),"."))
+```
+
+Drop queries and get distinct gi-s:
+```{r}
+by_gi <- taxa_sci %>%
+  group_by(gi, tax_id, unique_name) %>% 
+ summarise(N = n(),
+            `%` = percent(N / nrow(.))) %>%
+  ungroup() %>%
+  arrange(desc(N)) %>% 
+  formattable()
+by_gi %>% 
+  as.datatable(rownames = FALSE, caption = paste0("Number of tax_id per top hit gi (unique top hit). Number of unique top hits ", nrow(by_gi), "."))
+```
+
+Add names of parent taxa.
+```{r}
+# snakemake@input[["names"]]
+names <- read_csv("../data/names.csv")
+```
+
+```{r}
+parent_sci <- filter(names, tax_id %in% taxa_sci$parent_tax_id,
+                       str_detect(name_class, "scientific")) %>% 
+  select(-name_class)
+colnames(parent_sci) <- paste0("parent_", colnames(parent_sci))
+parent_taxa <- left_join(taxa_sci, parent_sci)
+```
+
+## Number of unique queries per parent tax_id
+
+
+```{r}
+unique_parents <- parent_taxa %>%
+  group_by(parent_tax_id, parent_unique_name) %>%
+  summarise(N = n(),
+            `%` = percent(N / nrow(.))) %>%
+  ungroup() %>%
+  arrange(desc(N)) %>% 
+  formattable()
+unique_parents %>% 
+  as.datatable(rownames = FALSE, caption = paste0("Number of sequence reads (unique queries) per parent tax_id-s. Number of unique parent tax_id-s is ", nrow(unique_parents),"."))
+```
+
+Approximate number of tax_id-s belonging to virus or bacteriophage class:
+```{r}
+phage_or_virus <- taxa_sci %>%
+  mutate(name_txt = str_to_lower(name_txt),
+    Class = case_when(
+    (str_detect(name_txt, "vir") & str_detect(name_txt, "bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla")) ~ "phage",
+    (str_detect(name_txt, "vir") & !str_detect(name_txt, "bac")) ~ "virus",
+    str_detect(name_txt, "phag") ~ "phage",
+    TRUE ~ name_txt
+  )) %>%
+  group_by(Class) %>%
+  summarise(N = n(),
+            `%` = percent(N / nrow(.))) %>%
+  ungroup() %>%
+  arrange(desc(N)) %>% 
+  formattable()
+phage_or_virus %>% 
+  as.datatable(rownames = FALSE, caption = "Number of sequence reads belonging to virus or bacteriophage classes. Unclassified taxa are shown by name.")
+```
+
