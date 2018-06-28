@@ -1,12 +1,7 @@
 
-def get_fastq(wildcards):
- fastq_files = samples.loc[wildcards.sample, ["fq1", "fq2"]].dropna()
- paths = []
- for x in fastq_files:
-   path = os.path.join(config["datadir"], x)
-   paths.append(path)
- return paths
-
+def get_fastq(wildcards, path = '.', read_pair='fq1'):
+ fq = samples.loc[wildcards.sample, [read_pair]].dropna()[0]
+ return os.path.join(path, fq)
 
 ## All-in-one preprocessing for FastQ files [1,3]
 # Adapter trimming is enabled by default
@@ -14,7 +9,8 @@ def get_fastq(wildcards):
 # Replaces AdapteRemoval, prinseq and fastqc
 rule fastp:
     input:
-      get_fastq
+      fq1 = lambda wildcards: get_fastq(wildcards, config["datadir"], 'fq1'),
+      fq2 = lambda wildcards: get_fastq(wildcards, config["datadir"], 'fq2')
     output:
       pair1 = os.path.join(config["outdir"], "{sample}/01_fastp/pair1.truncated.gz"),
       pair2 = os.path.join(config["outdir"], "{sample}/01_fastp/pair2.truncated.gz")
@@ -28,7 +24,7 @@ rule fastp:
       "../envs/fastp.yml"
     shell:
       """
-      fastp -i {input[0]} -I {input[1]} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
+      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
       """
 
 ## Stitch paired reads [2]
