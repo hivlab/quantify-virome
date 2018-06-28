@@ -85,15 +85,16 @@ unique_parents %>%
 
 ### Number of phage and other virus hits
 
-Approximate number of tax_id-s belonging to virus or bacteriophage class. Putative bacterial virus names were detected using following regular expression: "phag|bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla".
+Approximate number of tax_id-s belonging to virus or bacteriophage class. In addition to explicit phages, putative bacterial virus names were detected using following regular expression `phag|bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla` and assigned to phage class.
 ```{r}
 phage_or_virus <- taxa_sci %>%
   mutate(name_txt = str_to_lower(name_txt),
-    Class = case_when(
-    (str_detect(name_txt, "vir") & str_detect(name_txt, "phag|bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla")) ~ "phage",
-    (str_detect(name_txt, "vir") & !str_detect(name_txt, "bac")) ~ "virus",
-    TRUE ~ name_txt
-  )) %>%
+         Class = case_when(
+           (str_detect(name_txt, "vir") & str_detect(name_txt, "bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla")) ~ "phage",
+           (str_detect(name_txt, "vir") & !str_detect(name_txt, "bac")) ~ "virus",
+           (str_detect(name_txt, "phag") & str_detect(name_txt, "bac")) ~ "phage",
+           TRUE ~ name_txt
+         )) %>%
   group_by(Class) %>%
   summarise(N = n(),
             `%` = percent(N / nrow(.))) %>%
