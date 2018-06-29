@@ -108,9 +108,10 @@ rule download_taxonomy:
       "../scripts/download_taxonomy_names.R"
 
 # Add taxonomy to virus nt blast [17b]
+# n_ids is a global wildcard determined after split_fasta rule
 rule virus_nt_taxonomy:
     input:
-      known = lambda wildcards: expand(os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out"), sample = wildcards.sample, n = get_n_files(wildcards)),
+      known = lambda wildcards: expand(os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out"), sample = wildcards.sample, n = n_ids),
       vhunter = config["vhunter"],
       names = os.path.join(config["datadir"], "names.csv"),
       nodes = os.path.join(config["datadir"], "nodes.csv")

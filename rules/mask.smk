@@ -1,4 +1,12 @@
 
+## Function to get number of files after split_fasta instead of dynamic
+from os import listdir
+
+def get_n_files(wildcards):
+  dir = expand(os.path.join(config["outdir"], "{sample}/08_split_fasta"), sample = wildcards.sample)
+  files = listdir(dir[0])
+  range(1, len(files))
+
 ## Tantan mask of low complexity DNA sequences [6]
 rule tantan:
   input:
@@ -31,7 +39,7 @@ rule tantan_good:
   script:
       "../scripts/tantan_good.py"
 
-## Split reads to smaller files for Repeatmasker [8]
+## Split reads to smaller chunks for Repeatmasker [8]
 rule split_fasta:
   input: os.path.join(config["outdir"], "{sample}/07_tantan_good/tantan.goodseq.fa")
   output:
@@ -44,10 +52,10 @@ rule split_fasta:
   script:
     "../scripts/split_fasta.py"
 
+sample_ids, n_ids = glob_wildcards(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
+
 ## Repeatmasker [9]
 # Set RepBase library location environment variable and copy repeatmasker configuration file
-
-## add extra step to install repeatmasker!!!
 
 shell(
 """
