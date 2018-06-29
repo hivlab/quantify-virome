@@ -5,6 +5,7 @@ channels:
 dependencies:
   - r-base
   - r-tidyverse
+  - r-rsqlite
   - r-dt
   - r-formattable
   - pandoc
