@@ -10,7 +10,7 @@
 library(tidyverse)
 
 # Import blast hits and munge to data frame
-files <- list.files(snakemake@input[["known"]], full.names = TRUE)
+files <- snakemake@input[["known"]]
 known <- data_frame(files) %>%
   filter(str_detect(files, "known"))
 known <- mutate(known, lines = map(files, read_lines))

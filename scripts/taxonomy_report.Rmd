@@ -87,12 +87,12 @@ unique_parents %>%
 
 Approximate number of tax_id-s belonging to virus or bacteriophage class. In addition to explicit phages, putative bacterial virus names were detected using following regular expression `phag|bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla` and assigned to phage class.
 ```{r}
+bac_reg <- "bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla"
 phage_or_virus <- taxa_sci %>%
   mutate(name_txt = str_to_lower(name_txt),
          Class = case_when(
-           (str_detect(name_txt, "vir") & str_detect(name_txt, "bac|esch|coccu|chla|mona|erw|lis|vibr|shi|yers|salm|phi|clos|chla")) ~ "phage",
-           (str_detect(name_txt, "vir") & !str_detect(name_txt, "bac")) ~ "virus",
-           (str_detect(name_txt, "phag") & str_detect(name_txt, "bac")) ~ "phage",
+           (str_detect(name_txt, "phag") | str_detect(name_txt, bac_reg)) ~ "phage",
+           (str_detect(name_txt, "vir") & !str_detect(name_txt, bac_reg)) ~ "virus",
            TRUE ~ name_txt
          )) %>%
   group_by(Class) %>%
