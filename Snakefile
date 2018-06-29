@@ -13,6 +13,7 @@ shell.executable("bash")
 configfile: "config.yml"
 samples = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dtype = str)
 
+
 ## Target rule
 rule all:
     input:
