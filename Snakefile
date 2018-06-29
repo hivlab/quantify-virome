@@ -6,7 +6,6 @@ __license__ = "MIT"
 
 ## Use os.path to update file paths from config file
 import os.path
-from pathlib import Path
 import pandas as pd
 shell.executable("bash")
 
