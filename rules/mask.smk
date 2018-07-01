@@ -52,8 +52,6 @@ rule split_fasta:
   script:
     "../scripts/split_fasta.py"
 
-sample_ids, n_ids = glob_wildcards(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
-
 ## Repeatmasker [9]
 # Set RepBase library location environment variable and copy repeatmasker configuration file
 

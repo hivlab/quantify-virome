@@ -107,11 +107,15 @@ rule download_taxonomy:
     script:
       "../scripts/download_taxonomy_names.R"
 
+def get_knownviral(wildcards):
+  path = expand(os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.*.known-viral.out"), sample = wildcards.sample)
+  return glob.glob(*path)
+
 # Add taxonomy to virus nt blast [17b]
 # n_ids is a global wildcard determined after split_fasta rule
 rule virus_nt_taxonomy:
     input:
-      known = lambda wildcards: expand(os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out"), sample = wildcards.sample, n = n_ids),
+      known = get_knownviral,
       vhunter = config["vhunter"],
       names = os.path.join(config["datadir"], "names.csv"),
       nodes = os.path.join(config["datadir"], "nodes.csv")
