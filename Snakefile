@@ -12,7 +12,8 @@ shell.executable("bash")
 ## Load configuration file with sample and path info
 configfile: "config.yml"
 samples = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dtype = str)
-
+wildcard_constraints:
+    n = "\d+"
 
 ## Target rule
 rule all:
