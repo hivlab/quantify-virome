@@ -41,7 +41,7 @@ rule tantan_good:
 rule split_fasta:
   input: os.path.join(config["outdir"], "{sample}/07_tantan_good/tantan.goodseq.fa")
   output:
-    os.path.join(config["outdir"], dynamic("{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
+    dynamic(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
   params:
     config["split_fasta"]["batch_size"],
     os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.%i.fa")
@@ -64,7 +64,7 @@ fi
 
 rule repeatmasker:
   input:
-    fa = os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"),
+    fa = dynamic(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa")),
     repbase = config["repbase_file"]
   output:
     os.path.join(config["outdir"], "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked")
