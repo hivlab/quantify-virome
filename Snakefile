@@ -18,8 +18,7 @@ samples = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dt
 ## Target rule
 rule all:
     input:
-      dynamic(expand(os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.{{n}}.{ext}"), sample = samples.index.values.tolist(), ext = ["known-viral.out", "unmapped.fa"])),
-      expand(os.path.join(config["outdir"], "{sample}/17_virus_nt_taxonomy/taxonomy_report.html"), sample = samples.index.values.tolist())
+      dynamic(expand(os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/masked.{{n}}.fa"), sample = samples.index.values.tolist())), dynamic(expand(os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/unmasked.{{n}}.fa"), sample = samples.index.values.tolist()))
 
 include: "rules/munge.smk"
 include: "rules/mask.smk"
