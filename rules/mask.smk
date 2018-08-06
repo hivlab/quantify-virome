@@ -1,10 +1,4 @@
 
-## Function to get number of files after split_fasta instead of dynamic
-def get_n_files(wildcards):
-  dir = expand(os.path.join(config["outdir"], "{sample}/08_split_fasta"), sample = wildcards.sample)
-  files = listdir(dir[0])
-  range(1, len(files))
-
 ## Tantan mask of low complexity DNA sequences [6]
 rule tantan:
   input:
