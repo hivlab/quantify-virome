@@ -20,7 +20,7 @@ rule tantan:
 # 2) Sequences with >= 40% of total length of being masked
 rule tantan_good:
   input:
-    os.path.join(config["outdir"], "{sample}/06_tantan/cdhit.tantan.fa")
+    rules.tantan.output
   output:
     os.path.join(config["outdir"], "{sample}/07_tantan_good/tantan.goodseq.fa")
   params:
@@ -33,7 +33,8 @@ rule tantan_good:
 
 ## Split reads to smaller chunks for Repeatmasker [8]
 rule split_fasta:
-  input: os.path.join(config["outdir"], "{sample}/07_tantan_good/tantan.goodseq.fa")
+  input:
+    rules.tantan_good.output
   output:
     dynamic(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
   params:
@@ -58,7 +59,7 @@ fi
 
 rule repeatmasker:
   input:
-    fa = dynamic(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa")),
+    fa = rules.split_fasta.output,
     repbase = config["repbase_file"]
   output:
     os.path.join(config["outdir"], "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked")
