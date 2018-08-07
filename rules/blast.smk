@@ -1,8 +1,7 @@
 
 ## Extract unmapped reads [12a]
 rule unmapped_reads:
-    input:
-      os.path.join(config["outdir"], "{sample}/11_bwa_mem/mapped.{n}.bam")
+    input: rules.bwa_mem.output
     output:
       bam = os.path.join(config["outdir"], "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.bam"),
       fq = os.path.join(config["outdir"], "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fq"),
@@ -18,9 +17,7 @@ rule unmapped_reads:
 
 ## Subset repeatmasker masked reads using unmapped ids [12b]
 rule unmapped_masked:
-    input:
-      os.path.join(config["outdir"], "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fa"),
-      os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/masked.{n}.fa")
+    input: rules.unmapped_reads.output.fa, rules.repeatmasker_good.output.masked
     output:
       os.path.join(config["outdir"], "{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa")
     conda:
@@ -32,7 +29,7 @@ rule unmapped_masked:
 rule megablast_ref_genome:
     input:
       db = config["ref_genome"],
-      query = os.path.join(config["outdir"], "{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa")
+      query = rules.unmapped_masked.output
     output:
       os.path.join(config["outdir"], "{sample}/13_megablast/megablast.{n}.xml")
     params:
@@ -50,8 +47,8 @@ rule megablast_ref_genome:
 ## Filter megablast records for the cutoff value [14]
 rule parse_megablast:
     input:
-      blastxml = os.path.join(config["outdir"], "{sample}/13_megablast/megablast.{n}.xml"),
-      query = os.path.join(config["outdir"], "{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa")
+      blastxml = rules.megablast_ref_genome.output,
+      query = rules.unmapped_masked.output
     output:
       known = os.path.join(config["outdir"], "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.non-viral.out"),
       unmapped = os.path.join(config["outdir"], "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa")
@@ -66,7 +63,7 @@ rule parse_megablast:
 rule blastn_virus_nt:
     input:
       db = config["virus_nt"],
-      query = os.path.join(config["outdir"], "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa")
+      query = rules.parse_megablast.output.unmapped
     output:
       out = os.path.join(config["outdir"], "{sample}/15_blast_virusnt/blast_virusnt.{n}.xml")
     params:
@@ -83,8 +80,8 @@ rule blastn_virus_nt:
 ## Filter blastn records for the cutoff value [16]
 rule parse_virusntblast:
     input:
-      blastxml = os.path.join(config["outdir"], "{sample}/15_blast_virusnt/blast_virusnt.{n}.xml"),
-      query = os.path.join(config["outdir"], "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa")
+      blastxml = rules.blastn_virus_nt.output.out,
+      query = rules.parse_megablast.output.unmapped
     output:
       known = os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out"),
       unmapped = os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.unmapped.fa")
@@ -98,8 +95,8 @@ rule parse_virusntblast:
 # Download taxonomy names [17a]
 rule download_taxonomy:
     output:
-      os.path.join(config["datadir"], "names.csv"),
-      os.path.join(config["datadir"], "nodes.csv")
+      names = os.path.join(config["datadir"], "names.csv"),
+      nodes = os.path.join(config["datadir"], "nodes.csv")
     params:
       datadir = config["datadir"]
     conda:
@@ -117,8 +114,8 @@ rule virus_nt_taxonomy:
     input:
       known = get_knownviral,
       vhunter = config["vhunter"],
-      names = os.path.join(config["datadir"], "names.csv"),
-      nodes = os.path.join(config["datadir"], "nodes.csv")
+      names = rules.download_taxonomy.output.names,
+      nodes = rules.download_taxonomy.output.nodes
     output:
       os.path.join(config["outdir"], "{sample}/17_virus_nt_taxonomy/known_taxa.csv")
     conda:
@@ -129,8 +126,8 @@ rule virus_nt_taxonomy:
 # Taxonomy report to virus nt blast [17c]
 rule virus_nt_taxonomy_report:
     input:
-      os.path.join(config["outdir"], "{sample}/17_virus_nt_taxonomy/known_taxa.csv"),
-      names = os.path.join(config["datadir"], "names.csv")
+      rules.virus_nt_taxonomy.output,
+      names = rules.download_taxonomy.output.names
     output:
       os.path.join(config["outdir"], "{sample}/17_virus_nt_taxonomy/taxonomy_report.html")
     params:

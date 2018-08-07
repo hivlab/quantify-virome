@@ -1,8 +1,7 @@
 
 ## Tantan mask of low complexity DNA sequences [6]
 rule tantan:
-  input:
-    os.path.join(config["outdir"], "{sample}/05_cdhit/merged.cdhit.fa")
+  input: rules.cd_hit.output.clusters
   output:
     os.path.join(config["outdir"], "{sample}/06_tantan/cdhit.tantan.fa")
   params:
