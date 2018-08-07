@@ -14,19 +14,20 @@ shell.executable("bash")
 ## Load configuration file with sample and path info
 configfile: "config.yml"
 samples = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dtype = str)
+sample_ids = samples.index.values.tolist()
 
 ## Target rule
 rule all:
     input:
-      dynamic(expand("{sample}/11_bwa_mem/mapped.{{n}}.bam", sample = samples.index.values.tolist())),
-      expand("{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa", sample = samples.index.values.tolist()),
-      expand("{sample}/13_megablast/megablast.{n}.xml", sample = samples.index.values.tolist()),
-      expand("{sample}/14_megablast_parsed/RefGenome_megablast.{n}.non-viral.out", sample = samples.index.values.tolist()),
-      expand("{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa", sample = samples.index.values.tolist()),
-      expand("{sample}/15_blast_virusnt/blast_virusnt.{n}.xml", sample = samples.index.values.tolist()),
-      expand("{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out", sample = samples.index.values.tolist()),
-      expand("{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.unmapped.fa", sample = samples.index.values.tolist()),
-      expand("reports/{sample}/taxonomy_report.html", sample = samples.index.values.tolist())
+      dynamic(expand("{sample}/11_bwa_mem/mapped.{{n}}.bam", sample = sample_ids)),
+      dynamic(expand("{sample}/12b_unmapped_masked/RefGenome_unmapped.{{n}}.masked.fa", sample = sample_ids)),
+      dynamic(expand("{sample}/13_megablast/megablast.{{n}}.xml", sample = sample_ids)),
+      dynamic(expand("{sample}/14_megablast_parsed/RefGenome_megablast.{{n}}.non-viral.out", sample = sample_ids)),
+      dynamic(expand("{sample}/14_megablast_parsed/RefGenome_megablast.{{n}}.unmapped.fa", sample = sample_ids)),
+      dynamic(expand("{sample}/15_blast_virusnt/blast_virusnt.{{n}}.xml", sample = sample_ids)),
+      dynamic(expand("{sample}/16_blastntvirus_parsed/blastnt_virus.{{n}}.known-viral.out", sample = sample_ids)),
+      dynamic(expand("{sample}/16_blastntvirus_parsed/blastnt_virus.{{n}}.unmapped.fa", sample = sample_ids)),
+      dynamic(expand("reports/{sample}/taxonomy_report.html", sample = sample_ids))
 
 ## Setup report
 
