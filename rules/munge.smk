@@ -55,7 +55,6 @@ rule merge_reads:
   input: rules.fastq_join.output
   output:
     "{sample}/03_merged/stitched.merged.fq.gz"
-  group: "merge_convert"
   shell:
     """
     cat {input[0]} {input[1]} {input[2]} > {output[0]}
@@ -65,7 +64,6 @@ rule merge_reads:
 rule fastq2fasta:
   input: rules.merge_reads.output
   output: "{sample}/04_fasta/stitched.merged.fasta"
-  group: "merge_convert"
   shell:
     """
     zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
