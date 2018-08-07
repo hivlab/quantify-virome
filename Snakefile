@@ -18,7 +18,8 @@ samples = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dt
 ## Target rule
 rule all:
     input:
-      dynamic(expand("{sample}/11_bwa_mem/mapped.{{n}}.bam", sample = samples.index.values.tolist()))
+      dynamic(expand("{sample}/11_bwa_mem/mapped.{{n}}.bam", sample = samples.index.values.tolist())),
+      expand("reports/{sample}/taxonomy_report.html", sample = samples.index.values.tolist())
 
 ## Setup report
 
