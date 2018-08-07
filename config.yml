@@ -38,7 +38,7 @@ tantan_good:
 
 # Split fasta
 split_fasta:
-      batch_size: 36000
+      n_files: 20
 
 # Filter repeatmasker output
 repeatmasker_good:

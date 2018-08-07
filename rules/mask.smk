@@ -38,7 +38,7 @@ rule split_fasta:
   output:
     dynamic(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
   params:
-    config["split_fasta"]["batch_size"],
+    config["split_fasta"]["n_files"],
     os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.%i.fa")
   conda:
       "../envs/biopython.yml"
@@ -79,8 +79,8 @@ rule repeatmasker:
 # 2) Sequences with >= 40% of total length of being masked
 rule repeatmasker_good:
   input:
-    masked = os.path.join(config["outdir"], "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked"),
-    unmasked = os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa")
+    masked = rules.repeatmasker.output,
+    unmasked = rules.split_fasta.output
   output:
     masked = os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/masked.{n}.fa"),
     unmasked = os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/unmasked.{n}.fa")
