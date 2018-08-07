@@ -20,7 +20,7 @@ rule fastp:
     threads:
       config["fastp"]["threads"]
     conda:
-      "../envs/fastp.yml"
+      "envs/fastp.yml"
     shell:
       """
       fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
@@ -38,7 +38,7 @@ rule fastq_join:
     config["fastq-join"]["minimum_overlap"],
     template = "{sample}/02_stitched/%.fq.gz"
   conda:
-    "../envs/fastq-join.yml"
+    "envs/fastq-join.yml"
   shell:
     """
     fastq-join \
@@ -77,7 +77,7 @@ rule cd_hit:
   params:
     "-c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0 -T 0"
   conda:
-    "../envs/cd-hit.yml"
+    "envs/cd-hit.yml"
   shell:
     """
     cd-hit-est -i {input} -o {output.clusters} {params} > {output.report}

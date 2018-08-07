@@ -7,7 +7,7 @@ rule tantan:
   params:
     "-x N"
   conda:
-      "../envs/tantan.yml"
+      "envs/tantan.yml"
   shell:
     """
     tantan {params} {input} > {output}
@@ -26,9 +26,9 @@ rule tantan_good:
     min_length = config["tantan_good"]["min_length"],
     por_n = config["tantan_good"]["por_n"]
   conda:
-      "../envs/biopython.yml"
+      "envs/biopython.yml"
   script:
-      "../scripts/tantan_good.py"
+      "scripts/tantan_good.py"
 
 ## Split reads to smaller chunks for Repeatmasker [8]
 rule split_fasta:
@@ -40,9 +40,9 @@ rule split_fasta:
     config["split_fasta"]["n_files"],
     "{sample}/08_split_fasta/tantan.goodseq.%i.fa"
   conda:
-      "../envs/biopython.yml"
+      "envs/biopython.yml"
   script:
-    "../scripts/split_fasta.py"
+    "scripts/split_fasta.py"
 
 ## Repeatmasker [9]
 # Set RepBase library location environment variable and copy repeatmasker configuration file
@@ -87,6 +87,6 @@ rule repeatmasker_good:
     min_length = config["repeatmasker_good"]["min_length"],
     por_n = config["repeatmasker_good"]["por_n"]
   conda:
-    "../envs/biopython.yml"
+    "envs/biopython.yml"
   script:
-    "../scripts/repeatmasker_good.py"
+    "scripts/repeatmasker_good.py"
