@@ -1,6 +1,6 @@
 
 def get_fastq(wildcards, read_pair = 'fq1'):
- samples.loc[wildcards.sample, [read_pair]].dropna()[0]
+ return samples.loc[wildcards.sample, [read_pair]].dropna()[0]
 
 ## All-in-one preprocessing for FastQ files [1,3]
 # Adapter trimming is enabled by default
