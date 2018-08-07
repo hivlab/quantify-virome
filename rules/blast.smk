@@ -3,9 +3,9 @@
 rule unmapped_reads:
     input: rules.bwa_mem.output
     output:
-      bam = os.path.join(config["outdir"], "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.bam"),
-      fq = os.path.join(config["outdir"], "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fq"),
-      fa = os.path.join(config["outdir"], "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fa")
+      bam = "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.bam",
+      fq = "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fq",
+      fa = "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fa"
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:
@@ -19,7 +19,7 @@ rule unmapped_reads:
 rule unmapped_masked:
     input: rules.unmapped_reads.output.fa, rules.repeatmasker_good.output.masked
     output:
-      os.path.join(config["outdir"], "{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa")
+      "{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa"
     conda:
       "../envs/biopython.yml"
     script:
@@ -31,7 +31,7 @@ rule megablast_ref_genome:
       db = config["ref_genome"],
       query = rules.unmapped_masked.output
     output:
-      os.path.join(config["outdir"], "{sample}/13_megablast/megablast.{n}.xml")
+      "{sample}/13_megablast/megablast.{n}.xml"
     params:
       perc_ident = config["megablast_ref_genome"]["perc_identity"],
       evalue = config["megablast_ref_genome"]["evalue"],
@@ -50,8 +50,8 @@ rule parse_megablast:
       blastxml = rules.megablast_ref_genome.output,
       query = rules.unmapped_masked.output
     output:
-      known = os.path.join(config["outdir"], "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.non-viral.out"),
-      unmapped = os.path.join(config["outdir"], "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa")
+      known = "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.non-viral.out",
+      unmapped = "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:
@@ -65,7 +65,7 @@ rule blastn_virus_nt:
       db = config["virus_nt"],
       query = rules.parse_megablast.output.unmapped
     output:
-      out = os.path.join(config["outdir"], "{sample}/15_blast_virusnt/blast_virusnt.{n}.xml")
+      out = "{sample}/15_blast_virusnt/blast_virusnt.{n}.xml"
     params:
       task = "blastn",
       show_gis = True,
@@ -83,8 +83,8 @@ rule parse_virusntblast:
       blastxml = rules.blastn_virus_nt.output.out,
       query = rules.parse_megablast.output.unmapped
     output:
-      known = os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out"),
-      unmapped = os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.unmapped.fa")
+      known = "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out",
+      unmapped = "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.unmapped.fa"
     params:
       e_cutoff = 1e-5
     conda:
@@ -95,8 +95,8 @@ rule parse_virusntblast:
 # Download taxonomy names [17a]
 rule download_taxonomy:
     output:
-      names = os.path.join(config["datadir"], "names.csv"),
-      nodes = os.path.join(config["datadir"], "nodes.csv")
+      names = "names.csv",
+      nodes = "nodes.csv"
     params:
       datadir = config["datadir"]
     conda:
@@ -105,7 +105,7 @@ rule download_taxonomy:
       "../scripts/download_taxonomy_names.R"
 
 def get_knownviral(wildcards):
-  path = expand(os.path.join(config["outdir"], "{sample}/16_blastntvirus_parsed/blastnt_virus.*.known-viral.out"), sample = wildcards.sample)
+  path = expand("{sample}/16_blastntvirus_parsed/blastnt_virus.*.known-viral.out", sample = wildcards.sample)
   return glob.glob(*path)
 
 # Add taxonomy to virus nt blast [17b]
@@ -117,7 +117,7 @@ rule virus_nt_taxonomy:
       names = rules.download_taxonomy.output.names,
       nodes = rules.download_taxonomy.output.nodes
     output:
-      os.path.join(config["outdir"], "{sample}/17_virus_nt_taxonomy/known_taxa.csv")
+      "{sample}/17_virus_nt_taxonomy/known_taxa.csv"
     conda:
       "../envs/tidyverse.yml"
     script:
@@ -129,7 +129,7 @@ rule virus_nt_taxonomy_report:
       rules.virus_nt_taxonomy.output,
       names = rules.download_taxonomy.output.names
     output:
-      os.path.join(config["outdir"], "{sample}/17_virus_nt_taxonomy/taxonomy_report.html")
+      "{sample}/17_virus_nt_taxonomy/taxonomy_report.html"
     params:
       lambda wildcards: wildcards.sample
     conda:

@@ -3,11 +3,11 @@
 rule bwa_mem:
     input:
         config["ref_genome"],
-        [os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/unmasked.{n}.fa")]
+        ["{sample}/10_repeatmasker_good/unmasked.{n}.fa"]
     output:
-        os.path.join(config["outdir"], "{sample}/11_bwa_mem/mapped.{n}.bam")
+        "{sample}/11_bwa_mem/mapped.{n}.bam"
     log:
-        os.path.join(config["outdir"], "{sample}/logs/bwa_mem.{n}.log")
+        "{sample}/logs/bwa_mem.{n}.log"
     params: "-L 100,100 -k 15"
     threads: 8
     conda:

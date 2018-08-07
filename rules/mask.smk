@@ -3,7 +3,7 @@
 rule tantan:
   input: rules.cd_hit.output.clusters
   output:
-    os.path.join(config["outdir"], "{sample}/06_tantan/cdhit.tantan.fa")
+    "{sample}/06_tantan/cdhit.tantan.fa"
   params:
     "-x N"
   conda:
@@ -21,7 +21,7 @@ rule tantan_good:
   input:
     rules.tantan.output
   output:
-    os.path.join(config["outdir"], "{sample}/07_tantan_good/tantan.goodseq.fa")
+    "{sample}/07_tantan_good/tantan.goodseq.fa"
   params:
     min_length = config["tantan_good"]["min_length"],
     por_n = config["tantan_good"]["por_n"]
@@ -35,10 +35,10 @@ rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    dynamic(os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
+    dynamic("{sample}/08_split_fasta/tantan.goodseq.{n}.fa")
   params:
     config["split_fasta"]["n_files"],
-    os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.%i.fa")
+    "{sample}/08_split_fasta/tantan.goodseq.%i.fa"
   conda:
       "../envs/biopython.yml"
   script:
@@ -61,15 +61,15 @@ rule repeatmasker:
     fa = rules.split_fasta.output,
     repbase = config["repbase_file"]
   output:
-    os.path.join(config["outdir"], "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked")
+    "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked"
   params:
     cluster = "-cwd -V",
-    dir = os.path.join(config["outdir"], "{sample}")
+    dir = "{sample}/09_repeatmasker"
   threads: 8
   shell:
     """
     export REPEATMASKER_REPBASE_FILE={input.repbase}
-    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.dir}/09_repeatmasker
+    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.dir}
     """
 
 ## Filter repeatmasker output [10]
@@ -81,8 +81,8 @@ rule repeatmasker_good:
     masked = rules.repeatmasker.output,
     unmasked = rules.split_fasta.output
   output:
-    masked = os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/masked.{n}.fa"),
-    unmasked = os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/unmasked.{n}.fa")
+    masked = "{sample}/10_repeatmasker_good/masked.{n}.fa",
+    unmasked = "{sample}/10_repeatmasker_good/unmasked.{n}.fa"
   params:
     min_length = config["repeatmasker_good"]["min_length"],
     por_n = config["repeatmasker_good"]["por_n"]
