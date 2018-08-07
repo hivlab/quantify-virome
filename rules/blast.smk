@@ -95,8 +95,8 @@ rule parse_virusntblast:
 # Download taxonomy names [17a]
 rule download_taxonomy:
     output:
-      names = "names.csv",
-      nodes = "nodes.csv"
+      names = "taxonomy/names.csv",
+      nodes = "taxonomy/nodes.csv"
     params:
       datadir = config["datadir"]
     conda:
