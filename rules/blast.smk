@@ -7,7 +7,7 @@ rule unmapped_reads:
       fq = "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fq",
       fa = "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fa"
     conda:
-      "envs/bwa-sam-bed.yml"
+      "../envs/bwa-sam-bed.yml"
     shell:
       """
         samtools view -b -f 4 {input} > {output.bam}
@@ -21,9 +21,9 @@ rule unmapped_masked:
     output:
       "{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa"
     conda:
-      "envs/biopython.yml"
+      "../envs/biopython.yml"
     script:
-      "scripts/unmapped_masked_ids.py"
+      "../scripts/unmapped_masked_ids.py"
 
 ## MegaBlast against reference genome to remove more host sequences [13]
 rule megablast_ref_genome:
@@ -40,9 +40,9 @@ rule megablast_ref_genome:
       num_align = config["megablast_ref_genome"]["num_alignments"]
     threads: 8
     conda:
-      "envs/biopython.yml"
+      "../envs/biopython.yml"
     script:
-      "scripts/megablast_ref_genome.py"
+      "../scripts/megablast_ref_genome.py"
 
 ## Filter megablast records for the cutoff value [14]
 rule parse_megablast:
@@ -55,9 +55,9 @@ rule parse_megablast:
     params:
       e_cutoff = 1e-10
     conda:
-      "envs/biopython.yml"
+      "../envs/biopython.yml"
     script:
-      "scripts/parse_blast_xml.py"
+      "../scripts/parse_blast_xml.py"
 
 ## Blast against virus database [15]
 rule blastn_virus_nt:
@@ -73,9 +73,9 @@ rule blastn_virus_nt:
       db_soft_mask = 100,
       num_threads = 8
     conda:
-      "envs/biopython.yml"
+      "../envs/biopython.yml"
     script:
-      "scripts/blastn_virus_db.py"
+      "../scripts/blastn_virus_db.py"
 
 ## Filter blastn records for the cutoff value [16]
 rule parse_virusntblast:
@@ -88,9 +88,9 @@ rule parse_virusntblast:
     params:
       e_cutoff = 1e-5
     conda:
-      "envs/biopython.yml"
+      "../envs/biopython.yml"
     script:
-      "scripts/parse_blast_xml.py"
+      "../scripts/parse_blast_xml.py"
 
 # Download taxonomy names [17a]
 rule download_taxonomy:
@@ -98,9 +98,9 @@ rule download_taxonomy:
       names = "taxonomy/names.csv",
       nodes = "taxonomy/nodes.csv"
     conda:
-      "envs/tidyverse.yml"
+      "../envs/tidyverse.yml"
     script:
-      "scripts/download_taxonomy_names.R"
+      "../scripts/download_taxonomy_names.R"
 
 def get_knownviral(wildcards):
   path = expand("{sample}/16_blastntvirus_parsed/blastnt_virus.*.known-viral.out", sample = wildcards.sample)
@@ -117,9 +117,9 @@ rule virus_nt_taxonomy:
     output:
       "{sample}/17_virus_nt_taxonomy/known_taxa.csv"
     conda:
-      "envs/tidyverse.yml"
+      "../envs/tidyverse.yml"
     script:
-      "scripts/munge_taxonomy.R"
+      "../scripts/munge_taxonomy.R"
 
 # Taxonomy report to virus nt blast [17c]
 rule virus_nt_taxonomy_report:
@@ -131,6 +131,6 @@ rule virus_nt_taxonomy_report:
     params:
       lambda wildcards: wildcards.sample
     conda:
-      "envs/tidyverse.yml"
+      "../envs/tidyverse.yml"
     script:
-      "scripts/taxonomy_report.Rmd"
+      "../scripts/taxonomy_report.Rmd"
