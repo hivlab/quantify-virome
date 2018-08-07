@@ -1,5 +1,5 @@
 
-def get_fastq(wildcards, path = '.', read_pair='fq1'):
+def get_fastq(wildcards, path = '.', read_pair = 'fq1'):
  fq = samples.loc[wildcards.sample, [read_pair]].dropna()[0]
  return os.path.join(path, fq)
 
