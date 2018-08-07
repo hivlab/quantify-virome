@@ -97,8 +97,6 @@ rule download_taxonomy:
     output:
       names = "taxonomy/names.csv",
       nodes = "taxonomy/nodes.csv"
-    params:
-      datadir = config["datadir"]
     conda:
       "envs/tidyverse.yml"
     script:

@@ -20,6 +20,11 @@ rule all:
     input:
       dynamic(expand("{sample}/11_bwa_mem/mapped.{{n}}.bam", sample = samples.index.values.tolist()))
 
+## Setup report
+
+## report: "report/workflow.rst"
+
+## Load rules
 include: "rules/munge.smk"
 include: "rules/mask.smk"
 include: "rules/align.smk"
