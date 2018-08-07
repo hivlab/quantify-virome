@@ -16,14 +16,14 @@ vhunter: "/gpfs/software/VirusSeeker/databases/taxdump_300817/vhunter.db"
 
 # Rule parameters ---------------------
 
+# Fastp
+fastp:
+    threads: 4
+
 # fastq-join
 fastq-join:
     maximum_difference: 5
     minimum_overlap: 10
-
-# Fastp
-fastp:
-    threads: 16
 
 # Filter tantan output
 tantan_good:

@@ -17,13 +17,13 @@ rule fastp:
       options = "-f 5 -t 5 -l 50 -y -Y 8",
       html = "{sample}/01_fastp/report.html",
       json = "{sample}/01_fastp/report.json"
-    threads:
-      config["fastp"]["threads"]
+    threads: 4
     conda:
       "../envs/fastp.yml"
+    log: "{sample}/logs/01_fastp.log"
     shell:
       """
-      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
+      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads} 2> {log}
       """
 
 ## Stitch paired reads [2]
@@ -39,6 +39,7 @@ rule fastq_join:
     template = "{sample}/02_stitched/%.fq.gz"
   conda:
     "../envs/fastq-join.yml"
+  log: "{sample}/logs/02_fastq_join.log"
   shell:
     """
     fastq-join \
@@ -46,7 +47,7 @@ rule fastq_join:
     -m {params[1]} \
     {input[0]} \
     {input[1]} \
-    -o {params[2]}
+    -o {params[2]} 2> {log}
     """
 
 ## Merge stitched reads [3]
@@ -74,11 +75,10 @@ rule cd_hit:
   output:
     clusters = "{sample}/05_cdhit/merged.cdhit.fa",
     report = "{sample}/05_cdhit/stitched.merged.cdhit.report"
-  params:
-    "-c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0 -T 0"
+  threads: 4
   conda:
     "../envs/cd-hit.yml"
   shell:
     """
-    cd-hit-est -i {input} -o {output.clusters} {params} > {output.report}
+    cd-hit-est -i {input} -o {output.clusters} -T {threads} -c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0 > {output.report}
     """
