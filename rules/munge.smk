@@ -29,8 +29,7 @@ rule fastp:
 
 ## Stitch paired reads [2]
 rule fastq_join:
-  input:
-    lambda wildcards: expand(os.path.join(config["outdir"], "{sample}/01_fastp/pair{n}.truncated.gz"), sample = wildcards.sample, n = [1, 2])
+  input: rules.fastp.output
   output:
     os.path.join(config["outdir"], "{sample}/02_stitched/join.fq.gz"),
     os.path.join(config["outdir"], "{sample}/02_stitched/un1.fq.gz"),
@@ -51,10 +50,9 @@ rule fastq_join:
     -o {params[2]}
     """
 
-## Merge stitched reads
+## Merge stitched reads [3]
 rule merge_reads:
-  input:
-    lambda wildcards: expand(os.path.join(config["outdir"], "{sample}/02_stitched/{pair}.fq.gz"), sample = wildcards.sample, pair = ["join", "un1", "un2"])
+  input: rules.fastq_join.output
   output:
     os.path.join(config["outdir"], "{sample}/03_merged/stitched.merged.fq.gz")
   shell:
@@ -64,7 +62,7 @@ rule merge_reads:
 
 ## Convert fastq to fasta format [4]
 rule fastq2fasta:
-  input: os.path.join(config["outdir"], "{sample}/03_merged/stitched.merged.fq.gz")
+  input: rules.merge_reads.output
   output: os.path.join(config["outdir"], "{sample}/04_fasta/stitched.merged.fasta")
   shell:
     """
@@ -73,8 +71,7 @@ rule fastq2fasta:
 
 ## Run cd-hit to find and munge duplicate reads [5]
 rule cd_hit:
-  input:
-    os.path.join(config["outdir"], "{sample}/04_fasta/stitched.merged.fasta")
+  input: rules.fastq2fasta.output
   output:
     clusters = os.path.join(config["outdir"], "{sample}/05_cdhit/merged.cdhit.fa"),
     report = os.path.join(config["outdir"], "{sample}/05_cdhit/stitched.merged.cdhit.report")
