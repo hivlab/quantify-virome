@@ -23,7 +23,7 @@ rule fastp:
     log: "{sample}/logs/01_fastp.log"
     shell:
       """
-      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads} 2> {log}
+      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads} > {log} 2>&1
       """
 
 ## Stitch paired reads [2]
@@ -47,7 +47,7 @@ rule fastq_join:
     -m {params[1]} \
     {input[0]} \
     {input[1]} \
-    -o {params[2]} 2> {log}
+    -o {params[2]} > {log} 2>&1
     """
 
 ## Merge stitched reads [3]
