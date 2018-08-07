@@ -11,7 +11,7 @@ rule bwa_mem:
     params: "-L 100,100 -k 15"
     threads: 8
     conda:
-      "envs/bwa-sam-bed.yml"
+      "../envs/bwa-sam-bed.yml"
     shell:
         "(bwa mem {params} -t {threads} {input} | "
         "samtools view -Sb - > {output}) 2> {log}"
