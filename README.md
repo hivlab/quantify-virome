@@ -90,7 +90,6 @@ snakemake -j --use-conda --cluster-config cluster.json  \
 source deactivate
 ```
 
-
 # VirusSeeker Virome workflow
 
 Following workflow description is a copy-paste from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5326578/
