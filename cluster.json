@@ -4,14 +4,13 @@
         "name" : "{rule}.{wildcards.sample}",
         "time" : "24:00:00",
         "partition" : "main",
-        "mem" : "20G",
+        "mem" : "8G",
         "nodes" : 1,
         "cpus-per-task" : 1,
         "output" : "slogs/{rule}_slurm_%j.log"
     },
     "fastp" :
     {
-        "nodes" : 1,
         "cpus-per-task" : "{threads}"
     }
     ,
@@ -26,9 +25,7 @@
     },
     "cd_hit" :
     {
-        "mem" : "50G",
-        "time": "24:00:00",
-        "nodes" : 1,
+        "time": "30:00:00",
         "cpus-per-task" : "{threads}"
     }
 }
