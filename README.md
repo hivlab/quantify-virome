@@ -63,31 +63,25 @@ Pay attention to partitition and time arguments in cluster.json. Snakefile has .
 ## Dry run
 
 ```
-snakemake -np -j --cluster-config cluster.json \
-             --cluster "sbatch -J {cluster.name} \
-             -p {cluster.partition} \
-             -t {cluster.time} \
-             --mem {cluster.mem} \
-             --output {cluster.output}"
+snakemake -n
 ```
 
 ## Create workflow graph
 
 ```
-snakemake --dag -j --cluster-config cluster.json \
-                  --cluster "sbatch -p {cluster.partition} \
-                  -t {cluster.time}" | dot -Tsvg > graph/dag.svg
+snakemake --dag | dot -Tsvg > graph/dag.svg
 ```
 
-## Real stuff
+## Real run
 
 ```
-snakemake -j --cluster-config cluster.json \
+snakemake -j --use-conda --cluster-config cluster.json  \
              --cluster "sbatch -J {cluster.name} \
              -p {cluster.partition} \
              -t {cluster.time} \
              --mem {cluster.mem} \
-             --output {cluster.output}"
+             --output {cluster.output}" \
+             --restart-times 2
 ```
 
 ## Exit/deactivate environment
