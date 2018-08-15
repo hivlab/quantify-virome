@@ -8,19 +8,16 @@ snakemake -j --use-conda --cluster-config cluster.json  \
              -p {cluster.partition} \
              -t {cluster.time} \
              --mem {cluster.mem} \
-             --output {cluster.output}"
+             --output {cluster.output} \
+             --nodes {cluster.nodes} \
+             --cpus-per-task {cluster.cpus-per-task}" \
+             --restart-times 2
 
 # Dry run
-snakemake -np -j --use-conda --cluster-config cluster.json \
-             --cluster "sbatch -J {cluster.name} \
-             -p {cluster.partition} \
-             -t {cluster.time} \
-             --mem {cluster.mem} \
-             --output {cluster.output}"
+snakemake -n
 
 # Create graph
-snakemake --dag -j --cluster-config cluster.json \
-                  --cluster "sbatch -p testing -t 00:30:00" | dot -Tsvg > graph/dag.svg
+snakemake --dag | dot -Tsvg > graph/dag.svg
 
 # Delete all files
 rm $(snakemake --snakefile Snakefile.py --summary | tail -n+2 | cut -f1)
