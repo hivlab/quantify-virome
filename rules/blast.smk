@@ -127,7 +127,7 @@ rule virus_nt_taxonomy_report:
       rules.virus_nt_taxonomy.output,
       names = rules.download_taxonomy.output.names
     output:
-      "reports/{sample}/taxonomy_report.html"
+      "{sample}/reports/taxonomy_report.html"
     params:
       lambda wildcards: wildcards.sample
     conda:
