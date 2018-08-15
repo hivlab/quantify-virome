@@ -27,8 +27,7 @@ rule all:
       expand("{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa", sample = sample_ids, n = n_files),
       expand("{sample}/15_blast_virusnt/blast_virusnt.{n}.xml", sample = sample_ids, n = n_files),
       expand("{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out", sample = sample_ids, n = n_files),
-      expand("{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.unmapped.fa", sample = sample_ids, n = n_files),
-      expand("{sample}/reports/taxonomy_report.html", sample = sample_ids)
+      expand("{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.unmapped.fa", sample = sample_ids, n = n_files)
 
 ## Load rules
 include: "rules/munge.smk"
