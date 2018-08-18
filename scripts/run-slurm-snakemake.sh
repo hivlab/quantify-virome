@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Run snakemake
-snakemake -j --cluster-config cluster.json \
+snakemake -j --use-conda -U repeatmasker_good --cluster-config cluster.json \
              --cluster "sbatch -J {cluster.name} \
              -p {cluster.partition} \
              -t {cluster.time} \
@@ -9,16 +9,10 @@ snakemake -j --cluster-config cluster.json \
              --output {cluster.output}"
 
 # Dry run
-snakemake -np -j --cluster-config cluster.json \
-             --cluster "sbatch -J {cluster.name} \
-             -p {cluster.partition} \
-             -t {cluster.time} \
-             --mem {cluster.mem} \
-             --output {cluster.output}"
+snakemake -np
 
 # Create graph
-snakemake --dag -j --cluster-config cluster.json \
-                  --cluster "sbatch -p testing -t 00:30:00" | dot -Tsvg > graph/dag.svg
+snakemake --dag -j | dot -Tsvg > graph/dag.svg
 
 # Delete all files
 rm $(snakemake --snakefile Snakefile.py --summary | tail -n+2 | cut -f1)
