@@ -39,7 +39,7 @@ rule fastq_join:
     template = "output/02_stitched/{sample}_%.fq.gz"
   conda:
     "../envs/fastq-join.yml"
-  log: "{sample}/logs/02_fastq_join.log"
+  log: "logs/{sample}_fastq_join.log"
   shell:
     """
     fastq-join \
