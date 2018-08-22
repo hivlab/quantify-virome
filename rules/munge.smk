@@ -11,32 +11,32 @@ rule fastp:
       fq1 = lambda wildcards: get_fastq(wildcards, 'fq1'),
       fq2 = lambda wildcards: get_fastq(wildcards, 'fq2')
     output:
-      pair1 = "{sample}/01_fastp/pair1.truncated.gz",
-      pair2 = "{sample}/01_fastp/pair2.truncated.gz"
+      pair1 = temp("output/01_fastp/{sample}_pair1_truncated.gz"),
+      pair2 = temp("output/01_fastp/{sample}_pair2_truncated.gz"),
+      html = "output/01_fastp/{sample}_report.html",
+      json = "output/01_fastp/{sample}_report.json"
     params:
-      options = "-f 5 -t 5 -l 50 -y -Y 8",
-      html = "{sample}/01_fastp/report.html",
-      json = "{sample}/01_fastp/report.json"
-    threads: 4
+      options = "-f 5 -t 5 -l 50 -y -Y 8"
+    threads: 8
     conda:
       "../envs/fastp.yml"
-    log: "{sample}/logs/01_fastp.log"
+    log: "output/logs/{sample}_fastp.log"
     shell:
       """
-      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads} > {log} 2>&1
+      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {output.html} -j {output.json} -w {threads} > {log} 2>&1
       """
 
 ## Stitch paired reads [2]
 rule fastq_join:
   input: rules.fastp.output
   output:
-    "{sample}/02_stitched/join.fq.gz",
-    "{sample}/02_stitched/un1.fq.gz",
-    "{sample}/02_stitched/un2.fq.gz"
+    temp("output/02_stitched/{sample}_join.fq.gz"),
+    temp("output/02_stitched/{sample}_un1.fq.gz"),
+    temp("output/02_stitched/{sample}_un2.fq.gz")
   params:
     config["fastq-join"]["maximum_difference"],
     config["fastq-join"]["minimum_overlap"],
-    template = "{sample}/02_stitched/%.fq.gz"
+    template = "output/02_stitched/{sample}_%.fq.gz"
   conda:
     "../envs/fastq-join.yml"
   log: "{sample}/logs/02_fastq_join.log"
@@ -47,23 +47,24 @@ rule fastq_join:
     -m {params[1]} \
     {input[0]} \
     {input[1]} \
-    -o {params[2]} > {log} 2>&1
+    -o {params.template} > {log} 2>&1
     """
 
 ## Merge stitched reads [3]
 rule merge_reads:
   input: rules.fastq_join.output
   output:
-    "{sample}/03_merged/stitched.merged.fq.gz"
+    temp("output/03_merged/{sample}_stitched_merged.fq.gz")
   shell:
     """
-    cat {input[0]} {input[1]} {input[2]} > {output[0]}
+    cat {input} > {output}
     """
 
 ## Convert fastq to fasta format [4]
 rule fastq2fasta:
   input: rules.merge_reads.output
-  output: "{sample}/04_fasta/stitched.merged.fasta"
+  output:
+    temp("sample/04_fasta/{sample}_stitched_merged.fasta")
   shell:
     """
     zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
@@ -73,9 +74,11 @@ rule fastq2fasta:
 rule cd_hit:
   input: rules.fastq2fasta.output
   output:
-    clusters = "{sample}/05_cdhit/merged.cdhit.fa",
-    report = "{sample}/05_cdhit/stitched.merged.cdhit.report"
-  threads: 4
+    clusters = "output/05_cdhit/{sample}_merged_cdhit.fa",
+    report = "output/05_cdhit/{sample}_merged_cdhit.report"
+  threads: 8
+  resources:
+    mem_mb = lambda wildcards, attempt: attempt * 2000
   conda:
     "../envs/cd-hit.yml"
   shell:

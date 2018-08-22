@@ -1,37 +1,11 @@
 
-## Extract unmapped reads [12a]
-rule unmapped_reads:
-    input: rules.bwa_mem.output
-    output:
-      bam = "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.bam",
-      fq = "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fq",
-      fa = "{sample}/12a_unmapped_reads/RefGenome_unmapped.{n}.fa"
-    conda:
-      "../envs/bwa-sam-bed.yml"
-    shell:
-      """
-        samtools view -b -f 4 {input} > {output.bam}
-        bedtools bamtofastq -i {output.bam} -fq {output.fq}
-        cat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
-      """
-
-## Subset repeatmasker masked reads using unmapped ids [12b]
-rule unmapped_masked:
-    input: rules.unmapped_reads.output.fa, rules.repeatmasker_good.output.masked
-    output:
-      "{sample}/12b_unmapped_masked/RefGenome_unmapped.{n}.masked.fa"
-    conda:
-      "../envs/biopython.yml"
-    script:
-      "../scripts/unmapped_masked_ids.py"
-
 ## MegaBlast against reference genome to remove more host sequences [13]
 rule megablast_ref_genome:
     input:
       db = config["ref_genome"],
       query = rules.unmapped_masked.output
     output:
-      "{sample}/13_megablast/megablast.{n}.xml"
+      temp("output/13_megablast/{sample}_megablast_{n}.xml")
     params:
       perc_ident = config["megablast_ref_genome"]["perc_identity"],
       evalue = config["megablast_ref_genome"]["evalue"],
@@ -50,8 +24,8 @@ rule parse_megablast:
       blastxml = rules.megablast_ref_genome.output,
       query = rules.unmapped_masked.output
     output:
-      known = "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.non-viral.out",
-      unmapped = "{sample}/14_megablast_parsed/RefGenome_megablast.{n}.unmapped.fa"
+      known = "output/14_megablast_parsed/{sample}_refgenome_megablast_{n}_non-viral.out",
+      unmapped = "output/14_megablast_parsed/{sample}_refgenome_megablast_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:
@@ -65,7 +39,7 @@ rule blastn_virus_nt:
       db = config["virus_nt"],
       query = rules.parse_megablast.output.unmapped
     output:
-      out = "{sample}/15_blast_virusnt/blast_virusnt.{n}.xml"
+      out = "output/15_blast_virusnt/{sample}_blast_virusnt_{n}.xml"
     params:
       task = "blastn",
       show_gis = True,
@@ -83,8 +57,8 @@ rule parse_virusntblast:
       blastxml = rules.blastn_virus_nt.output.out,
       query = rules.parse_megablast.output.unmapped
     output:
-      known = "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.known-viral.out",
-      unmapped = "{sample}/16_blastntvirus_parsed/blastnt_virus.{n}.unmapped.fa"
+      known = "output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out",
+      unmapped = "output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-5
     conda:
@@ -103,19 +77,22 @@ rule download_taxonomy:
       "../scripts/download_taxonomy_names.R"
 
 def get_knownviral(wildcards):
-  path = expand("{sample}/16_blastntvirus_parsed/blastnt_virus.*.known-viral.out", sample = wildcards.sample)
+  path = expand("output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out", sample = wildcards.sample)
   return glob.glob(*path)
 
+sample_ids, n_ids = glob_wildcards("output/08_split_fasta/{sample}_tantan_goodseq_{n}.fa")
+
 # Add taxonomy to virus nt blast [17b]
-# n_ids is a global wildcard determined after split_fasta rule
 rule virus_nt_taxonomy:
     input:
-      known = get_knownviral,
+      known = ["output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out".format(
+            sample = sample_id,
+            n = n_id) for sample_id, run_id in zip(sample_ids, n_ids)],
       vhunter = config["vhunter"],
       names = rules.download_taxonomy.output.names,
       nodes = rules.download_taxonomy.output.nodes
     output:
-      "{sample}/17_virus_nt_taxonomy/known_taxa.csv"
+      "output/17_virus_nt_taxonomy/{sample}_known_taxa.csv"
     conda:
       "../envs/tidyverse.yml"
     script:
@@ -127,7 +104,7 @@ rule virus_nt_taxonomy_report:
       rules.virus_nt_taxonomy.output,
       names = rules.download_taxonomy.output.names
     output:
-      "{sample}/reports/taxonomy_report.html"
+      "output/reports/{sample}_taxonomy_report.html"
     params:
       lambda wildcards: wildcards.sample
     conda:

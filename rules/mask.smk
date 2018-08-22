@@ -3,14 +3,12 @@
 rule tantan:
   input: rules.cd_hit.output.clusters
   output:
-    "{sample}/06_tantan/cdhit.tantan.fa"
-  params:
-    "-x N"
+    "output/06_tantan/{sample}_cdhit_tantan.fa"
   conda:
       "../envs/tantan.yml"
   shell:
     """
-    tantan {params} {input} > {output}
+    tantan -x N {input} > {output}
     """
 
 ## Filter tantan output [7]
@@ -21,7 +19,7 @@ rule tantan_good:
   input:
     rules.tantan.output
   output:
-    "{sample}/07_tantan_good/tantan.goodseq.fa"
+    "output/07_tantan_good/{sample}_tantan_goodseq.fa"
   params:
     min_length = config["tantan_good"]["min_length"],
     por_n = config["tantan_good"]["por_n"]
@@ -35,7 +33,7 @@ rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    dynamic("{sample}/08_split_fasta/tantan.goodseq.{n}.fa")
+    "output/08_split_fasta/{sample}_tantan_goodseq_{n}.fa"
   params:
     config["split_fasta"]["n_files"],
     "{sample}/08_split_fasta/tantan.goodseq.%i.fa"
@@ -61,10 +59,10 @@ rule repeatmasker:
     fa = rules.split_fasta.output,
     repbase = config["repbase_file"]
   output:
-    "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked"
+    "output/09_repeatmasker/{sample}_tantan_goodseq_{n}.fa.masked"
   params:
     cluster = "-cwd -V",
-    dir = "{sample}/09_repeatmasker"
+    dir = "output/09_repeatmasker"
   threads: 8
   shell:
     """
@@ -81,8 +79,8 @@ rule repeatmasker_good:
     masked = rules.repeatmasker.output,
     unmasked = rules.split_fasta.output
   output:
-    masked = "{sample}/10_repeatmasker_good/masked.{n}.fa",
-    unmasked = "{sample}/10_repeatmasker_good/unmasked.{n}.fa"
+    masked = temp("output/10_repeatmasker_good/{sample}_masked_{n}.fa"),
+    unmasked = temp("output/10_repeatmasker_good/{sample}_unmasked_{n}.fa")
   params:
     min_length = config["repeatmasker_good"]["min_length"],
     por_n = config["repeatmasker_good"]["por_n"]

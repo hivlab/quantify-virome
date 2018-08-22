@@ -4,8 +4,6 @@
         "name" : "{rule}.{wildcards.sample}",
         "time" : "24:00:00",
         "partition" : "main",
-        "mem" : "8G",
-        "nodes" : 1,
         "cpus-per-task" : 1,
         "output" : "slogs/{rule}_slurm_%j.log"
     },
