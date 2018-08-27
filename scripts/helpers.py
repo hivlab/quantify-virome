@@ -50,6 +50,6 @@ def parse_blast(blast_results, outfile, evalue_threshold = 1e-10):
   with open(outfile, "w") as known:
     for blast_qresult in blast_results:
       if (len(blast_qresult) > 0 and blast_qresult[0][0].evalue < evalue_threshold):
-        print(blast_qresult[0][0], file = known)
+        known.write("%s\n\n" % blast_qresult[0][0])
       else:
         yield blast_qresult.id
