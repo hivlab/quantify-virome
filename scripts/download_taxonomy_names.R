@@ -3,7 +3,7 @@ library(readr)
 library(dplyr)
 library(stringr)
 
-datadir <- snakemake@params[["datadir"]]
+datadir <- "taxonomy"
 destfile <- file.path(datadir, "new_taxdump.tar.gz")
 download.file("ftp://ftp.ncbi.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz",
               destfile = destfile)

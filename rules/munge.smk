@@ -1,7 +1,6 @@
 
-def get_fastq(wildcards, path = '.', read_pair='fq1'):
- fq = samples.loc[wildcards.sample, [read_pair]].dropna()[0]
- return os.path.join(path, fq)
+def get_fastq(wildcards, read_pair = 'fq1'):
+ return samples.loc[wildcards.sample, [read_pair]].dropna()[0]
 
 ## All-in-one preprocessing for FastQ files [1,3]
 # Adapter trimming is enabled by default
@@ -9,38 +8,38 @@ def get_fastq(wildcards, path = '.', read_pair='fq1'):
 # Replaces AdapteRemoval, prinseq and fastqc
 rule fastp:
     input:
-      fq1 = lambda wildcards: get_fastq(wildcards, config["datadir"], 'fq1'),
-      fq2 = lambda wildcards: get_fastq(wildcards, config["datadir"], 'fq2')
+      fq1 = lambda wildcards: get_fastq(wildcards, 'fq1'),
+      fq2 = lambda wildcards: get_fastq(wildcards, 'fq2')
     output:
-      pair1 = os.path.join(config["outdir"], "{sample}/01_fastp/pair1.truncated.gz"),
-      pair2 = os.path.join(config["outdir"], "{sample}/01_fastp/pair2.truncated.gz")
+      pair1 = temp("output/01_fastp/{sample}_pair1_truncated.gz"),
+      pair2 = temp("output/01_fastp/{sample}_pair2_truncated.gz"),
+      html = "output/01_fastp/{sample}_report.html",
+      json = "output/01_fastp/{sample}_report.json"
     params:
-      options = "-f 5 -t 5 -l 50 -y -Y 8",
-      html = os.path.join(config["outdir"], "{sample}/01_fastp/report.html"),
-      json = os.path.join(config["outdir"], "{sample}/01_fastp/report.json")
-    threads:
-      config["fastp"]["threads"]
+      options = "-f 5 -t 5 -l 50 -y -Y 8"
+    threads: 8
     conda:
       "../envs/fastp.yml"
+    log: "output/logs/{sample}_fastp.log"
     shell:
       """
-      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {params.html} -j {params.json} -w {threads}
+      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {output.html} -j {output.json} -w {threads} > {log} 2>&1
       """
 
 ## Stitch paired reads [2]
 rule fastq_join:
-  input:
-    lambda wildcards: expand(os.path.join(config["outdir"], "{sample}/01_fastp/pair{n}.truncated.gz"), sample = wildcards.sample, n = [1, 2])
+  input: rules.fastp.output
   output:
-    os.path.join(config["outdir"], "{sample}/02_stitched/join.fq.gz"),
-    os.path.join(config["outdir"], "{sample}/02_stitched/un1.fq.gz"),
-    os.path.join(config["outdir"], "{sample}/02_stitched/un2.fq.gz")
+    temp("output/02_stitched/{sample}_join.fq.gz"),
+    temp("output/02_stitched/{sample}_un1.fq.gz"),
+    temp("output/02_stitched/{sample}_un2.fq.gz")
   params:
     config["fastq-join"]["maximum_difference"],
     config["fastq-join"]["minimum_overlap"],
-    template = os.path.join(config["outdir"], "{sample}/02_stitched/%.fq.gz")
+    template = "output/02_stitched/{sample}_%.fq.gz"
   conda:
     "../envs/fastq-join.yml"
+  log: "logs/{sample}_fastq_join.log"
   shell:
     """
     fastq-join \
@@ -48,24 +47,24 @@ rule fastq_join:
     -m {params[1]} \
     {input[0]} \
     {input[1]} \
-    -o {params[2]}
+    -o {params.template} > {log} 2>&1
     """
 
-## Merge stitched reads
+## Merge stitched reads [3]
 rule merge_reads:
-  input:
-    lambda wildcards: expand(os.path.join(config["outdir"], "{sample}/02_stitched/{pair}.fq.gz"), sample = wildcards.sample, pair = ["join", "un1", "un2"])
+  input: rules.fastq_join.output
   output:
-    os.path.join(config["outdir"], "{sample}/03_merged/stitched.merged.fq.gz")
+    temp("output/03_merged/{sample}_stitched_merged.fq.gz")
   shell:
     """
-    cat {input[0]} {input[1]} {input[2]} > {output[0]}
+    cat {input} > {output}
     """
 
 ## Convert fastq to fasta format [4]
 rule fastq2fasta:
-  input: os.path.join(config["outdir"], "{sample}/03_merged/stitched.merged.fq.gz")
-  output: os.path.join(config["outdir"], "{sample}/04_fasta/stitched.merged.fasta")
+  input: rules.merge_reads.output
+  output:
+    temp("sample/04_fasta/{sample}_stitched_merged.fasta")
   shell:
     """
     zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
@@ -73,16 +72,16 @@ rule fastq2fasta:
 
 ## Run cd-hit to find and munge duplicate reads [5]
 rule cd_hit:
-  input:
-    os.path.join(config["outdir"], "{sample}/04_fasta/stitched.merged.fasta")
+  input: rules.fastq2fasta.output
   output:
-    clusters = os.path.join(config["outdir"], "{sample}/05_cdhit/merged.cdhit.fa"),
-    report = os.path.join(config["outdir"], "{sample}/05_cdhit/stitched.merged.cdhit.report")
-  params:
-    "-c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0 -T 0"
+    clusters = "output/05_cdhit/{sample}_merged_cdhit.fa",
+    report = "output/05_cdhit/{sample}_merged_cdhit.report"
+  threads: 8
+  resources:
+    mem_mb = lambda wildcards, attempt: attempt * 2000
   conda:
     "../envs/cd-hit.yml"
   shell:
     """
-    cd-hit-est -i {input} -o {output.clusters} {params} > {output.report}
+    cd-hit-est -i {input} -o {output.clusters} -T {threads} -c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0 > {output.report}
     """

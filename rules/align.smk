@@ -3,15 +3,40 @@
 rule bwa_mem:
     input:
         config["ref_genome"],
-        [os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/unmasked.{n}.fa")]
+        ["output/10_repeatmasker_good/{sample}_unmasked_{n}.fa"]
     output:
-        os.path.join(config["outdir"], "{sample}/11_bwa_mem/mapped.{n}.bam")
+        "output/11_bwa_mem/{sample}_mapped_{n}.bam"
     log:
-        os.path.join(config["outdir"], "{sample}/logs/bwa_mem.{n}.log")
-    params: "-L 100,100 -k 15"
+        "output/logs/{sample}_bwa_mem_{n}.log"
     threads: 8
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:
-        "(bwa mem {params} -t {threads} {input} | "
+        "(bwa mem -L 100,100 -k 15 -t {threads} {input} | "
         "samtools view -Sb - > {output}) 2> {log}"
+
+## Extract unmapped reads [12a]
+rule unmapped_reads:
+    input: rules.bwa_mem.output
+    output:
+      bam = "output/12a_unmapped_reads/{sample}_refgenome_unmapped_{n}.bam",
+      fq = temp("output/12a_unmapped_reads/{sample}_refgenome_unmapped_{n}.fq"),
+      fa = temp("output/12a_unmapped_reads/{sample}_refgenome_unmapped_{n}.fa")
+    conda:
+      "../envs/bwa-sam-bed.yml"
+    shell:
+      """
+        samtools view -b -f 4 {input} > {output.bam}
+        bedtools bamtofastq -i {output.bam} -fq {output.fq}
+        cat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
+      """
+
+## Subset repeatmasker masked reads using unmapped ids [12b]
+rule unmapped_masked:
+    input: rules.unmapped_reads.output.fa, rules.repeatmasker_good.output.masked
+    output:
+      "output/12a_unmapped_reads/{sample}_refgenome_unmapped_{n}_masked.fa"
+    conda:
+      "../envs/biopython.yml"
+    script:
+      "../scripts/unmapped_masked_ids.py"

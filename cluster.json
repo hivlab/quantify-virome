@@ -1,12 +1,18 @@
 {
     "__default__" :
     {
-        "name" : "{rule}.{wildcards}",
+        "name" : "{rule}.{wildcards.sample}",
         "time" : "24:00:00",
         "partition" : "main",
-        "mem" : "20G",
-        "output" : "{rule}_slurm_%j.log"
+        "cpus-per-task" : 1,
+        "mem" : 4000,
+        "output" : "slogs/{rule}_slurm_%j.log"
     },
+    "fastp" :
+    {
+        "cpus-per-task" : "{threads}"
+    }
+    ,
     "repeatmasker" :
     {
     },
@@ -15,10 +21,12 @@
     },
     "bwa_mem" :
     {
+        "mem" : 32000
     },
     "cd_hit" :
     {
-        "mem" : "50G",
-        "time": "24:00:00"
+        "mem" : 32000,
+        "time": "30:00:00",
+        "cpus-per-task" : "{threads}"
     }
 }

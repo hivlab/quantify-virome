@@ -48,8 +48,8 @@ def batch_iterator(iterator, batch_size):
 # parse blast output, write known sequences to file, return unmapped ids
 def parse_blast(blast_results, outfile, evalue_threshold = 1e-10):
   with open(outfile, "w") as known:
-    for blast_qresult in blast_results:
-      if (len(blast_qresult) > 0 and blast_qresult[0][0].evalue < evalue_threshold):
-        print(blast_qresult[0][0], file = known)
+    for query in blast_results:
+      if query and query[0][0].evalue < evalue_threshold):
+        known.write("%s\n\n" % query[0][0])
       else:
-        yield blast_qresult.id
+        yield query.id

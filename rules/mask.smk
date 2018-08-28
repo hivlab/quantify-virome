@@ -1,23 +1,14 @@
 
-## Function to get number of files after split_fasta instead of dynamic
-def get_n_files(wildcards):
-  dir = expand(os.path.join(config["outdir"], "{sample}/08_split_fasta"), sample = wildcards.sample)
-  files = listdir(dir[0])
-  range(1, len(files))
-
 ## Tantan mask of low complexity DNA sequences [6]
 rule tantan:
-  input:
-    os.path.join(config["outdir"], "{sample}/05_cdhit/merged.cdhit.fa")
+  input: rules.cd_hit.output.clusters
   output:
-    os.path.join(config["outdir"], "{sample}/06_tantan/cdhit.tantan.fa")
-  params:
-    "-x N"
+    "output/06_tantan/{sample}_cdhit_tantan.fa"
   conda:
       "../envs/tantan.yml"
   shell:
     """
-    tantan {params} {input} > {output}
+    tantan -x N {input} > {output}
     """
 
 ## Filter tantan output [7]
@@ -26,9 +17,9 @@ rule tantan:
 # 2) Sequences with >= 40% of total length of being masked
 rule tantan_good:
   input:
-    os.path.join(config["outdir"], "{sample}/06_tantan/cdhit.tantan.fa")
+    rules.tantan.output
   output:
-    os.path.join(config["outdir"], "{sample}/07_tantan_good/tantan.goodseq.fa")
+    "output/07_tantan_good/{sample}_tantan_goodseq.fa"
   params:
     min_length = config["tantan_good"]["min_length"],
     por_n = config["tantan_good"]["por_n"]
@@ -39,14 +30,15 @@ rule tantan_good:
 
 ## Split reads to smaller chunks for Repeatmasker [8]
 rule split_fasta:
-  input: os.path.join(config["outdir"], "{sample}/07_tantan_good/tantan.goodseq.fa")
+  input:
+    rules.tantan_good.output
   output:
-    os.path.join(config["outdir"], dynamic("{sample}/08_split_fasta/tantan.goodseq.{n}.fa"))
+    "output/08_split_fasta/{sample}_tantan_goodseq_{n}.fa"
   params:
-    config["split_fasta"]["batch_size"],
-    os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.%i.fa")
+    config["split_fasta"]["n_files"],
+    "output/08_split_fasta/{sample}_tantan_goodseq_%i.fa"
   conda:
-      "../envs/biopython.yml"
+    "../envs/biopython.yml"
   script:
     "../scripts/split_fasta.py"
 
@@ -64,18 +56,18 @@ fi
 
 rule repeatmasker:
   input:
-    fa = os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa"),
+    fa = rules.split_fasta.output,
     repbase = config["repbase_file"]
   output:
-    os.path.join(config["outdir"], "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked")
+    "output/09_repeatmasker/{sample}_tantan_goodseq_{n}.fa.masked"
   params:
     cluster = "-cwd -V",
-    dir = os.path.join(config["outdir"], "{sample}")
+    dir = "output/09_repeatmasker"
   threads: 8
   shell:
     """
     export REPEATMASKER_REPBASE_FILE={input.repbase}
-    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.dir}/09_repeatmasker
+    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.dir}
     """
 
 ## Filter repeatmasker output [10]
@@ -84,11 +76,11 @@ rule repeatmasker:
 # 2) Sequences with >= 40% of total length of being masked
 rule repeatmasker_good:
   input:
-    masked = os.path.join(config["outdir"], "{sample}/09_repeatmasker/tantan.goodseq.{n}.fa.masked"),
-    unmasked = os.path.join(config["outdir"], "{sample}/08_split_fasta/tantan.goodseq.{n}.fa")
+    masked = rules.repeatmasker.output,
+    unmasked = rules.split_fasta.output
   output:
-    masked = os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/masked.{n}.fa"),
-    unmasked = os.path.join(config["outdir"], "{sample}/10_repeatmasker_good/unmasked.{n}.fa")
+    masked = temp("output/10_repeatmasker_good/{sample}_masked_{n}.fa"),
+    unmasked = temp("output/10_repeatmasker_good/{sample}_unmasked_{n}.fa")
   params:
     min_length = config["repeatmasker_good"]["min_length"],
     por_n = config["repeatmasker_good"]["por_n"]

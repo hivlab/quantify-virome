@@ -14,22 +14,16 @@ ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fast
 virus_nt: "/gpfs/software/VirusSeeker/databases/VirusDBNT_20160802/VirusDBNT_20160802_ID98.fa"
 vhunter: "/gpfs/software/VirusSeeker/databases/taxdump_300817/vhunter.db"
 
-# Raw data directory
-datadir: "data"
-
-# Output directory or empty string
-outdir: "output"
-
 # Rule parameters ---------------------
+
+# Fastp
+fastp:
+    threads: 4
 
 # fastq-join
 fastq-join:
     maximum_difference: 5
     minimum_overlap: 10
-
-# Fastp
-fastp:
-    threads: 16
 
 # Filter tantan output
 tantan_good:
@@ -38,7 +32,7 @@ tantan_good:
 
 # Split fasta
 split_fasta:
-      batch_size: 36000
+      n_files: 20
 
 # Filter repeatmasker output
 repeatmasker_good:
