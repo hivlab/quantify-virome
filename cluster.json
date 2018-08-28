@@ -5,6 +5,7 @@
         "time" : "24:00:00",
         "partition" : "main",
         "cpus-per-task" : 1,
+        "mem" : 4000,
         "output" : "slogs/{rule}_slurm_%j.log"
     },
     "fastp" :
@@ -20,9 +21,11 @@
     },
     "bwa_mem" :
     {
+        "mem" : 32000
     },
     "cd_hit" :
     {
+        "mem" : 32000,
         "time": "30:00:00",
         "cpus-per-task" : "{threads}"
     }
