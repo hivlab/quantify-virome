@@ -7,13 +7,13 @@ from helpers import parse_blast
 from helpers import subset_records
 
 # Write known hits to file and return unmapped ids
-blast_results = SearchIO.parse(snakemake.input["blastxml"], 'blast-xml')
-keep = parse_blast(blast_results, snakemake.output["known"], evalue_threshold = snakemake.params["e_cutoff"])
+blast_results = SearchIO.parse(snakemake.input[0], 'blast-xml')
+keep = parse_blast(blast_results, snakemake.output[0], evalue_threshold = snakemake.params["e_cutoff"])
 keep_lst = list(keep)
 
 # Subset masked sequences using unmapped_ids
-unmapped_masked = SeqIO.parse(snakemake.input["query"], "fasta")
+unmapped_masked = SeqIO.parse(snakemake.input[1], "fasta")
 unmapped_keep = subset_records(unmapped_masked, keep_lst)
 
 # Write unmasked subset to file
-masked_count = SeqIO.write(unmapped_keep, snakemake.output["unmapped"], "fasta")
+masked_count = SeqIO.write(unmapped_keep, snakemake.output[1], "fasta")
