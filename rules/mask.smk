@@ -36,7 +36,7 @@ rule split_fasta:
     "output/08_split_fasta/{sample}_tantan_goodseq_{n}.fa"
   params:
     config["split_fasta"]["n_files"],
-    "{sample}/08_split_fasta/tantan.goodseq.%i.fa"
+    "output/08_split_fasta/{sample}_tantan_goodseq_%i.fa"
   conda:
     "../envs/biopython.yml"
   script:

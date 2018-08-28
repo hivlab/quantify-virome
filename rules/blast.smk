@@ -1,5 +1,5 @@
 
-## MegaBlast against reference genome to remove more host sequences [13]
+## MegaBlast against reference genome to remove host sequences [13]
 rule megablast_ref_genome:
     input:
       db = config["ref_genome"],
@@ -21,11 +21,11 @@ rule megablast_ref_genome:
 ## Filter megablast records for the cutoff value [14]
 rule parse_megablast:
     input:
-      blastxml = rules.megablast_ref_genome.output,
-      query = rules.unmapped_masked.output
+      rules.megablast_ref_genome.output,
+      rules.unmapped_masked.output
     output:
-      known = "output/14_megablast_parsed/{sample}_refgenome_megablast_{n}_non-viral.out",
-      unmapped = "output/14_megablast_parsed/{sample}_refgenome_megablast_{n}_unmapped.fa"
+      "output/14_megablast_parsed/{sample}_refgenome_megablast_{n}_non-viral.out",
+      "output/14_megablast_parsed/{sample}_refgenome_megablast_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:
@@ -37,7 +37,7 @@ rule parse_megablast:
 rule blastn_virus_nt:
     input:
       db = config["virus_nt"],
-      query = rules.parse_megablast.output.unmapped
+      query = "output/14_megablast_parsed/{sample}_refgenome_megablast_{n}_unmapped.fa"
     output:
       out = "output/15_blast_virusnt/{sample}_blast_virusnt_{n}.xml"
     params:
@@ -54,11 +54,11 @@ rule blastn_virus_nt:
 ## Filter blastn records for the cutoff value [16]
 rule parse_virusntblast:
     input:
-      blastxml = rules.blastn_virus_nt.output.out,
-      query = rules.parse_megablast.output.unmapped
+      rules.blastn_virus_nt.output.out,
+      "output/14_megablast_parsed/{sample}_refgenome_megablast_{n}_unmapped.fa"
     output:
-      known = "output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out",
-      unmapped = "output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_unmapped.fa"
+      "output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out",
+      "output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-5
     conda:
@@ -76,21 +76,16 @@ rule download_taxonomy:
     script:
       "../scripts/download_taxonomy_names.R"
 
-def get_knownviral(wildcards):
-  path = expand("output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out", sample = wildcards.sample)
-  return glob.glob(*path)
-
-sample_ids, n_ids = glob_wildcards("output/08_split_fasta/{sample}_tantan_goodseq_{n}.fa")
+sample_ids, n_ids = glob_wildcards("output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out")
 
 # Add taxonomy to virus nt blast [17b]
 rule virus_nt_taxonomy:
     input:
-      known = ["output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out".format(
-            sample = sample_id,
-            n = n_id) for sample_id, run_id in zip(sample_ids, n_ids)],
+      known = expand("output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out",
+               sample = sample_ids, n = n_ids),
       vhunter = config["vhunter"],
-      names = rules.download_taxonomy.output.names,
-      nodes = rules.download_taxonomy.output.nodes
+      names = "taxonomy/names.csv",
+      nodes = "taxonomy/nodes.csv"
     output:
       "output/17_virus_nt_taxonomy/{sample}_known_taxa.csv"
     conda:
@@ -102,7 +97,7 @@ rule virus_nt_taxonomy:
 rule virus_nt_taxonomy_report:
     input:
       rules.virus_nt_taxonomy.output,
-      names = rules.download_taxonomy.output.names
+      names = "taxonomy/names.csv"
     output:
       "output/reports/{sample}_taxonomy_report.html"
     params:
