@@ -9,9 +9,7 @@ snakemake -j --use-conda --cluster-config cluster.json  \
              -t {cluster.time} \
              --mem {cluster.mem} \
              --output {cluster.output} \
-             --nodes {cluster.nodes} \
-             --cpus-per-task {cluster.cpus-per-task}" \
-             --restart-times 2
+             --cpus-per-task {cluster.cpus-per-task}"
 
 # Dry run
 snakemake -n
