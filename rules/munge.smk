@@ -11,10 +11,10 @@ rule fastp:
       fq1 = lambda wildcards: get_fastq(wildcards, 'fq1'),
       fq2 = lambda wildcards: get_fastq(wildcards, 'fq2')
     output:
-      pair1 = temp("output/01_fastp/{sample}_pair1_truncated.gz"),
-      pair2 = temp("output/01_fastp/{sample}_pair2_truncated.gz"),
-      html = "output/01_fastp/{sample}_report.html",
-      json = "output/01_fastp/{sample}_report.json"
+      pair1 = temp("output/{sample}_pair1_truncated.gz"),
+      pair2 = temp("output/{sample}_pair2_truncated.gz"),
+      html = "output/logs/{sample}_fastp_report.html",
+      json = "output/logs/{sample}_fastp_report.json"
     params:
       options = "-f 5 -t 5 -l 50 -y -Y 8"
     threads: 8
@@ -30,16 +30,16 @@ rule fastp:
 rule fastq_join:
   input: rules.fastp.output
   output:
-    temp("output/02_stitched/{sample}_join.fq.gz"),
-    temp("output/02_stitched/{sample}_un1.fq.gz"),
-    temp("output/02_stitched/{sample}_un2.fq.gz")
+    temp("output/{sample}_join.fq.gz"),
+    temp("output/{sample}_un1.fq.gz"),
+    temp("output/{sample}_un2.fq.gz")
   params:
     config["fastq-join"]["maximum_difference"],
     config["fastq-join"]["minimum_overlap"],
-    template = "output/02_stitched/{sample}_%.fq.gz"
+    template = "output/{sample}_%.fq.gz"
   conda:
     "../envs/fastq-join.yml"
-  log: "logs/{sample}_fastq_join.log"
+  log: "output/logs/{sample}_fastq_join.log"
   shell:
     """
     fastq-join \
@@ -54,7 +54,7 @@ rule fastq_join:
 rule merge_reads:
   input: rules.fastq_join.output
   output:
-    temp("output/03_merged/{sample}_stitched_merged.fq.gz")
+    temp("output/{sample}_stitched_merged.fq.gz")
   shell:
     """
     cat {input} > {output}
@@ -64,7 +64,7 @@ rule merge_reads:
 rule fastq2fasta:
   input: rules.merge_reads.output
   output:
-    temp("sample/04_fasta/{sample}_stitched_merged.fasta")
+    temp("output/{sample}_stitched_merged.fasta")
   shell:
     """
     zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
@@ -74,11 +74,9 @@ rule fastq2fasta:
 rule cd_hit:
   input: rules.fastq2fasta.output
   output:
-    clusters = "output/05_cdhit/{sample}_merged_cdhit.fa",
-    report = "output/05_cdhit/{sample}_merged_cdhit.report"
+    clusters = temp("output/{sample}_cdhit.fa"),
+    report = "output/logs/{sample}_cdhit.report"
   threads: 8
-  resources:
-    mem_mb = lambda wildcards, attempt: attempt * 2000
   conda:
     "../envs/cd-hit.yml"
   shell:

@@ -10,9 +10,8 @@ include: "rules/common.smk"
 rule all:
     input:
       expand([
-      "output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_known-viral.out",
-      "output/16_blastntvirus_parsed/{sample}_virusnt_blast_{n}_unmapped.fa",
-      "output/reports/{sample}_taxonomy_report.html"],
+      "output/blast/{sample}_megablast_{n}.xml",
+      "output/blast/{sample}_blast_virusnt_{n}.xml"],
       sample = sample_ids,
       n = list(range(1, n_files + 1, 1)))
 

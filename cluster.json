@@ -6,7 +6,7 @@
         "partition" : "main",
         "cpus-per-task" : 1,
         "mem" : 4000,
-        "output" : "slogs/{rule}_slurm_%j.log"
+        "output" : "output/slurmlog/{rule}_slurm_%j.log"
     },
     "fastp" :
     {

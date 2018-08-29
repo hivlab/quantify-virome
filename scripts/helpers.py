@@ -49,7 +49,7 @@ def batch_iterator(iterator, batch_size):
 def parse_blast(blast_results, outfile, evalue_threshold = 1e-10):
   with open(outfile, "w") as known:
     for query in blast_results:
-      if query and query[0][0].evalue < evalue_threshold):
+      if query and query[0][0].evalue < evalue_threshold:
         known.write("%s\n\n" % query[0][0])
       else:
         yield query.id
