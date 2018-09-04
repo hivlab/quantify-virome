@@ -37,13 +37,13 @@ bash Miniconda3-latest-Linux-x86_64.sh
 
 Create conda environment with preinstalled **snakemake**, **repeatmasker**, **trf** and **rmblast**:
 ```
-conda create -n <your-env-name> -c bioconda snakemake repeatmasker trf rmblast
+conda create -n virome -c bioconda snakemake repeatmasker trf rmblast
 ```
 
 ## Activate environment
 
 ```
-source activate <your-env-name>
+source activate virome
 ```
 
 ## Clone this repo and cd to repo
@@ -74,14 +74,20 @@ snakemake --dag | dot -Tsvg > graph/dag.svg
 
 ## Real run
 
+This workflow is meant to be run in cluster.
 ```
 snakemake -j --use-conda --cluster-config cluster.json  \
              --cluster "sbatch -J {cluster.name} \
              -p {cluster.partition} \
              -t {cluster.time} \
              --mem {cluster.mem} \
-             --output {cluster.output}" \
-             --restart-times 2
+             --output {cluster.output}"
+```
+
+When snakemake starts erroring with "Failed to submit job..." error messages try to decrease the number of jobs submitted per second. You may also need to rerun incomplete jobs, for examle when hitting cluster max wall time limit in the middle of the job. All possible [snakemake execution](https://snakemake.readthedocs.io/en/stable/executable.html) options can be printed by calling `snakemake -h`.
+
+```
+--max-jobs-per-second 4 --max-status-checks-per-second 4 --rerun-incomplete
 ```
 
 ## Exit/deactivate environment
