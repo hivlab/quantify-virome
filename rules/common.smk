@@ -1,9 +1,11 @@
 
-## Use os.path to update file paths from config file
+## Load required libraries
 import os.path
 from os import listdir
 import glob
 import pandas as pd
+from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
+FTP = FTPRemoteProvider()
 shell.executable("bash")
 
 ## Load configuration file with sample and path info
