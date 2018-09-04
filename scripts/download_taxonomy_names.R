@@ -3,7 +3,7 @@ library(readr)
 library(dplyr)
 library(stringr)
 
-untar(snakemake@input[[1]], files = c("names.dmp", "nodes.dmp"), exdir = snakemake@params[[1]])
+untar(snakemake@input[[1]], files = c("names.dmp", "nodes.dmp"))
 
 # Import names for tax_id
 # Taxonomy names file has these fields:
