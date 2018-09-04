@@ -1,6 +1,6 @@
 
 __author__ = "Taavi Päll"
-__copyright__ = "Copyright 2018, Taavi Päll"
+__copyright__ = "Copyright 2018, Avilab"
 __email__ = "taavi.pall@ut.ee"
 __license__ = "MIT"
 
