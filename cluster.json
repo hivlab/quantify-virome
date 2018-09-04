@@ -5,7 +5,7 @@
         "time" : "00:10:00",
         "partition" : "testing",
         "cpus-per-task" : 1,
-        "mem" : 4000,
+        "mem" : 2000,
         "output" : "output/slurmlog/{rule}_slurm_%j.log"
     },
     "fastp" :
@@ -34,10 +34,12 @@
     {
         "mem" : 32000,
         "time": "04:00:00",
-        "cpus-per-task" : "{threads}"
+        "cpus-per-task" : "{threads}",
+        "partition" : "main"
     },
     "blastn_virus_nt" :
     {
-        "time": "03:00:00"
+        "time": "03:00:00",
+        "partition" : "main"
     }
 }
