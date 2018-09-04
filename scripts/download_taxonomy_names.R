@@ -3,13 +3,7 @@ library(readr)
 library(dplyr)
 library(stringr)
 
-datadir <- "taxonomy"
-destfile <- file.path(datadir, "new_taxdump.tar.gz")
-download.file("ftp://ftp.ncbi.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz",
-              destfile = destfile)
-
-untar(destfile, files = "names.dmp", exdir = datadir)
-untar(destfile, files = "nodes.dmp", exdir = datadir)
+untar(snakemake@input[[1]], files = c("names.dmp", "nodes.dmp"), exdir = snakemake@params[[1]])
 
 # Import names for tax_id
 # Taxonomy names file has these fields:
@@ -19,13 +13,13 @@ untar(destfile, files = "nodes.dmp", exdir = datadir)
 # unique name -- the unique variant of this name if name not unique
 # name class -- (synonym, common name, ...)
 
-names <- read_delim(file.path(datadir, "names.dmp"), delim = "|",
+names <- read_delim(snakemake@output[[1]], delim = "|",
                     escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 names <- mutate_all(names, str_replace_all, "\\t", "")
 names <- select(names, -5)
 colnames(names) <- c("tax_id", "name_txt", "unique_name", "name_class")
 names <- mutate_at(names, "tax_id", parse_integer)
-write_csv(names, file.path(datadir, "names.csv"))
+write_csv(names, snakemake@output[[3]])
 
 # Import taxonomy nodes
 # This file represents taxonomy nodes. The description for each node includes
@@ -50,7 +44,7 @@ write_csv(names, file.path(datadir, "names.csv"))
 # hydrogenosome genetic code id -- see gencode.dmp file
 # inherited HGC flag  (1 or 0) -- 1 if node inherits hydrogenosome gencode from parent
 
-nodes <- read_delim(file.path(datadir, "nodes.dmp"), delim = "|",
+nodes <- read_delim(snakemake@output[[2]], delim = "|",
                     escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 nodes <- mutate_all(nodes, str_replace_all, "\\t", "")
 nodes <- select(nodes, -19)
@@ -61,9 +55,4 @@ colnames(nodes) <- c("tax_id", "parent_tax_id", "rank", "embl_code", "division_i
                      "inherited_PGC_flag", "specified_species", "hydrogenosome_genetic_code_id",
                      "inherited_HGC_flag")
 nodes <- mutate_at(nodes, vars(ends_with("id"), ends_with("flag")), parse_integer)
-write_csv(nodes, file.path(datadir, "nodes.csv"))
-
-# Remove dmp files and archive
-file.remove(file.path(datadir, "names.dmp"),
-            file.path(datadir, "nodes.dmp"),
-            file.path(datadir, "new_taxdump.tar.gz"))
+write_csv(nodes, snakemake@output[[4]])
