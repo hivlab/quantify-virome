@@ -119,12 +119,13 @@ The preprocessing of sequence files consists of the following steps:
 ## Workflow graph
 For technical reasons, workflow is split into two parts, virome and taxonomy, that can be run separately, but taxonomy depends on the output of virome. Virome subworkflow (virome.snakefile) munges, masks, and blasts input sequences. Taxonomy subworkflow (Snakefile) merges blast results with taxonomy data and generates report.
 
-**Virome workflow**
+**Virome workflow** graph with three example samples split into two (default = 20) for parallel processing. Outputs BLAST results.
 
 ![Virome workflow](graph/virome_dag.svg)
 
 
-**Taxonomy workflow**
+**Taxonomy workflow** graph with three example samples. Outputs report in html format and taxonomy table of virus hits.
+
 ![Taxonomy workflow](graph/taxonomy_dag.svg)
 
 ## Installation
