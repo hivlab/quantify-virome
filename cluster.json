@@ -2,7 +2,7 @@
     "__default__" :
     {
         "name" : "{rule}.{wildcards.sample}",
-        "time" : "02:00:00",
+        "time" : "00:10:00",
         "partition" : "testing",
         "cpus-per-task" : 1,
         "mem" : 4000,
@@ -15,18 +15,29 @@
     ,
     "repeatmasker" :
     {
+        "time": "00:45:00"
     },
-    "repeatmasker_good" :
+    "megablast_ref_genome" :
     {
+        "time": "00:45:00"
     },
     "bwa_mem" :
     {
-        "mem" : 32000
+        "mem" : 32000,
+        "time": "00:20:00"
+    },
+    "fastq_join" :
+    {
+        "time": "00:15:00"
     },
     "cd_hit" :
     {
         "mem" : 32000,
-        "time": "30:00:00",
+        "time": "04:00:00",
         "cpus-per-task" : "{threads}"
+    },
+    "blastn_virus_nt" :
+    {
+        "time": "03:00:00"
     }
 }
