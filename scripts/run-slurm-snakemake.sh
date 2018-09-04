@@ -3,19 +3,37 @@
 source activate virome
 
 # Run snakemake
-snakemake -j --use-conda --cluster-config cluster.json  \
-             --cluster "sbatch -J {cluster.name} \
-             -p {cluster.partition} \
-             -t {cluster.time} \
-             --mem {cluster.mem} \
-             --output {cluster.output} \
-             --cpus-per-task {cluster.cpus-per-task}"
+snakemake -j --max-jobs-per-second 4 --max-status-checks-per-second 4 --rerun-incomplete \
+            --use-conda --cluster-config cluster.json  \
+            --cluster "sbatch -J {cluster.name} \
+            -p {cluster.partition} \
+            -t {cluster.time} \
+            --mem {cluster.mem} \
+            --output {cluster.output} \
+            --cpus-per-task {cluster.cpus-per-task}"
 
 # Dry run
-snakemake -n
+snakemake -np --rerun-incomplete #--until parse_virusntblast
 
 # Create graph
-snakemake --dag | dot -Tsvg > graph/dag.svg
+snakemake --dag | dot -Tsvg > graph/taxonomy_dag.svg
+snakemake --dag -s virome.snakefile | dot -Tsvg > graph/virome_dag.svg
+
+snakemake -j --rerun-incomplete \
+            --use-conda --cluster-config cluster.json  \
+            --cluster "sbatch -J {cluster.name} \
+            -p {cluster.partition} \
+            -t {cluster.time} \
+            --mem {cluster.mem} \
+            --output {cluster.output} \
+            --cpus-per-task {cluster.cpus-per-task}"
+
+
+# List status info for a currently running job:
+sstat --format=AveCPU,AvePages,AveRSS,AveVMSize,JobID -j 3088949 --allsteps
+
+#List detailed information for a job (useful for troubleshooting):
+scontrol show jobid -dd 3088949
 
 # Delete all files
 rm $(snakemake --snakefile Snakefile.py --summary | tail -n+2 | cut -f1)
