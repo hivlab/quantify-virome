@@ -21,7 +21,7 @@ rule unmapped_reads:
     output:
       bam = temp("output/{sample}_refgenome_unmapped_{n}.bam"),
       fq = temp("output/{sample}_refgenome_unmapped_{n}.fq"),
-      fa = temp("output/{sample}_refgenome_unmapped_{n}.fa")
+      fa = "output/{sample}_refgenome_unmapped_{n}.fa"
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:

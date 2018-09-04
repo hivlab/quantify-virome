@@ -24,8 +24,8 @@ rule parse_megablast:
       rules.megablast_ref_genome.output,
       rules.unmapped_masked.output
     output:
-      temp("output/{sample}_refgenome_megablast_{n}_non-viral.out"),
-      temp("output/{sample}_refgenome_megablast_{n}_unmapped.fa")
+      "output/{sample}_refgenome_megablast_{n}_non-viral.out",
+      "output/{sample}_refgenome_megablast_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:
@@ -57,8 +57,8 @@ rule parse_virusntblast:
       rules.blastn_virus_nt.output.out,
       "output/{sample}_refgenome_megablast_{n}_unmapped.fa"
     output:
-      temp("output/{sample}_virusnt_blast_{n}_known-viral.out"),
-      temp("output/{sample}_virusnt_blast_{n}_unmapped.fa")
+      "output/{sample}_virusnt_blast_{n}_known-viral.out",
+      "output/{sample}_virusnt_blast_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-5
     conda:
@@ -66,43 +66,4 @@ rule parse_virusntblast:
     script:
       "../scripts/parse_blast_xml.py"
 
-# Download taxonomy names [17a]
-rule download_taxonomy:
-    output:
-      names = "taxonomy/names.csv",
-      nodes = "taxonomy/nodes.csv"
-    conda:
-      "../envs/tidyverse.yml"
-    script:
-      "../scripts/download_taxonomy_names.R"
 
-sample_ids, n_ids = glob_wildcards("output/{sample}_virusnt_blast_{n}_known-viral.out")
-
-# Add taxonomy to virus nt blast [17b]
-rule virus_nt_taxonomy:
-    input:
-      known = expand("output/{sample}_virusnt_blast_{n}_known-viral.out",
-               sample = sample_ids, n = n_ids),
-      vhunter = config["vhunter"],
-      names = "taxonomy/names.csv",
-      nodes = "taxonomy/nodes.csv"
-    output:
-      "output/reports/{sample}_known_taxa.csv"
-    conda:
-      "../envs/tidyverse.yml"
-    script:
-      "../scripts/munge_taxonomy.R"
-
-# Taxonomy report to virus nt blast [17c]
-rule virus_nt_taxonomy_report:
-    input:
-      rules.virus_nt_taxonomy.output,
-      names = "taxonomy/names.csv"
-    output:
-      "output/reports/{sample}_taxonomy_report.html"
-    params:
-      lambda wildcards: wildcards.sample
-    conda:
-      "../envs/tidyverse.yml"
-    script:
-      "../scripts/taxonomy_report.Rmd"
