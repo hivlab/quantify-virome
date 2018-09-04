@@ -14,7 +14,7 @@ rule fastp:
       pair1 = temp("output/{sample}_pair1_truncated.gz"),
       pair2 = temp("output/{sample}_pair2_truncated.gz"),
       html = "output/logs/{sample}_fastp_report.html",
-      json = "output/logs/{sample}_fastp_report.json"
+      json = temp("output/logs/{sample}_fastp_report.json")
     params:
       options = "-f 5 -t 5 -l 50 -y -Y 8"
     threads: 8
