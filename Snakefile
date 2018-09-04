@@ -4,8 +4,8 @@ __copyright__ = "Copyright 2018, Taavi Päll"
 __email__ = "taavi.pall@ut.ee"
 __license__ = "MIT"
 
-subworkflow otherworkflow:
-    snakefile: "rules/virome.snakefile"
+subworkflow virome:
+    snakefile: "virome.snakefile"
 
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
 FTP = FTPRemoteProvider()
