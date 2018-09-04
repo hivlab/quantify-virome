@@ -3,9 +3,9 @@
 
 The goal of this repo is to reproducibly recreate VirusSeeker Virome workflow.
 
-# Setup environment and install prerequisites
+## Setup environment and install prerequisites
 
-## Download RepBase for RepeatMasker
+### Download RepBase for RepeatMasker
 
 Obtain access to RepBase from www.girinst.org. 
 Download RepBase into separate directory e.g. "databases/repbase" under your home directory or whatever other location is good for you. 
@@ -24,7 +24,7 @@ tar xvf RepBaseRepeatMaskerEdition-20170127.tar
 rm RepBaseRepeatMaskerEdition-20170127.tar
 ```
 
-## Install miniconda
+### Install miniconda
 
 Download and install miniconda https://conda.io/docs/user-guide/install/index.html.
 In case of Linux, following should work:
@@ -33,20 +33,20 @@ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
-## Install environment
+### Install environment
 
 Create conda environment with preinstalled **snakemake**, **repeatmasker**, **trf** and **rmblast**:
 ```
 conda create -n virome -c bioconda snakemake repeatmasker trf rmblast
 ```
 
-## Activate environment
+### Activate environment
 
 ```
 source activate virome
 ```
 
-## Clone this repo and cd to repo
+### Clone this repo and cd to repo
 (Change URL accordingly if using HTTPS)
 
 ```
@@ -56,23 +56,23 @@ git clone git@github.com:avilab/vs.git
 ## 
 
 
-# Run workflow
+## Example
 
 Pay attention to partitition and time arguments in cluster.json. Snakefile has .py extension only to get the code highlighting to work in Rstudio...
 
-## Dry run
+### Dry run
 
 ```
 snakemake -n
 ```
 
-## Create workflow graph
+### Create workflow graph
 
 ```
 snakemake --dag | dot -Tsvg > graph/dag.svg
 ```
 
-## Real run
+### Real run
 
 This workflow is meant to be run in cluster.
 ```
@@ -90,17 +90,28 @@ When snakemake starts erroring with "Failed to submit job..." error messages try
 --max-jobs-per-second 4 --max-status-checks-per-second 4 --rerun-incomplete
 ```
 
-## Exit/deactivate environment
+### Exit/deactivate environment
 
 ```
 source deactivate
 ```
 
-# VirusSeeker Virome workflow
+## Workflow graph
+For technical reasons, workflow is split into two parts, virome and taxonomy, that can be run separately, but taxonomy depends on the output of virome. Virome subworkflow (virome.snakefile) munges, masks, and blasts input sequences. Taxonomy subworkflow (Snakefile) merges blast results with taxonomy data and generates report.
+
+![Virome workflow](graph/virome_dag.svg)
+
+Figure 1. **Virome workflow** graph with three example samples split into two (default = 20) for parallel processing. Outputs BLAST results.
+
+![Taxonomy workflow](graph/taxonomy_dag.svg)
+
+Figure 2. **Taxonomy workflow** graph with three example samples. Outputs report in html format and taxonomy table of virus hits.
+
+## VirusSeeker Virome workflow
 
 Following workflow description is a copy-paste from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5326578/
 
-## Sequence preprocessing
+### Sequence preprocessing
 The preprocessing of sequence files consists of the following steps: 
 
 1. **Trim adapter and/or primer sequences.**
@@ -114,27 +125,3 @@ The preprocessing of sequence files consists of the following steps:
 5. **Mask repetitive sequences and sequence quality control.** Many eukaryotic genomes contain stretches of highly repetitive DNA sequences which cause problems in BLAST-based similarity searches and result in high rates of false-positive alignments. Tantan [58] and RepeatMasker (http://www.repeatmasker.org) [59] are used to mask interspersed repeats and low complexity DNA sequences. A sequence fails the quality control criteria if it does not contain a stretch of at least 50 consecutive non-“N” nucleotides (i.e., “Filtered sequence”) or if greater than 40% of the total length of the sequence is masked (i.e., “low complexity sequence”). These sequences are removed from further analysis. Remaining sequences are “good sequences”.
 
 6. **Remove host sequences by aligning sequences to reference genome using BWA-MEM [60] and MegaBLAST.** Any sequence mapped to “Host” genomic sequence is removed from further analysis. After sequence preprocessing we obtain high quality, unique, non-host sequences.
-
-
-## Workflow graph
-For technical reasons, workflow is split into two parts, virome and taxonomy, that can be run separately, but taxonomy depends on the output of virome. Virome subworkflow (virome.snakefile) munges, masks, and blasts input sequences. Taxonomy subworkflow (Snakefile) merges blast results with taxonomy data and generates report.
-
-**Virome workflow** graph with three example samples split into two (default = 20) for parallel processing. Outputs BLAST results.
-
-![Virome workflow](graph/virome_dag.svg)
-
-
-**Taxonomy workflow** graph with three example samples. Outputs report in html format and taxonomy table of virus hits.
-
-![Taxonomy workflow](graph/taxonomy_dag.svg)
-
-## Installation
-
-
-## Example
-
-This is a basic example which shows you how to solve a common problem:
-
-``` r
-## basic example code
-```
