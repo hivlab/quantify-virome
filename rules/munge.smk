@@ -11,8 +11,8 @@ rule fastp:
       fq1 = lambda wildcards: get_fastq(wildcards, 'fq1'),
       fq2 = lambda wildcards: get_fastq(wildcards, 'fq2')
     output:
-      pair1 = temp("output/{sample}_pair1_truncated.gz"),
-      pair2 = temp("output/{sample}_pair2_truncated.gz"),
+      pair1 = temp("output/{sample}_pair1_trimmed.gz"),
+      pair2 = temp("output/{sample}_pair2_trimmed.gz"),
       html = "output/logs/{sample}_fastp_report.html",
       json = temp("output/logs/{sample}_fastp_report.json")
     params:
@@ -54,25 +54,17 @@ rule fastq_join:
 rule merge_reads:
   input: rules.fastq_join.output
   output:
-    temp("output/{sample}_stitched_merged.fq.gz")
+    fq = temp("output/{sample}_stitched_merged.fq.gz"),
+    fa = temp("output/{sample}_stitched_merged.fasta")
   shell:
     """
-    cat {input} > {output}
-    """
-
-## Convert fastq to fasta format [4]
-rule fastq2fasta:
-  input: rules.merge_reads.output
-  output:
-    temp("output/{sample}_stitched_merged.fasta")
-  shell:
-    """
-    zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
+    cat {input} > {output.fq}
+    zcat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
     """
 
 ## Run cd-hit to find and munge duplicate reads [5]
 rule cd_hit:
-  input: rules.fastq2fasta.output
+  input: rules.merge_reads.output.fa
   output:
     clusters = temp("output/{sample}_cdhit.fa"),
     report = "output/logs/{sample}_cdhit.report"

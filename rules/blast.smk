@@ -33,32 +33,31 @@ rule parse_megablast:
     script:
       "../scripts/parse_blast_xml.py"
 
-## Blast against virus database [15]
-rule blastn_virus_nt:
+## Blast against NT virus database [15]
+rule blastn_virus:
     input:
       db = config["virus_nt"],
       query = "output/{sample}_refgenome_megablast_{n}_unmapped.fa"
     output:
-      out = "output/blast/{sample}_blast_virusnt_{n}.xml"
+      "output/blast/{sample}_blastn_virus_{n}.xml"
     params:
-      task = "blastn",
       show_gis = True,
       evalue = 1e-4,
-      db_soft_mask = 100,
-      num_threads = 8
+      db_soft_mask = 100
+    threads: 8
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/blastn_virus_db.py"
+      "../scripts/blastn_virus.py"
 
 ## Filter blastn records for the cutoff value [16]
-rule parse_virusntblast:
+rule parse_blastn_virus:
     input:
-      rules.blastn_virus_nt.output.out,
+      rules.blastn_virus.output,
       "output/{sample}_refgenome_megablast_{n}_unmapped.fa"
     output:
-      "output/{sample}_virusnt_blast_{n}_known-viral.out",
-      "output/{sample}_virusnt_blast_{n}_unmapped.fa"
+      "output/{sample}_blastn_virus_{n}_known-viral.out",
+      "output/{sample}_blastn_virus_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-5
     conda:
@@ -66,4 +65,34 @@ rule parse_virusntblast:
     script:
       "../scripts/parse_blast_xml.py"
 
+## Blastx unmapped sequences against NR virus database
+rule blastx_virus:
+    input:
+      db = config["virus_nr"],
+      query = "output/{sample}_blastn_virus_{n}_unmapped.fa"
+    output:
+      "output/blast/{sample}_blastx_virus_{n}.xml"
+    params:
+      show_gis = True,
+      evalue = 1e-2,
+      db_soft_mask = 100
+    threads: 8
+    conda:
+      "../envs/biopython.yml"
+    script:
+      "../scripts/blastx_virus.py"
 
+## Filter blastn records for the cutoff value
+rule parse_blastx_virus:
+    input:
+      rules.blastx_virus.output,
+      "output/blast/{sample}_blastx_virus_{n}.xml"
+    output:
+      "output/{sample}_blastx_virus_{n}_known-viral.out",
+      "output/{sample}_blastx_virus_{n}_unmapped.fa"
+    params:
+      e_cutoff = 1e-3
+    conda:
+      "../envs/biopython.yml"
+    script:
+      "../scripts/parse_blast_xml.py"

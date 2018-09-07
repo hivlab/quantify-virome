@@ -1,10 +1,10 @@
 
 localrules: download_taxonomy
 
-# Download taxonomy names [17a]
+# Download taxonomy names
 rule download_taxonomy:
     input:
-      FTP.remote("ftp://ftp.ncbi.nih.gov/pub/taxonomy/new_taxdump/new_taxdump.tar.gz")
+      FTP.remote("ftp://ftp.ncbi.nih.gov/pub/taxonomy/gi_taxid_nucl.dmp.gz")
     output:
       names_dmp = temp("names.dmp"),
       nodes_dmp = temp("nodes.dmp"),
@@ -21,7 +21,7 @@ def get_knownviral(wildcards):
   path = expand("output/{sample}_virusnt_blast_*_known-viral.out", sample = wildcards.sample)
   return glob.glob(*path)
 
-# Add taxonomy to virus nt blast [17b]
+# Add taxonomy to virus nt blast
 rule virus_nt_taxonomy:
     input:
       known = get_knownviral,
@@ -35,7 +35,7 @@ rule virus_nt_taxonomy:
     script:
       "../scripts/munge_taxonomy.R"
 
-# Taxonomy report to virus nt blast [17c]
+# Taxonomy report to virus nt blast [35+]
 rule virus_nt_taxonomy_report:
     input:
       rules.virus_nt_taxonomy.output,
