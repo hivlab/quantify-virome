@@ -3,7 +3,7 @@
     {
         "name" : "{rule}.{wildcards.sample}",
         "time" : "00:10:00",
-        "partition" : "testing",
+        "partition" : "main",
         "cpus-per-task" : 1,
         "mem" : 2000,
         "output" : "output/logs/{wildcards.sample}_{rule}_slurm_%j.log"
@@ -44,7 +44,7 @@
     },
     "blastx_virus" :
     {
-        "time": "24:00:00",
+        "time": "08:00:00",
         "partition" : "main"
     }
 }
