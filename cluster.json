@@ -6,7 +6,7 @@
         "partition" : "testing",
         "cpus-per-task" : 1,
         "mem" : 2000,
-        "output" : "output/slurmlog/{rule}_slurm_%j.log"
+        "output" : "output/logs/{wildcards.sample}_{rule}_slurm_%j.log"
     },
     "fastp" :
     {
@@ -37,9 +37,14 @@
         "cpus-per-task" : "{threads}",
         "partition" : "main"
     },
-    "blastn_virus_nt" :
+    "blastn_virus" :
     {
         "time": "03:00:00",
+        "partition" : "main"
+    },
+    "blastx_virus" :
+    {
+        "time": "24:00:00",
         "partition" : "main"
     }
 }
