@@ -2,7 +2,7 @@
 def get_fastq(wildcards, read_pair = 'fq1'):
  return samples.loc[wildcards.sample, [read_pair]].dropna()[0]
 
-## All-in-one preprocessing for FastQ files [1,3]
+## All-in-one preprocessing for FastQ files
 # Adapter trimming is enabled by default
 # Quality filtering is enabled by default
 # Replaces AdapteRemoval, prinseq and fastqc
@@ -26,7 +26,7 @@ rule fastp:
       fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {output.html} -j {output.json} -w {threads} > {log} 2>&1
       """
 
-## Stitch paired reads [2]
+## Stitch paired reads
 rule fastq_join:
   input: rules.fastp.output
   output:
@@ -50,28 +50,14 @@ rule fastq_join:
     -o {params.template} > {log} 2>&1
     """
 
-## Merge stitched reads [3]
+## Merge stitched reads
 rule merge_reads:
   input: rules.fastq_join.output
   output:
-    fq = temp("output/{sample}_stitched_merged.fq.gz"),
-    fa = temp("output/{sample}_stitched_merged.fasta")
+    fq = temp("output/{sample}_merge_reads.fq.gz"),
+    fa = temp("output/{sample}_merge_reads.fasta")
   shell:
     """
     cat {input} > {output.fq}
     zcat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
-    """
-
-## Run cd-hit to find and munge duplicate reads [5]
-rule cd_hit:
-  input: rules.merge_reads.output.fa
-  output:
-    clusters = temp("output/{sample}_cdhit.fa"),
-    report = "output/logs/{sample}_cdhit.report"
-  threads: 8
-  conda:
-    "../envs/cd-hit.yml"
-  shell:
-    """
-    cd-hit-est -i {input} -o {output.clusters} -T {threads} -c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0 > {output.report}
     """
