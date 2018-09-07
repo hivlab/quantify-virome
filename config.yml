@@ -12,6 +12,7 @@ ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fast
 
 # Path to virus databases
 virus_nt: "/gpfs/software/VirusSeeker/databases/VirusDBNT_20160802/VirusDBNT_20160802_ID98.fa"
+virus_nr: "/gpfs/software/VirusSeeker/databases/VirusDBNR_20160802/VirusDBNR_20160802_ID98.fa"
 vhunter: "/gpfs/software/VirusSeeker/databases/taxdump_300817/vhunter.db"
 
 # Rule parameters ---------------------
