@@ -18,6 +18,7 @@ rule all:
 
 ## Modules
 include: "rules/munge.smk"
+include: "rules/cd-hit.smk"
 include: "rules/mask.smk"
 include: "rules/align.smk"
 include: "rules/blast.smk"
