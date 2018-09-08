@@ -46,10 +46,30 @@ def batch_iterator(iterator, batch_size):
             yield batch
 
 # parse blast output, write known sequences to file, return unmapped ids
-def parse_blast(blast_results, outfile, evalue_threshold = 1e-10):
-  with open(outfile, "w") as known:
-    for query in blast_results:
-      if query and query[0][0].evalue < evalue_threshold:
-        known.write("%s\n\n" % query[0][0])
-      else:
-        yield query.id
+# blast_xml blast-xml file
+# unknowns_masked_fasta repeatmasker output fasta file to be subset
+# known_out_xml significant hits (evalue < evalue_threshold) from blast_xml in xml format
+# unknown_out_fasta unmapped hits (evalue > evalue_threshold) from blast-xml in fasta format
+# evalue_threshold default 1e-10
+# unknowns_fasta unmasked fasta file to be subset, default None
+# known_out_fasta significant hits (evalue < evalue_threshold) from blast_xml in fasta format, default None
+def parse_blast(blast_xml, unknowns_masked_fasta, known_out_xml, unknown_out_fasta, evalue_threshold = 1e-10, unknowns_fasta = None, known_out_fasta = None):
+  blast_results = SearchIO.parse(blast_xml, 'blast-xml')
+  unmapped_masked = SeqIO.index(unknowns_masked_fasta, "fasta")
+  if unknowns_fasta is not None:
+    if known_out_fasta is None: raise Exception("Please provide known_out_fasta file path.")
+    unmapped = SeqIO.index(unknowns_fasta, "fasta")
+    with open(known_out_xml, "w") as known_xml, open(known_out_fasta, "w") as known_fa, open(unknown_out_fasta, "w") as unknown_fa:
+      for query in blast_results:
+        if query and query[0][0].evalue < evalue_threshold:
+          SearchIO.write(query, known_xml, "blast-xml")
+          SeqIO.write(unmapped[query.id], known_fa, "fasta")
+        else:
+          SeqIO.write(unmapped_masked[query.id], unknown_fa, "fasta")
+  else:
+    with open(known_out_xml, "w") as known_xml, open(unknown_out_fasta, "w") as unknown_fa:
+      for query in blast_results:
+        if query and query[0][0].evalue < evalue_threshold:
+          SearchIO.write(query, known_xml, "blast-xml")
+        else:
+          SeqIO.write(unmapped_masked[query.id], unknown_fa, "fasta")
