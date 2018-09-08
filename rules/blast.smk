@@ -21,10 +21,10 @@ rule blastn_virus:
 rule parse_blastn_virus:
     input:
       rules.blastn_virus.output,
-      preprocessing("output/{sample}_refgenome_filtered_{n}_unmapped.fa")
+      rules.blastn_virus.input.query
     output:
-      "output/{sample}_blastn_virus_{n}_known-viral.out",
-      "output/{sample}_blastn_virus_{n}_unmapped.fa"
+      known = "output/{sample}_blastn_virus_{n}_known-viral.xml",
+      unmapped = "output/{sample}_blastn_virus_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-5
     conda:
@@ -36,7 +36,7 @@ rule parse_blastn_virus:
 rule blastx_virus:
     input:
       db = config["virus_nr"],
-      query = "output/{sample}_blastn_virus_{n}_unmapped.fa"
+      query = rules.parse_blastn_virus.output.unmapped
     output:
       "output/blast/{sample}_blastx_virus_{n}.xml"
     params:
@@ -53,10 +53,10 @@ rule blastx_virus:
 rule parse_blastx_virus:
     input:
       rules.blastx_virus.output,
-      "output/blast/{sample}_blastx_virus_{n}.xml"
+      rules.blastx_virus.input.query
     output:
-      "output/{sample}_blastx_virus_{n}_known-viral.out",
-      "output/{sample}_blastx_virus_{n}_unmapped.fa"
+      known = "output/{sample}_blastx_virus_{n}_known-viral.xml",
+      unmapped = "output/{sample}_blastx_virus_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-3
     conda:
