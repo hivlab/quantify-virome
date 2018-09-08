@@ -66,7 +66,7 @@ rule parse_megablast:
       rules.megablast_ref_genome.output,
       rules.unmapped_masked.output
     output:
-      "output/{sample}_refgenome_filtered_{n}_non-viral.out",
+      "output/{sample}_refgenome_filtered_{n}_non-viral.xml",
       "output/{sample}_refgenome_filtered_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10

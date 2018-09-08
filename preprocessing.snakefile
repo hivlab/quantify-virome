@@ -4,7 +4,7 @@ include: "rules/common.smk"
 ## Target rules
 rule all:
     input:
-      expand(["output/{sample}_refgenome_filtered_{n}_non-viral.out",
+      expand(["output/{sample}_refgenome_filtered_{n}_non-viral.xml",
       "output/{sample}_refgenome_filtered_{n}_unmapped.fa"],
       sample = sample_ids,
       n = list(range(1, n_files + 1, 1)))
