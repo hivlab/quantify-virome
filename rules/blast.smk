@@ -91,11 +91,11 @@ rule merge_unmasked_viral:
 rule bwa_mem:
     input:
         config["ref_bacteria"],
-        ["output/{sample}_unmaskedgood_{n}.fa"]
+        ["output/{sample}_known-viral_{n}_unmasked.fa"]
     output:
-        "output/bwa_mem/{sample}_mapped_{n}.bam"
+        "output/bwa_mem/{sample}_refbacteria_mapped_{n}.bam"
     log:
-        "output/logs/{sample}_bwa_mem_{n}.log"
+        "output/logs/{sample}_bactbwa_mem_{n}.log"
     threads: 8
     conda:
       "../envs/bwa-sam-bed.yml"
@@ -121,11 +121,10 @@ rule unmapped_reads:
 
 ## Subset repeatmasker masked reads using unmapped ids
 rule unmapped_masked:
-    input: rules.unmapped_reads.output.fa, rules.repeatmasker_good.output.masked
+    input: rules.unmapped_reads.output.fa, preprocessing("output/{sample}_repmaskedgood_{n}.fa")
     output:
-      temp("output/{sample}_refgenome_unmapped_{n}_masked.fa")
+      temp("output/{sample}_refbacteria_unmapped_{n}_masked.fa")
     conda:
       "../envs/biopython.yml"
     script:
       "../scripts/unmapped_masked_ids.py"
-
