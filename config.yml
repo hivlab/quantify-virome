@@ -9,6 +9,7 @@ repbase_file: "/gpfs/hpchome/taavi74/databases/Repbase/Libraries/RMRBSeqs.embl"
 
 # Path to reference genome
 ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fasta"
+ref_bacteria: "/gpfs/software/VirusSeeker/databases/bacteria_ref_sequence/Bacteria_ref_genome.fna"
 
 # Path to virus databases
 virus_nt: "/gpfs/software/VirusSeeker/databases/VirusDBNT_20160802/VirusDBNT_20160802_ID98.fa"
