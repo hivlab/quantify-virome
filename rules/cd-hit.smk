@@ -3,7 +3,7 @@
 rule cd_hit:
   input: rules.merge_reads.output.fa
   output:
-    clusters = temp("output/{sample}_cdhit.fa"),
+    clusters = "output/{sample}_cdhit.fa",
     report = "output/logs/{sample}_cdhit.report"
   threads: 8
   conda:

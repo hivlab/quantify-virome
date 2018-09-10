@@ -3,7 +3,7 @@
 rule tantan:
   input: rules.cd_hit.output.clusters
   output:
-    temp("output/{sample}_tantan.fa")
+    "output/{sample}_tantan.fa"
   conda:
       "../envs/tantan.yml"
   shell:
@@ -19,7 +19,7 @@ rule tantan_good:
   input:
     rules.tantan.output
   output:
-    temp("output/{sample}_tantangood.fa")
+    "output/{sample}_tantangood.fa"
   params:
     min_length = config["tantan_good"]["min_length"],
     por_n = config["tantan_good"]["por_n"]
@@ -33,7 +33,7 @@ rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    temp("output/{sample}_tantangood_{n}.fa")
+    "output/{sample}_tantangood_{n}.fa"
   params:
     config["split_fasta"]["n_files"],
     "output/{sample}_tantangood_%i.fa"
@@ -60,7 +60,7 @@ rule repeatmasker:
     fa = rules.split_fasta.output,
     repbase = config["repbase_file"]
   output:
-    temp("output/{sample}_tantangood_{n}.fa.masked")
+    "output/{sample}_tantangood_{n}.fa.masked"
   params:
     dir = "output"
   threads: 8
@@ -79,8 +79,8 @@ rule repeatmasker_good:
     masked = rules.repeatmasker.output,
     unmasked = rules.split_fasta.output
   output:
-    masked = temp("output/{sample}_repmaskedgood_{n}.fa"),
-    unmasked = temp("output/{sample}_unmaskedgood_{n}.fa")
+    masked = "output/{sample}_repmaskedgood_{n}.fa",
+    unmasked = "output/{sample}_unmaskedgood_{n}.fa"
   params:
     min_length = config["repeatmasker_good"]["min_length"],
     por_n = config["repeatmasker_good"]["por_n"]

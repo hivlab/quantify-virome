@@ -11,8 +11,8 @@ rule fastp:
       fq1 = lambda wildcards: get_fastq(wildcards, 'fq1'),
       fq2 = lambda wildcards: get_fastq(wildcards, 'fq2')
     output:
-      pair1 = temp("output/{sample}_pair1_trimmed.gz"),
-      pair2 = temp("output/{sample}_pair2_trimmed.gz"),
+      pair1 = "output/{sample}_pair1_trimmed.gz",
+      pair2 = "output/{sample}_pair2_trimmed.gz",
       html = "output/logs/{sample}_fastp_report.html",
       json = "output/logs/{sample}_fastp_report.json"
     params:
@@ -30,9 +30,9 @@ rule fastp:
 rule fastq_join:
   input: rules.fastp.output
   output:
-    temp("output/{sample}_join.fq.gz"),
-    temp("output/{sample}_un1.fq.gz"),
-    temp("output/{sample}_un2.fq.gz")
+    "output/{sample}_join.fq.gz",
+    "output/{sample}_un1.fq.gz",
+    "output/{sample}_un2.fq.gz"
   params:
     config["fastq-join"]["maximum_difference"],
     config["fastq-join"]["minimum_overlap"],
@@ -54,8 +54,8 @@ rule fastq_join:
 rule merge_reads:
   input: rules.fastq_join.output
   output:
-    fq = temp("output/{sample}_merge_reads.fq.gz"),
-    fa = temp("output/{sample}_merge_reads.fasta")
+    fq = "output/{sample}_merge_reads.fq.gz",
+    fa = "output/{sample}_merge_reads.fasta"
   shell:
     """
     cat {input} > {output.fq}
