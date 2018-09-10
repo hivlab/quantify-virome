@@ -72,7 +72,7 @@ rule parse_megablast:
       "output/{sample}_refgenome_filtered_{n}_known-host.xml",
       "output/{sample}_refgenome_filtered_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-10
+      e_cutoff = config["parse_megablast"]["e_cutoff"]
     conda:
       "../envs/biopython.yml"
     script:

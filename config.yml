@@ -11,10 +11,14 @@ repbase_file: "/gpfs/hpchome/taavi74/databases/Repbase/Libraries/RMRBSeqs.embl"
 ref_genome: "/gpfs/software/VirusSeeker/databases/ref_genomes/human_g1k_v37.fasta"
 ref_bacteria: "/gpfs/software/VirusSeeker/databases/bacteria_ref_sequence/Bacteria_ref_genome.fna"
 
-# Path to virus databases
+# Path to virus database
 virus_nt: "/gpfs/software/VirusSeeker/databases/VirusDBNT_20160802/VirusDBNT_20160802_ID98.fa"
 virus_nr: "/gpfs/software/VirusSeeker/databases/VirusDBNR_20160802/VirusDBNR_20160802_ID98.fa"
 vhunter: "/gpfs/software/VirusSeeker/databases/taxdump_300817/vhunter.db"
+
+# Path to nt and nr database
+nt: "/gpfs/software/VirusSeeker/databases/nt"
+nr: "/gpfs/software/VirusSeeker/databases/nr"
 
 # Rule parameters ---------------------
 
@@ -29,22 +33,66 @@ fastq-join:
 
 # Filter tantan output
 tantan_good:
-      min_length: 50
-      por_n: 40
+    min_length: 50
+    por_n: 40
 
 # Split fasta
 split_fasta:
-      n_files: 2
+    n_files: 2
 
 # Filter repeatmasker output
 repeatmasker_good:
-      min_length: 50
-      por_n: 40
+    min_length: 50
+    por_n: 40
 
 # MegaBlast against reference genome to remove more host sequences
 megablast_ref_genome:
-      perc_identity: 85
-      evalue: 1e-10
-      word_size: 16
-      num_descriptions: 1
-      num_alignments: 1
+    perc_identity: 85
+    evalue: 1e-10
+    word_size: 16
+    num_descriptions: 1
+    num_alignments: 1
+
+# MegaBlast against NT to remove more host sequences
+megablast_nt:
+    evalue: 1e-8
+    word_size: 16
+    num_descriptions: 50
+    num_alignments: 50
+
+parse_megablast:
+    e_cutoff: 1e-10
+
+# Blastn against virus nucleotide database
+blastn_virus:
+    evalue: 1e-4
+    db_soft_mask: 100
+
+parse_blastn_virus:
+    e_cutoff: 1e-5
+
+# Blastx against virus protein database
+blastx_virus:
+    evalue: 1e-2
+    db_soft_mask: 100
+
+parse_blastx_virus:
+    e_cutoff: 1e-3
+
+# Blastn against nucleotide database
+blastn_nt:
+    evalue: 1e-8
+    num_descriptions: 50
+    num_alignments: 50
+
+parse_blastn_nt:
+    e_cutoff: 1e-10
+
+# Blastx against protein database
+blastx_nr:
+    evalue: 1e-2
+    num_descriptions: 50
+    num_alignments: 50
+
+parse_blastx_nr:
+    e_cutoff: 1e-3

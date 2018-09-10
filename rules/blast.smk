@@ -10,8 +10,8 @@ rule blastn_virus:
       out = "output/blast/{sample}_blastn_virus_{n}.xml"
     params:
       task = "blastn",
-      evalue = 1e-4,
-      db_soft_mask = 100,
+      evalue = config["blastn_virus"]["evalue"],
+      db_soft_mask = config["blastn_virus"]["db_soft_mask"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -29,7 +29,7 @@ rule parse_blastn_virus:
       known_xml = "output/{sample}_blastn_virus_{n}_known-viral.xml",
       unmapped = "output/{sample}_blastn_virus_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-5
+      e_cutoff = config["parse_blastn_virus"]["e_cutoff"]
     conda:
       "../envs/biopython.yml"
     script:
@@ -43,8 +43,8 @@ rule blastx_virus:
     output:
       out = "output/blast/{sample}_blastx_virus_{n}.xml"
     params:
-      evalue = 1e-2,
-      db_soft_mask = 100,
+      evalue = config["blastx_virus"]["evalue"],
+      db_soft_mask = config["blastx_virus"]["db_soft_mask"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -62,7 +62,7 @@ rule parse_blastx_virus:
       known_xml = "output/{sample}_blastx_virus_{n}_known-viral.xml",
       unmapped = "output/{sample}_blastx_virus_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-3
+      e_cutoff = config["parse_blastx_virus"]["e_cutoff"]
     conda:
       "../envs/biopython.yml"
     script:
@@ -164,7 +164,7 @@ rule parse_megablast:
       "output/blast/{sample}_nt_filtered_{n}_mapped.xml",
       "output/blast/{sample}_nt_filtered_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-10
+      e_cutoff = config["parse_megablast"]["e_cutoff"]
     conda:
       "../envs/biopython.yml"
     script:
@@ -179,9 +179,9 @@ rule blastn_nt:
       out = "output/blast/{sample}_blastn_nt_{n}.xml"
     params:
       task = "blastn",
-      evalue = 1e-8,
-      num_descriptions = 50,
-      num_alignments = 50,
+      evalue = config["blastn_nt"]["evalue"],
+      num_descriptions = config["blastn_nt"]["num_descriptions"],
+      num_alignments = config["blastn_nt"]["num_alignments"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -199,7 +199,7 @@ rule parse_blastn_nt:
       known_xml = "output/{sample}_blastn_nt_{n}_mapped.xml",
       unmapped = "output/{sample}_blastn_nt_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-10
+      e_cutoff = config["parse_blastn_nt"]["e_cutoff"]
     conda:
       "../envs/biopython.yml"
     script:
@@ -213,9 +213,9 @@ rule blastx_nr:
     output:
       out = "output/blast/{sample}_blastx_nr_{n}.xml"
     params:
-      evalue = 1e-2,
-      num_descriptions = 50,
-      num_alignments = 50,
+      evalue = config["blastx_nr"]["evalue"],
+      num_descriptions = config["blastx_nr"]["num_descriptions"],
+      num_alignments = config["blastx_nr"]["num_alignments"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -233,7 +233,7 @@ rule parse_blastx_nr:
       known_xml = "output/{sample}_blastx_nr_{n}_mapped.xml",
       unassigned = "output/{sample}_blastx_nr_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-3
+      e_cutoff = config["parse_blastx_nr"]["e_cutoff"]
     conda:
       "../envs/biopython.yml"
     script:
