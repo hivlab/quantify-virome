@@ -19,8 +19,8 @@ rule bwa_mem:
 rule unmapped_reads:
     input: rules.bwa_mem.output
     output:
-      bam = temp("output/{sample}_refgenome_unmapped_{n}.bam"),
-      fq = temp("output/{sample}_refgenome_unmapped_{n}.fq"),
+      bam = "output/{sample}_refgenome_unmapped_{n}.bam",
+      fq = "output/{sample}_refgenome_unmapped_{n}.fq",
       fa = "output/{sample}_refgenome_unmapped_{n}.fa"
     conda:
       "../envs/bwa-sam-bed.yml"
@@ -35,7 +35,7 @@ rule unmapped_reads:
 rule unmapped_masked:
     input: rules.unmapped_reads.output.fa, rules.repeatmasker_good.output.masked
     output:
-      temp("output/{sample}_refgenome_unmapped_{n}_masked.fa")
+      "output/{sample}_refgenome_unmapped_{n}_masked.fa"
     conda:
       "../envs/biopython.yml"
     script:
@@ -50,17 +50,18 @@ rule megablast_ref_genome:
       out = "output/blast/{sample}_megablast_{n}.xml"
     params:
       task = "megablast",
-      perc_ident = config["megablast_ref_genome"]["perc_identity"],
+      perc_identity = config["megablast_ref_genome"]["perc_identity"],
       evalue = config["megablast_ref_genome"]["evalue"],
       word_size = config["megablast_ref_genome"]["word_size"],
-      num_desc = config["megablast_ref_genome"]["num_descriptions"],
-      num_align = config["megablast_ref_genome"]["num_alignments"],
+      num_descriptions = config["megablast_ref_genome"]["num_descriptions"],
+      num_alignments = config["megablast_ref_genome"]["num_alignments"],
       show_gis = True,
-      num_threads = 8
+      num_threads = 8,
+      outfmt = 5
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/megablast.py"
+      "../scripts/blast.py"
 
 ## Filter megablast records for the cutoff value
 rule parse_megablast:
@@ -68,7 +69,7 @@ rule parse_megablast:
       rules.megablast_ref_genome.output.out,
       rules.unmapped_masked.output
     output:
-      temp("output/{sample}_refgenome_filtered_{n}_known-host.xml"),
+      "output/{sample}_refgenome_filtered_{n}_known-host.xml",
       "output/{sample}_refgenome_filtered_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10

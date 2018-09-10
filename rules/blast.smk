@@ -1,4 +1,6 @@
 
+## Blast input, output, and params keys must match commandline blast option names https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a
+
 ## Blast against NT virus database
 rule blastn_virus:
     input:
@@ -11,11 +13,12 @@ rule blastn_virus:
       evalue = 1e-4,
       db_soft_mask = 100,
       show_gis = True,
-      num_threads = 8
+      num_threads = 8,
+      outfmt = 5
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/blastn.py"
+      "../scripts/blast.py"
 
 ## Filter blastn records for the cutoff value
 rule parse_blastn_virus:
@@ -43,11 +46,12 @@ rule blastx_virus:
       evalue = 1e-2,
       db_soft_mask = 100,
       show_gis = True,
-      num_threads = 8
+      num_threads = 8,
+      outfmt = 5
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/blastx.py"
+      "../scripts/blast.py"
 
 ## Filter blastn records for the cutoff value
 rule parse_blastx_virus:
@@ -141,14 +145,15 @@ rule megablast_nt:
       task = "megablast",
       evalue = config["megablast_nt"]["evalue"],
       word_size = config["megablast_nt"]["word_size"],
-      num_desc = config["megablast_nt"]["num_descriptions"],
-      num_align = config["megablast_nt"]["num_alignments"],
+      num_descriptions = config["megablast_nt"]["num_descriptions"],
+      num_alignments = config["megablast_nt"]["num_alignments"],
       show_gis = True,
-      num_threads = 8
+      num_threads = 8,
+      outfmt = 5
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/blastn.py"
+      "../scripts/blast.py"
 
 ## Filter megablast records for the cutoff value
 rule parse_megablast:
@@ -175,14 +180,15 @@ rule blastn_nt:
     params:
       task = "blastn",
       evalue = 1e-8,
-      num_desc = 50,
-      num_align = 50,
+      num_descriptions = 50,
+      num_alignments = 50,
       show_gis = True,
-      num_threads = 8
+      num_threads = 8,
+      outfmt = 5
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/blastn.py"
+      "../scripts/blast.py"
 
 ## Filter blastn records for the cutoff value
 rule parse_blastn_nt:
@@ -208,14 +214,15 @@ rule blastx_nr:
       out = "output/blast/{sample}_blastx_nr_{n}.xml"
     params:
       evalue = 1e-2,
-      num_desc = 50,
-      num_align = 50,
+      num_descriptions = 50,
+      num_alignments = 50,
       show_gis = True,
-      num_threads = 8
+      num_threads = 8,
+      outfmt = 5
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/blastx.py"
+      "../scripts/blast.py"
 
 ## Filter blastn records for the cutoff value
 rule parse_blastx_nr:
