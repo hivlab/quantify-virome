@@ -58,7 +58,7 @@ rule megablast_ref_genome:
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/megablast_ref_genome.py"
+      "../scripts/megablast.py"
 
 ## Filter megablast records for the cutoff value
 rule parse_megablast:
