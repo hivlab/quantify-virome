@@ -47,14 +47,16 @@ rule megablast_ref_genome:
       db = config["ref_genome"],
       query = rules.unmapped_masked.output
     output:
-      "output/blast/{sample}_megablast_{n}.xml"
+      out = "output/blast/{sample}_megablast_{n}.xml"
     params:
+      task = "megablast",
       perc_ident = config["megablast_ref_genome"]["perc_identity"],
       evalue = config["megablast_ref_genome"]["evalue"],
       word_size = config["megablast_ref_genome"]["word_size"],
       num_desc = config["megablast_ref_genome"]["num_descriptions"],
-      num_align = config["megablast_ref_genome"]["num_alignments"]
-    threads: 8
+      num_align = config["megablast_ref_genome"]["num_alignments"],
+      show_gis = True,
+      num_threads = 8
     conda:
       "../envs/biopython.yml"
     script:
@@ -63,7 +65,7 @@ rule megablast_ref_genome:
 ## Filter megablast records for the cutoff value
 rule parse_megablast:
     input:
-      rules.megablast_ref_genome.output,
+      rules.megablast_ref_genome.output.out,
       rules.unmapped_masked.output
     output:
       temp("output/{sample}_refgenome_filtered_{n}_known-host.xml"),

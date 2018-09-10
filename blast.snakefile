@@ -16,7 +16,13 @@ rule all:
       "output/{sample}_blastx_virus_{n}_known-viral.fa",
       "output/{sample}_blastx_virus_{n}_unmapped.fa",
       "output/{sample}_known-viral_{n}_unmasked.fa",
-      "output/{sample}_refbacteria_unmapped_{n}_masked.fa"
+      "output/{sample}_refbacteria_unmapped_{n}_masked.fa",
+      "output/blast/{sample}_nt_filtered_{n}_mapped.xml",
+      "output/blast/{sample}_nt_filtered_{n}_unmapped.fa",
+      "output/{sample}_blastn_nt_{n}_mapped.xml",
+      "output/{sample}_blastn_nt_{n}_unmapped.fa",
+      "output/{sample}_blastx_nr_{n}_mapped.xml",
+      "output/{sample}_blastx_nr_{n}_unmapped.fa"
       ],
       sample = sample_ids,
       n = list(range(1, n_files + 1, 1)))
