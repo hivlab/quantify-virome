@@ -60,24 +60,15 @@ megablast_nt:
     num_descriptions: 50
     num_alignments: 50
 
-parse_megablast:
-    e_cutoff: 1e-10
-
 # Blastn against virus nucleotide database
 blastn_virus:
     evalue: 1e-4
     db_soft_mask: 100
 
-parse_blastn_virus:
-    e_cutoff: 1e-5
-
 # Blastx against virus protein database
 blastx_virus:
     evalue: 1e-2
     db_soft_mask: 100
-
-parse_blastx_virus:
-    e_cutoff: 1e-3
 
 # Blastn against nucleotide database
 blastn_nt:
@@ -85,14 +76,8 @@ blastn_nt:
     num_descriptions: 50
     num_alignments: 50
 
-parse_blastn_nt:
-    e_cutoff: 1e-10
-
 # Blastx against protein database
 blastx_nr:
     evalue: 1e-2
     num_descriptions: 50
     num_alignments: 50
-
-parse_blastx_nr:
-    e_cutoff: 1e-3

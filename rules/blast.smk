@@ -29,7 +29,7 @@ rule parse_blastn_virus:
       known_xml = "output/{sample}_blastn_virus_{n}_known-viral.xml",
       unmapped = "output/{sample}_blastn_virus_{n}_unmapped.fa"
     params:
-      e_cutoff = config["parse_blastn_virus"]["e_cutoff"]
+      e_cutoff = 1e-5
     conda:
       "../envs/biopython.yml"
     script:
@@ -62,7 +62,7 @@ rule parse_blastx_virus:
       known_xml = "output/{sample}_blastx_virus_{n}_known-viral.xml",
       unmapped = "output/{sample}_blastx_virus_{n}_unmapped.fa"
     params:
-      e_cutoff = config["parse_blastx_virus"]["e_cutoff"]
+      e_cutoff = 1e-3
     conda:
       "../envs/biopython.yml"
     script:
@@ -164,7 +164,7 @@ rule parse_megablast:
       "output/blast/{sample}_nt_filtered_{n}_mapped.xml",
       "output/blast/{sample}_nt_filtered_{n}_unmapped.fa"
     params:
-      e_cutoff = config["parse_megablast"]["e_cutoff"]
+      e_cutoff = 1e-10
     conda:
       "../envs/biopython.yml"
     script:
@@ -199,7 +199,7 @@ rule parse_blastn_nt:
       known_xml = "output/{sample}_blastn_nt_{n}_mapped.xml",
       unmapped = "output/{sample}_blastn_nt_{n}_unmapped.fa"
     params:
-      e_cutoff = config["parse_blastn_nt"]["e_cutoff"]
+      e_cutoff = 1e-10
     conda:
       "../envs/biopython.yml"
     script:
@@ -233,7 +233,7 @@ rule parse_blastx_nr:
       known_xml = "output/{sample}_blastx_nr_{n}_mapped.xml",
       unassigned = "output/{sample}_blastx_nr_{n}_unmapped.fa"
     params:
-      e_cutoff = config["parse_blastx_nr"]["e_cutoff"]
+      e_cutoff = 1e-3
     conda:
       "../envs/biopython.yml"
     script:
