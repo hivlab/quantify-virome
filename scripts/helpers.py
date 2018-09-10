@@ -66,16 +66,22 @@ def parse_blast(blast_xml, unknowns_masked_fasta, known_out_xml, unknown_out_fas
 
 # subset unmasked fasta sequences using blast hits
 def subset_unmasked(blast_xml, unmasked_fasta, output):
+    # blast hits
+    hits = SearchIO.index(blast_xml, 'blast-xml')
     # unmasked sequences
     raw_qresults = (qresult for qresult in SeqIO.parse(unmasked_fasta, "fasta"))
-    # blast hits
-    idx = SearchIO.index(blast_xml, 'blast-xml')
     # filter unmasked using blast hits
-    filtered_records = (qresult for qresult in raw_qresults if qresult.id in idx)
+    filtered_records = (qresult for qresult in raw_qresults if qresult.id in hits)
     # write to fasta
     SeqIO.write(filtered_records, output, 'fasta')
 
-
-
-
-
+# subset masked fasta seqs using ref genome nonmapping fasta seq ids
+def subset_masked(unmapped, masked, output):
+  # unmapped
+  unmapped = SeqIO.index(unmapped, "fasta")
+  # masked sequences
+  masked = (sequence for sequence in SeqIO.parse(masked, "fasta"))
+  # filter masked using unmapped ids
+  filtered_records = (sequence for sequence in masked if qresult.id in unmapped)
+  # write to fasta
+  SeqIO.write(filtered_records, output, 'fasta')
