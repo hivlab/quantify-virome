@@ -1,3 +1,4 @@
+name: fastq-join
 channels:
   - bioconda
   - conda-forge

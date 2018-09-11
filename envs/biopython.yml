@@ -1,3 +1,4 @@
+name: biopython
 channels:
   - bioconda
   - conda-forge

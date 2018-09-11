@@ -1,3 +1,4 @@
+name: cd-hit
 channels:
   - bioconda
   - conda-forge

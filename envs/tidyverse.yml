@@ -1,3 +1,4 @@
+name: tidyverse
 channels:
   - r
   - conda-forge
