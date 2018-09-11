@@ -145,7 +145,7 @@ rule megablast_nt:
       task = "megablast",
       evalue = config["megablast_nt"]["evalue"],
       word_size = config["megablast_nt"]["word_size"],
-      num_descriptions = config["megablast_nt"]["num_descriptions"],
+      max_target_seqs = config["megablast_nt"]["num_descriptions"],
       num_alignments = config["megablast_nt"]["num_alignments"],
       show_gis = True,
       num_threads = 8,
@@ -180,7 +180,7 @@ rule blastn_nt:
     params:
       task = "blastn",
       evalue = config["blastn_nt"]["evalue"],
-      num_descriptions = config["blastn_nt"]["num_descriptions"],
+      max_target_seqs = config["blastn_nt"]["num_descriptions"],
       num_alignments = config["blastn_nt"]["num_alignments"],
       show_gis = True,
       num_threads = 8,
@@ -214,7 +214,7 @@ rule blastx_nr:
       out = "output/blast/{sample}_blastx_nr_{n}.xml"
     params:
       evalue = config["blastx_nr"]["evalue"],
-      num_descriptions = config["blastx_nr"]["num_descriptions"],
+      max_target_seqs = config["blastx_nr"]["num_descriptions"],
       num_alignments = config["blastx_nr"]["num_alignments"],
       show_gis = True,
       num_threads = 8,
