@@ -4,11 +4,11 @@
 ## Blast against NT virus database
 rule blastn_virus:
     input:
-      db = config["virus_nt"],
       query = preprocessing("output/{sample}_refgenome_filtered_{n}_unmapped.fa")
     output:
       out = "output/blast/{sample}_blastn_virus_{n}.xml"
     params:
+      db = config["virus_nt"],
       task = "blastn",
       evalue = config["blastn_virus"]["evalue"],
       db_soft_mask = config["blastn_virus"]["db_soft_mask"],
@@ -38,11 +38,11 @@ rule parse_blastn_virus:
 ## Blastx unmapped sequences against NR virus database
 rule blastx_virus:
     input:
-      db = config["virus_nr"],
       query = rules.parse_blastn_virus.output.unmapped
     output:
       out = "output/blast/{sample}_blastx_virus_{n}.xml"
     params:
+      db = config["virus_nr"],
       evalue = config["blastx_virus"]["evalue"],
       db_soft_mask = config["blastx_virus"]["db_soft_mask"],
       show_gis = True,
@@ -137,16 +137,15 @@ rule unmapped_masked:
 ## MegaBlast against NT to remove host sequences
 rule megablast_nt:
     input:
-      db = config["nt"],
       query = rules.unmapped_masked.output
     output:
       out = "output/blast/{sample}_megablast_nt_{n}.xml"
     params:
+      db = config["nt"],
       task = "megablast",
       evalue = config["megablast_nt"]["evalue"],
       word_size = config["megablast_nt"]["word_size"],
       max_target_seqs = config["megablast_nt"]["num_descriptions"],
-      num_alignments = config["megablast_nt"]["num_alignments"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -170,18 +169,18 @@ rule parse_megablast:
     script:
       "../scripts/parse_blast.py"
 
+
 ## Blastn against NT database
 rule blastn_nt:
     input:
-      db = config["nt"],
       query = "output/blast/{sample}_nt_filtered_{n}_unmapped.fa"
     output:
       out = "output/blast/{sample}_blastn_nt_{n}.xml"
     params:
+      db = config["nt"],
       task = "blastn",
       evalue = config["blastn_nt"]["evalue"],
       max_target_seqs = config["blastn_nt"]["num_descriptions"],
-      num_alignments = config["blastn_nt"]["num_alignments"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -208,14 +207,13 @@ rule parse_blastn_nt:
 ## Blastx unmapped sequences against NR virus database
 rule blastx_nr:
     input:
-      db = config["nr"],
       query = rules.parse_blastn_nt.output.unmapped
     output:
       out = "output/blast/{sample}_blastx_nr_{n}.xml"
     params:
+      db = config["nr"],
       evalue = config["blastx_nr"]["evalue"],
       max_target_seqs = config["blastx_nr"]["num_descriptions"],
-      num_alignments = config["blastx_nr"]["num_alignments"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5

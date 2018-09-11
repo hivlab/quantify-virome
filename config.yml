@@ -16,9 +16,9 @@ virus_nt: "/gpfs/software/VirusSeeker/databases/VirusDBNT_20160802/VirusDBNT_201
 virus_nr: "/gpfs/software/VirusSeeker/databases/VirusDBNR_20160802/VirusDBNR_20160802_ID98.fa"
 vhunter: "/gpfs/software/VirusSeeker/databases/taxdump_300817/vhunter.db"
 
-# Path to nt and nr database
-nt: "/gpfs/software/VirusSeeker/databases/nt"
-nr: "/gpfs/software/VirusSeeker/databases/nr"
+# Paths to nt and nr blast database to be used for environment variable
+nt: "/gpfs/software/VirusSeeker/databases/nt/nt"
+nr: "/gpfs/software/VirusSeeker/databases/nr/nr"
 
 # Rule parameters ---------------------
 

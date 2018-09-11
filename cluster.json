@@ -21,6 +21,11 @@
     {
         "time": "00:45:00"
     },
+    "megablast_nt" :
+    {
+        "mem" : 4000,
+        "time": "02:00:00"
+    },
     "bwa_mem" :
     {
         "mem" : 32000,
@@ -42,9 +47,19 @@
         "time": "03:00:00",
         "partition" : "main"
     },
+    "blastn_nt" :
+    {
+        "time": "04:00:00",
+        "partition" : "main"
+    },
     "blastx_virus" :
     {
         "time": "08:00:00",
+        "partition" : "main"
+    },
+    "blastx_nr" :
+    {
+        "time": "12:00:00",
         "partition" : "main"
     }
 }
