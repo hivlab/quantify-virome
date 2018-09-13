@@ -1,21 +1,4 @@
 
-localrules: download_taxonomy
-
-# Download taxonomy names
-rule download_taxonomy:
-    input:
-      FTP.remote("ftp://ftp.ncbi.nih.gov/pub/taxonomy/gi_taxid_nucl.dmp.gz")
-    output:
-      names_dmp = temp("names.dmp"),
-      nodes_dmp = temp("nodes.dmp"),
-      names = "taxonomy/names.csv",
-      nodes = "taxonomy/nodes.csv"
-    params:
-      taxdir = "taxonomy"
-    conda:
-      "../envs/tidyverse.yml"
-    script:
-      "../scripts/download_taxonomy_names.R"
 
 def get_knownviral(wildcards):
   path = expand("output/{sample}_virusnt_blast_*_known-viral.out", sample = wildcards.sample)
@@ -26,8 +9,8 @@ rule virus_nt_taxonomy:
     input:
       known = get_knownviral,
       vhunter = config["vhunter"],
-      names = rules.download_taxonomy.output.names,
-      nodes = rules.download_taxonomy.output.nodes
+      names = config["names"],
+      nodes = config["nodes"]
     output:
       "output/reports/{sample}_known_taxa.csv"
     conda:

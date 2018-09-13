@@ -68,67 +68,72 @@ rule parse_blastx_virus:
     script:
       "../scripts/parse_blast.py"
 
+## Filter out phage sequences
+
+
 ## Get unmasked known viral sequences
 rule unmasked_viral:
-  input:
-    rules.parse_blastn_virus.output.known_xml,
-    rules.parse_blastx_virus.output.known_xml,
-    preprocessing("output/{sample}_refgenome_unmapped_{n}.fa")
-  output:
-    "output/{sample}_blastn_virus_{n}_known-viral.fa",
-    "output/{sample}_blastx_virus_{n}_known-viral.fa"
-  conda:
+    input:
+      rules.parse_blastn_virus.output.known_xml,
+      rules.parse_blastx_virus.output.known_xml,
+      preprocessing("output/{sample}_refgenome_unmapped_{n}.fa")
+    output:
+      "output/{sample}_blastn_virus_{n}_known-viral.fa",
+      "output/{sample}_blastx_virus_{n}_known-viral.fa"
+    conda:
       "../envs/biopython.yml"
-  script:
+    script:
       "../scripts/unmasked_viral.py"
 
 ## Merge blast outputs
 rule merge_unmasked_viral:
-  input:
-    rules.unmasked_viral.output
-  output:
-    "output/{sample}_known-viral_{n}_unmasked.fa"
-  shell:
-    """
-    cat {input} > {output}
-    """
+    input:
+      rules.unmasked_viral.output
+    output:
+      "output/{sample}_known-viral_{n}_unmasked.fa"
+    shell:
+      """
+      cat {input} > {output}
+      """
+
 ## Map against bacterial genomes
 rule bwa_mem:
     input:
-        config["ref_bacteria"],
-        ["output/{sample}_known-viral_{n}_unmasked.fa"]
+      config["ref_bacteria"],
+      ["output/{sample}_known-viral_{n}_unmasked.fa"]
     output:
-        "output/bwa_mem/{sample}_refbacteria_mapped_{n}.bam"
+      "output/bwa_mem/{sample}_bacteria_mapped_{n}.sam"
     log:
-        "output/logs/{sample}_bactbwa_mem_{n}.log"
+      "output/logs/{sample}_bacteria_mapped_{n}.log"
     threads: 8
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:
-        "(bwa mem -L 100,100 -k 15 -t {threads} {input} | "
-        "samtools view -Sb - > {output}) 2> {log}"
+      "bwa mem -k 15 -t {threads} {input} > {output} 2> {log}"
 
 ## Extract unmapped reads
 rule unmapped_reads:
     input: rules.bwa_mem.output
     output:
-      bam = temp("output/{sample}_refbacteria_unmapped_{n}.bam"),
-      fq = temp("output/{sample}_refbacteria_unmapped_{n}.fq"),
-      fa = "output/{sample}_refbacteria_unmapped_{n}.fa"
+      bam = temp("output/{sample}_bacteria_unmapped_{n}.bam"),
+      fq = temp("output/{sample}_bacteria_unmapped_{n}.fq"),
+      fa = "output/{sample}_bacteria_unmapped_{n}.fa"
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:
       """
-        samtools view -b -f 4 {input} > {output.bam}
-        bedtools bamtofastq -i {output.bam} -fq {output.fq}
-        cat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
+      samtools view -b -S -f 4 {input} > {output.bam}
+      bedtools bamtofastq -i {output.bam} -fq {output.fq}
+      cat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
       """
 
 ## Subset repeatmasker masked reads using unmapped ids
 rule unmapped_masked:
-    input: rules.unmapped_reads.output.fa, preprocessing("output/{sample}_repmaskedgood_{n}.fa")
+    input:
+      rules.unmapped_reads.output.fa,
+      preprocessing("output/{sample}_repmaskedgood_{n}.fa")
     output:
-      temp("output/{sample}_refbacteria_unmapped_{n}_masked.fa")
+      temp("output/{sample}_bacteria_unmapped_{n}_masked.fa")
     conda:
       "../envs/biopython.yml"
     script:
