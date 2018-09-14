@@ -1,4 +1,15 @@
 
+# Download taxonomy names
+rule import_taxonomy:
+    input: config["names"], config["nodes"]
+    output:
+      names = protected("taxonomy/names.csv"),
+      nodes = protected("taxonomy/nodes.csv")
+    conda:
+      "../envs/tidyverse.yml"
+    script:
+      "../scripts/download_taxonomy_names.R"
+
 ## Blast input, output, and params keys must match commandline blast option names https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a
 
 ## Blast against NT virus database
