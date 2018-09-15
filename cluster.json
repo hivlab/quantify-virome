@@ -1,12 +1,12 @@
 {
     "__default__" :
     {
-        "name" : "{rule}.{wildcards.sample}",
+        "name" : "{rule}",
         "time" : "00:10:00",
-        "partition" : "main",
+        "partition" : "testing",
         "cpus-per-task" : 1,
         "mem" : 2000,
-        "output" : "output/logs/{wildcards.sample}_{rule}_slurm_%j.log"
+        "output" : "output/logs/{rule}_slurm_%j.log"
     },
     "fastp" :
     {
@@ -23,13 +23,13 @@
     },
     "megablast_nt" :
     {
-        "mem" : 4000,
+        "mem" : 32000,
         "time": "02:00:00"
     },
     "bwa_mem" :
     {
         "mem" : 32000,
-        "time": "00:20:00"
+        "time": "02:00:00"
     },
     "fastq_join" :
     {
@@ -47,19 +47,30 @@
         "time": "03:00:00",
         "partition" : "main"
     },
-    "blastn_nt" :
-    {
-        "time": "04:00:00",
-        "partition" : "main"
-    },
     "blastx_virus" :
     {
+        "mem" : 32000,
         "time": "08:00:00",
+        "partition" : "main"
+    },
+    "taxonomy_names" : {
+        "mem" : 8000,
+        "time": "00:30:00"
+    },
+    "filter_viruses" : {
+        "mem" : 4000,
+        "time": "00:30:00"
+    },
+    "blastn_nt" :
+    {
+        "mem" : 32000,
+        "time": "04:00:00",
         "partition" : "main"
     },
     "blastx_nr" :
     {
-        "time": "12:00:00",
+        "mem" : 32000,
+        "time": "24:00:00",
         "partition" : "main"
     }
 }
