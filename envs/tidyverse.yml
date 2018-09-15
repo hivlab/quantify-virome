@@ -5,13 +5,14 @@ channels:
   - defaults
 dependencies:
   - r-base
-  - r-tidyverse=1.2.1
+  - r-tidyverse
   - r-tidyr=0.8.1
   - r-purrr=0.2.5
-  - r-magrittr=1.5
-  - r-xml2=1.2.0
-  - r-rvest=0.3.2
-  - r-httr=1.3.1
+  - r-dbplyr
+  - r-magrittr
+  - r-xml2
+  - r-rvest
+  - r-httr
   - r-rsqlite
   - r-dt
   - r-formattable

@@ -1,14 +1,12 @@
 
-# Download taxonomy names
-rule import_taxonomy:
-    input: config["names"], config["nodes"]
-    output:
-      names = protected("taxonomy/names.csv"),
-      nodes = protected("taxonomy/nodes.csv")
-    conda:
-      "../envs/tidyverse.yml"
-    script:
-      "../scripts/download_taxonomy_names.R"
+## Prepare names and nodes tables for taxonomy annotation
+rule prepare_taxonomy_data:
+  input: config["names"], config["nodes"], config["division"]
+  output: "taxonomy/names.csv", "taxonomy/nodes.csv", "taxonomy/division.csv"
+  conda:
+    "../envs/tidyverse.yml"
+  script:
+    "../scripts/prepare_taxonomy_data.R"
 
 ## Blast input, output, and params keys must match commandline blast option names https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a
 
@@ -80,13 +78,24 @@ rule parse_blastx_virus:
       "../scripts/parse_blast.py"
 
 ## Filter out phage sequences
+rule filter_viruses:
+  input:
+    rules.parse_blastn_virus.output.known_xml,
+    rules.parse_blastx_virus.output.known_xml,
+    config["vhunter"],
+    "taxonomy/nodes.csv"
+  output:
+    phages = "output/{sample}_phages_{n}.csv",
+    viruses = "output/{sample}_candidate_viruses_{n}.csv"
+  conda:
+    "../envs/tidyverse.yml"
+  script:
+    "../scripts/filter_viruses.R"
 
-
-## Get unmasked known viral sequences
+## Get unmasked candidate viral sequences
 rule unmasked_viral:
     input:
-      rules.parse_blastn_virus.output.known_xml,
-      rules.parse_blastx_virus.output.known_xml,
+      rules.filter_phages.output.viruses,
       preprocessing("output/{sample}_refgenome_unmapped_{n}.fa")
     output:
       "output/{sample}_blastn_virus_{n}_known-viral.fa",
