@@ -79,7 +79,7 @@ def subset_unmasked_csv(blast_csv, unmasked_fasta, output):
     # blast hits
     hits = pd.read_csv(blast_csv)
     # keep query id until first whitespace
-    queryid_with_hits = hits['query'].str.extract('(^[^\\s]+)', expand = False)
+    queryid_with_hits = hits["query"].str.extract("(^[^\\s]+)", expand = False)
     # convert to list
     queryid_with_hits = list(queryid_with_hits)
     # reduce to unique ids
@@ -89,7 +89,7 @@ def subset_unmasked_csv(blast_csv, unmasked_fasta, output):
     # filter unmasked using blast hits
     filtered_records = (qresult for qresult in raw_qresults if qresult.id in queryid_with_hits)
     # write to fasta
-    SeqIO.write(filtered_records, output, 'fasta')
+    SeqIO.write(filtered_records, output, "fasta")
 
 # subset masked fasta seqs using ref genome nonmapping fasta seq ids
 def subset_masked(unmapped, masked, output):
