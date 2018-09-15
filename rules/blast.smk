@@ -95,32 +95,20 @@ rule filter_viruses:
 ## Get unmasked candidate viral sequences
 rule unmasked_viral:
     input:
-      rules.filter_phages.output.viruses,
+      rules.filter_viruses.output.viruses,
       preprocessing("output/{sample}_refgenome_unmapped_{n}.fa")
     output:
-      "output/{sample}_blastn_virus_{n}_known-viral.fa",
-      "output/{sample}_blastx_virus_{n}_known-viral.fa"
+      "output/{sample}_candidate_viruses_{n}_unmasked.fa"
     conda:
       "../envs/biopython.yml"
     script:
       "../scripts/unmasked_viral.py"
 
-## Merge blast outputs
-rule merge_unmasked_viral:
-    input:
-      rules.unmasked_viral.output
-    output:
-      "output/{sample}_known-viral_{n}_unmasked.fa"
-    shell:
-      """
-      cat {input} > {output}
-      """
-
 ## Map against bacterial genomes
 rule bwa_mem:
     input:
       config["ref_bacteria"],
-      ["output/{sample}_known-viral_{n}_unmasked.fa"]
+      ["output/{sample}_candidate_viruses_{n}_unmasked.fa"]
     output:
       "output/bwa_mem/{sample}_bacteria_mapped_{n}.sam"
     log:
