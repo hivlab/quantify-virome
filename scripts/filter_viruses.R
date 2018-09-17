@@ -51,31 +51,28 @@ query_taxid <- function(gi) {
   xml_node(cont, xpath = "//TSeq_taxid") %>% xml_text()
 }
 
-blast_taxonomy <- function(nt_virus, nr_virus, taxdb, nodes, phages, viruses) {
+parse_blast_xml <- function(blast_xml, ...) {
 
   message("Open and fix BLAST+ xml strings")
-  virus <- data_frame(path = c(nt_virus, nr_virus)) %>%
+  xml_str <- data_frame(path = c(blast_xml, ...)) %>%
     mutate(xml = map(path, read_lines)) %>%
     mutate(xml = map(xml, split_hits)) %>%
     unnest() %>%
     mutate(xml = map(xml, str_c, collapse = ""))
 
-
   message("Import fixed xml")
-  virus <- mutate(virus, xml = map(xml, read_xml))
+  xml_imported <- mutate(xml_str, xml = map(xml, read_xml))
 
   message("Extract hits from xml")
-  virus <- mutate(virus, hits = map(xml, parse_hits))
+  xml_parsed <- mutate(xml_imported, hits = map(xml, parse_hits))
 
   message("Extract blast results from list")
-  virus <- virus %>%
-    dplyr::select(path, hits) %>%
-    unnest() %>%
-    mutate(blast = case_when(
-      str_detect(path, "blastn") ~ "blastn",
-      str_detect(path, "blastx") ~ "blastx"
-    )) %>%
-    dplyr::select(-path)
+  dplyr::select(xml_parsed, hits) %>% unnest()
+}
+
+blast_taxonomy <- function(nt_virus, nr_virus, taxdb, nodes, phages, viruses) {
+
+
 
   message("Query local vhunter database")
   db <- src_sqlite(taxdb, create = TRUE)
