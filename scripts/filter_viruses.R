@@ -16,6 +16,8 @@ split_hits <- function(xml) {
 
 # Parse BLAST+ xml
 parse_hits <- function(xml) {
+  program <- xml_find_first(xml, "/BlastOutput//BlastOutput_program") %>% xml_text()
+  db <- xml_find_first(xml, "/BlastOutput//BlastOutput_db") %>% xml_text() %>% basename()
   iter <- xml_find_all(xml, "/BlastOutput//Iteration")
   query <- xml_find_first(iter, "Iteration_query-def") %>% xml_text()
   hits <- xml_find_all(iter, "Iteration_hits")
@@ -39,7 +41,7 @@ parse_hits <- function(xml) {
                    `Hsp_hit-from`, `Hsp_hit-to`, Hsp_identity, Hsp_num, Hsp_positive,
                    `Hsp_query-frame`, `Hsp_query-from`, `Hsp_query-to`, Hsp_score), parse_number)
 
-  data_frame(query, gi, Hit_accession, Hit_def) %>% bind_cols(hsps)
+  data_frame(program, db, query, gi, Hit_accession, Hit_def) %>% bind_cols(hsps)
 }
 
 query_taxid <- function(gi) {
