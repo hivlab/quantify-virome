@@ -1,6 +1,7 @@
 
 from Bio import SearchIO
 from Bio import SeqIO
+import pandas as pd
 
 def filter_records(source, min_length, por_n):
  for seq_record in source:
