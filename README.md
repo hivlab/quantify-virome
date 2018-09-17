@@ -2,6 +2,7 @@
 [![Travis-CI Build Status](https://travis-ci.org/<USERNAME>/<REPO>.svg?branch=master)](https://travis-ci.org/<USERNAME>/<REPO>)
 
 The goal of this repo is to reproducibly recreate VirusSeeker Virome workflow.
+> Please note that this workflow is currently not finished and under heavy development.
 
 ## Setup environment and install prerequisites
 
