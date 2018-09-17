@@ -1,6 +1,7 @@
 
 from Bio import SearchIO
 from Bio import SeqIO
+import os
 import pandas as pd
 
 def filter_records(source, min_length, por_n):
@@ -49,6 +50,10 @@ def batch_iterator(iterator, batch_size):
         if batch:
             yield batch
 
+def touch(path):
+  with open(path, 'a'):
+        os.utime(path, None)
+
 # parse blast output, write known sequences to file, return unmapped ids
 # blast_xml blast-xml file
 # unknowns_masked_fasta repeatmasker output fasta file to be subset
@@ -56,6 +61,10 @@ def batch_iterator(iterator, batch_size):
 # unknown_out_fasta unmapped hits (evalue > evalue_threshold) from blast-xml in fasta format
 # evalue_threshold default 1e-10
 def parse_blast(blast_xml, unknowns_masked_fasta, known_out_xml, unknown_out_fasta, evalue_threshold = 1e-10):
+  if os.stat(blast_xml).st_size == 0:
+    touch(known_out_xml)
+    touch(unknown_out_fasta)
+    return
   blast_results = SearchIO.parse(blast_xml, 'blast-xml')
   unmapped_masked = SeqIO.index(unknowns_masked_fasta, "fasta")
   with open(known_out_xml, "w") as known_xml, open(unknown_out_fasta, "w") as unknown_fa:

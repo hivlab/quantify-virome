@@ -182,7 +182,6 @@ rule parse_megablast:
     script:
       "../scripts/parse_blast.py"
 
-
 ## Blastn against NT database
 rule blastn_nt:
     input:
