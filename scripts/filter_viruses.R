@@ -51,6 +51,8 @@ query_taxid <- function(gi) {
   xml_node(cont, xpath = "//TSeq_taxid") %>% xml_text()
 }
 
+#' @param blast_xml Path to BLAST+ XML result file, a character string.
+#' @param ... further path(s) to BLAST+ XML result file(s), a character string.
 parse_blast_xml <- function(blast_xml, ...) {
 
   message("Open and fix BLAST+ xml strings")
@@ -67,31 +69,38 @@ parse_blast_xml <- function(blast_xml, ...) {
   xml_parsed <- mutate(xml_imported, hits = map(xml, parse_hits))
 
   message("Extract blast results from list")
-  dplyr::select(xml_parsed, hits) %>% unnest()
+  blast_results <- dplyr::select(xml_parsed, hits) %>% unnest()
+  class(blast_results) <- append(class(blast_results), "blast_xml_tab")
+  return(blast_results)
 }
 
-blast_taxonomy <- function(nt_virus, nr_virus, taxdb, nodes, phages, viruses) {
+gi2taxid <- function(tab, taxdb) {
+  UseMethod("gi2taxid", tab)
+}
 
+#' @param tab data_frame with parsed blast results
+#' @param taxdb sqlite database with gi_taxid_nucl and gi_taxid_prot tables
+gi2taxid.blast_xml_tab <- function(tab, taxdb) {
 
+  mapped_gis <- tab$gi
 
-  message("Query local vhunter database")
+  message("Connect to database")
   db <- src_sqlite(taxdb, create = TRUE)
-  message("tbl")
-  nucl_db <- tbl(db, "gi_taxid_nucl")
-  prot_db <- tbl(db, "gi_taxid_prot")
-  message("collect")
-  gi_nuc <- nucl_db %>%
-    filter(gi %in% virus$gi) %>%
+
+  message("Collect tax_ids from tables")
+  gi_nuc <- tbl(db, "gi_taxid_nucl") %>%
+    filter(gi %in% mapped_gis) %>%
     collect()
-  gi_prot <- prot_db %>%
-    filter(gi %in% virus$gi) %>%
+  gi_prot <- tbl(db, "gi_taxid_prot") %>%
+    filter(gi %in% mapped_gis) %>%
     collect()
-  message("bind rows")
+
+  message("Bind rows")
   gi_tab <- bind_rows(gi_nuc, gi_prot) %>%
     mutate_at(vars(gi), as.character)
 
-  message("Join taxonomy by gi")
-  known <- left_join(virus, gi_tab)
+  message("Join taxonomy to blast results by gi")
+  known <- left_join(tab, gi_tab)
 
   message("Fill in few missing tax_ids by quering remote ncbi database")
   with_taxid <- filter(known, !is.na(tax_id))
@@ -102,19 +111,39 @@ blast_taxonomy <- function(nt_virus, nr_virus, taxdb, nodes, phages, viruses) {
     mutate_at("tax_id", as.integer)
 
   fixed_taxid <- full_join(dplyr::select(no_taxid, -tax_id), query)
-  known_fix <- bind_rows(with_taxid, fixed_taxid)
+  blast_results_taxids <- bind_rows(with_taxid, fixed_taxid)
+  class(blast_results_taxids) <- append(class(blast_results_taxids), "blast_results_taxids")
+  return(blast_results_taxids)
+}
+
+filter_division <- function(tab, nodes, div_id, div, not_div) {
+  UseMethod("filter_division", tab)
+}
+
+#' @param tab blast results tab with tax_ids, a data_frame.
+#' @param nodes path to nodes.csv file, a character string.
+#' @param div_id division id of interest, integer. Defaults to 3, viruses.
+#' @param div path ot output.csv file for records belonging to div_id, a character string.
+#' @param not_div path ot output.csv file for records NOT belongigng to div_id, a character string.
+filter_division.blast_results_taxids <- function(tab, nodes, div_id, div, not_div) {
 
   message("Import gi tax_id table and taxonomy nodes table")
   nodes <- read_csv(nodes)
 
   message("Merge names by tax_id to known sequences")
-  known_fix <- left_join(known_fix, nodes)
+  mapped_tab <- left_join(tab, nodes)
 
-  phage <- filter(known_fix, near(division_id, 3))
-  candidate_viruses <- filter(known_fix, !near(division_id, 3))
+  division <- filter(mapped_tab, near(division_id, div_id))
+  not_division <- filter(mapped_tab, !near(division_id, div_id))
 
-  write_csv(phage, phages)
-  write_csv(candidate_viruses, viruses)
+  write_csv(division, div)
+  write_csv(not_division, not_div)
+}
+
+blast_taxonomy <- function(nt_virus, nr_virus, taxdb, nodes, phages, viruses, div_id = 3) {
+  tab <- parse_blast_xml(nt_virus, nr_virus)
+  tab <- gi2taxid(tab, taxdb)
+  filter_division(tab = tab, nodes = nodes, div = phages, not_div = viruses, div_id = div_id)
 }
 
 blast_taxonomy(nt_virus = snakemake@input[[1]],
