@@ -7,7 +7,7 @@ rule bwa_mem:
     output:
         "output/bwa_mem/{sample}_mapped_{n}.bam"
     log:
-        "output/logs/{sample}_bwa_mem_{n}.log"
+        "logs/{sample}_bwa_mem_{n}.log"
     threads: 8
     conda:
       "../envs/bwa-sam-bed.yml"
@@ -33,7 +33,7 @@ rule unmapped_reads:
 
 ## Subset repeatmasker masked reads using unmapped ids
 rule unmapped_masked:
-    input: rules.unmapped_reads.output.fa, rules.repeatmasker_good.output.masked
+    input: rules.unmapped_reads.output.fa, rules.repeatmasker_good.output.masked_filt
     output:
       "output/{sample}_refgenome_unmapped_{n}_masked.fa"
     conda:

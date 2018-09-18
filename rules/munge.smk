@@ -13,14 +13,14 @@ rule fastp:
     output:
       pair1 = "output/{sample}_pair1_trimmed.gz",
       pair2 = "output/{sample}_pair2_trimmed.gz",
-      html = "output/logs/{sample}_fastp_report.html",
-      json = "output/logs/{sample}_fastp_report.json"
+      html = "output/{sample}_fastp_report.html",
+      json = "output/{sample}_fastp_report.json"
     params:
       "-f 5 -t 5 -l 50 -y -Y 8"
     threads: 8
     conda:
       "../envs/fastp.yml"
-    log: "output/logs/{sample}_fastp.log"
+    log: "logs/{sample}_fastp.log"
     shell:
       """
       fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params} -h {output.html} -j {output.json} -w {threads} > {log} 2>&1
@@ -39,7 +39,7 @@ rule fastq_join:
     "output/{sample}_%.fq.gz"
   conda:
     "../envs/fastq-join.yml"
-  log: "output/logs/{sample}_fastq_join.log"
+  log: "logs/{sample}_fastq_join.log"
   shell:
     """
     fastq-join \

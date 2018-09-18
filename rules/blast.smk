@@ -112,7 +112,7 @@ rule bwa_mem:
     output:
       "output/bwa_mem/{sample}_bacteria_mapped_{n}.sam"
     log:
-      "output/logs/{sample}_bacteria_mapped_{n}.log"
+      "logs/{sample}_bacteria_mapped_{n}.log"
     threads: 8
     conda:
       "../envs/bwa-sam-bed.yml"
@@ -141,7 +141,7 @@ rule unmapped_masked:
       rules.unmapped_reads.output.fa,
       preprocessing("output/{sample}_repmaskedgood_{n}.fa")
     output:
-      temp("output/{sample}_bacteria_unmapped_{n}_masked.fa")
+      "output/{sample}_bacteria_unmapped_{n}_masked.fa"
     conda:
       "../envs/biopython.yml"
     script:
