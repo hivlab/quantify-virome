@@ -2,10 +2,10 @@
 from Bio import SeqIO
 
 def filter_N(masked, original, masked_filt, original_filt, min_length, por_n):
-  """"Filters out sequences with many N-s.
+  """Filters out sequences with many N-s.
   Filters out sequeces with less than or equal to min_length non-N bases
   and sequences with more than por_n % N-s.
-  """"
+  """
   results = SeqIO.parse(masked, 'fasta')
   original = SeqIO.index(original, "fasta")
   with open(masked_filt, "w") as masked, open(original_filt, "w") as unmasked:
