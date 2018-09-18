@@ -3,7 +3,7 @@
 rule tantan:
   input: rules.cd_hit.output.clusters
   output:
-    "output/{sample}_tantan.fa"
+    "output/{sample}_tantan.fasta"
   conda:
       "../envs/tantan.yml"
   shell:
@@ -17,26 +17,25 @@ rule tantan:
 # 2) Sequences with >= 40% of total length of being masked
 rule tantan_good:
   input:
-    rules.tantan.output
+    masked = rules.tantan.output
   output:
-    "output/{sample}_tantangood.fa"
+    masked_filt = "output/{sample}_tantangood.fasta"
   params:
-    min_length = config["tantan_good"]["min_length"],
-    por_n = config["tantan_good"]["por_n"]
+    min_length = 50,
+    por_n = 40
   conda:
       "../envs/biopython.yml"
   script:
-      "../scripts/tantan_good.py"
+      "../scripts/filter_n.py"
 
 ## Split reads to smaller chunks for Repeatmasker [8]
 rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    "output/{sample}_tantangood_{n}.fa"
+    "output/{sample}_repeatmasker_{n}.fa"
   params:
-    config["split_fasta"]["n_files"],
-    "output/{sample}_tantangood_%i.fa"
+    config["split_fasta"]["n_files"]
   conda:
     "../envs/biopython.yml"
   script:
@@ -54,13 +53,16 @@ fi
 """
 )
 
-# Output must have file extension '.masked'
+# Outputs are generated from input file names by RepeatMasker
+# must have file extension '.masked'
+# If no repetitive sequences were detected copy all input files to output
 rule repeatmasker:
   input:
     fa = rules.split_fasta.output,
     repbase = config["repbase_file"]
   output:
-    "output/{sample}_tantangood_{n}.fa.masked"
+    masked = "output/{sample}_repeatmasker_{n}.fa.masked",
+    out = "output/{sample}_repeatmasker_{n}.fa.out"
   params:
     dir = "output"
   threads: 8
@@ -68,23 +70,27 @@ rule repeatmasker:
     """
     export REPEATMASKER_REPBASE_FILE={input.repbase}
     RepeatMasker -qq -pa {threads} {input.fa} -dir {params.dir}
+    if head -n 1 {output.out} | grep -q "There were no repetitive sequences detected"
+      then cp {input.fa} {output.masked}
+    fi
     """
 
 ## Filter repeatmasker output [10]
 # 1) Sequences that do not have greater than 50 nt of consecutive
 # sequence without N
 # 2) Sequences with >= 40% of total length of being masked
+# input, output, and params names must match function arguments
 rule repeatmasker_good:
   input:
-    masked = rules.repeatmasker.output,
-    unmasked = rules.split_fasta.output
+    masked = rules.repeatmasker.output.masked,
+    original = rules.split_fasta.output
   output:
-    masked = "output/{sample}_repmaskedgood_{n}.fa",
-    unmasked = "output/{sample}_unmaskedgood_{n}.fa"
+    masked_filt = "output/{sample}_repmaskedgood_{n}.fa",
+    original_filt = "output/{sample}_unmaskedgood_{n}.fa"
   params:
-    min_length = config["repeatmasker_good"]["min_length"],
-    por_n = config["repeatmasker_good"]["por_n"]
+    min_length = 50,
+    por_n = 40
   conda:
     "../envs/biopython.yml"
   script:
-    "../scripts/repeatmasker_good.py"
+    "../scripts/filter_n.py"
