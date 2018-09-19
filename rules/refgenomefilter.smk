@@ -53,8 +53,7 @@ rule megablast_ref_genome:
       perc_identity = config["megablast_ref_genome"]["perc_identity"],
       evalue = config["megablast_ref_genome"]["evalue"],
       word_size = config["megablast_ref_genome"]["word_size"],
-      num_descriptions = config["megablast_ref_genome"]["num_descriptions"],
-      num_alignments = config["megablast_ref_genome"]["num_alignments"],
+      max_target_seqs = config["blastn_virus"]["max_target_seqs"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
