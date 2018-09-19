@@ -1,5 +1,5 @@
 
-source("../scripts/helpers.R")
+source("scripts/helpers.R")
 
 blast_taxonomy <- function(nt_virus, nr_virus, taxdb, nodes, phages, not_phages, div_id = 3) {
   # parse blast results xml
