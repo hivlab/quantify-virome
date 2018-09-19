@@ -1,8 +1,6 @@
 # Find out whether the MegaBLAST best hit has a e value lower than the cutoff. If
 # yes, output query information. If no, the sequence will be kept for further analysis.
 # http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc93
-from Bio import SearchIO
-from Bio import SeqIO
 from helpers import parse_blast
 
 # Write known hits and unknowns to xml and fasta file, respectively
