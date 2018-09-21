@@ -170,13 +170,13 @@ rule megablast_nt:
       "../scripts/blast.py"
 
 ## Filter megablast records for the cutoff value
-rule parse_megablast:
+rule parse_megablast_nt:
     input:
       rules.megablast_nt.output.out,
       rules.unmapped_masked.output
     output:
-      "output/blast/{sample}_nt_filtered_{n}_mapped.xml",
-      "output/blast/{sample}_nt_filtered_{n}_unmapped.fa"
+      known_xml = "output/{sample}_nt_filtered_{n}_mapped.xml",
+      unmapped = "output/{sample}_nt_filtered_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:
@@ -187,7 +187,7 @@ rule parse_megablast:
 ## Blastn against NT database
 rule blastn_nt:
     input:
-      query = "output/blast/{sample}_nt_filtered_{n}_unmapped.fa"
+      query = rules.parse_megablast_nt.output.unmapped
     output:
       out = "output/blast/{sample}_blastn_nt_{n}.xml"
     params:
@@ -250,3 +250,18 @@ rule parse_blastx_nr:
       "../envs/biopython.yml"
     script:
       "../scripts/parse_blast.py"
+
+## Filter out phage sequences
+rule filter_blasted_viruses:
+  input:
+    "output/{sample}_blastn_nt_{n}_mapped.xml",
+    "output/{sample}_blastx_nr_{n}_mapped.xml",
+    taxdb = config["vhunter"],
+    nodes = "taxonomy/nodes.csv"
+  output:
+    phages = "output/{sample}_phages_blasted_{n}.csv",
+    viruses = "output/{sample}_viruses_blasted_{n}.csv"
+  conda:
+    "../envs/tidyverse.yml"
+  script:
+    "../scripts/filter_viruses.R"

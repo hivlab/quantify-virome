@@ -52,14 +52,17 @@ query_taxid <- function(gi) {
   xml_node(cont, xpath = "//TSeq_taxid") %>% xml_text()
 }
 
-#' @param blast_xml Path to BLAST+ XML result file, a character string.
-#' @param ... further path(s) to BLAST+ XML result file(s), a character string.
-parse_blast_xml <- function(blast_xml, ...) {
+#' @param ... Path(s) to BLAST+ XML result file(s), a character string.
+parse_blast_xml <- function(...) {
 
   message("Open and fix BLAST+ xml strings")
-  xml_str <- data_frame(path = c(blast_xml, ...)) %>%
+  xml_lines <- data_frame(path = c(...)) %>%
     mutate(xml = map(path, read_lines)) %>%
-    mutate(xml = map(xml, split_hits)) %>%
+    filter(!map_lgl(xml, identical, character(0)))
+
+  if(nrow(xml_lines) == 0) stop("Empty file(s). No BLAST hits to parse!")
+
+  xml_str <- mutate(xml_lines, xml = map(xml, split_hits)) %>%
     unnest() %>%
     mutate(xml = map(xml, str_c, collapse = ""))
 
@@ -74,6 +77,22 @@ parse_blast_xml <- function(blast_xml, ...) {
   class(blast_results) <- append(class(blast_results), "blast_xml_tab")
   return(blast_results)
 }
+
+# create empty blast_xml_tab when no blast hits in sample
+empty_blast_xml_tab <- function() {
+  tab <- data_frame(program = character(0), db = character(0), query = character(0), gi = character(0),
+                    Hit_accession = character(0), Hit_def = character(0), `Hsp_align-len` = numeric(0),
+                    `Hsp_bit-scorev` = numeric(0),
+                    Hsp_evalue = numeric(0), Hsp_gaps = numeric(0), `Hsp_hit-frame` = numeric(0), `Hsp_hit-from` = numeric(0),
+                    `Hsp_hit-to` = numeric(0), Hsp_hseq = character(0), Hsp_identity = numeric(0), Hsp_midline = character(0),
+                    Hsp_num = numeric(0), Hsp_positive = numeric(0), Hsp_qseq = character(0), `Hsp_query-frame` = numeric(0),
+                    `Hsp_query-from` = numeric(0), `Hsp_query-to` = numeric(0), Hsp_score = numeric(0))
+  class(tab) <- append(class(tab), "blast_xml_tab")
+  return(tab)
+}
+
+# put safe wrapping around parse_blast function and return empty blast_xml_tab when no blast hits in sample
+parse_blast_xml_safe <- safely(parse_blast_xml, otherwise = empty_blast_xml_tab())
 
 gi2taxid <- function(tab, taxdb) {
   UseMethod("gi2taxid", tab)
