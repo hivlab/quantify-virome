@@ -10,6 +10,6 @@ subworkflow blast:
 include: "rules/common.smk"
 
 rule all:
-  input: "taxonomy/names.csv", "taxonomy/nodes.csv", expand(["output/reports/{sample}_known_taxa.csv", "output/reports/{sample}_taxonomy_report.html"], sample = sample_ids)
+  input: expand(["output/reports/{sample}_taxonomy_report.html"], sample = sample_ids)
 
 include: "rules/taxonomy.smk"
