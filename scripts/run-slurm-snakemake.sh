@@ -3,7 +3,7 @@
 source activate virome
 
 # Run snakemake
-snakemake -j --max-jobs-per-second 4 --max-status-checks-per-second 4 --rerun-incomplete \
+snakemake -j --rerun-incomplete \
             --use-conda --cluster-config cluster.json  \
             --cluster "sbatch -J {cluster.name} \
             -p {cluster.partition} \
@@ -19,7 +19,9 @@ snakemake -np --rerun-incomplete #--until parse_virusntblast
 snakemake --dag | dot -Tsvg > graph/taxonomy_dag.svg
 snakemake --dag -s virome.snakefile | dot -Tsvg > graph/virome_dag.svg
 
-snakemake -j --rerun-incomplete \
+snakemake -np -s blast.snakefile --rerun-incomplete
+
+snakemake -j -s blast.snakefile --rerun-incomplete \
             --use-conda --cluster-config cluster.json  \
             --cluster "sbatch -J {cluster.name} \
             -p {cluster.partition} \
@@ -30,10 +32,10 @@ snakemake -j --rerun-incomplete \
 
 
 # List status info for a currently running job:
-sstat --format=AveCPU,AvePages,AveRSS,AveVMSize,JobID -j 3088949 --allsteps
+sstat --format=AveCPU,AvePages,AveRSS,AveVMSize,JobID -j 3094867 --allsteps
 
 #List detailed information for a job (useful for troubleshooting):
-scontrol show jobid -dd 3088949
+scontrol show jobid -dd 3094867
 
 # Delete all files
 rm $(snakemake --snakefile Snakefile.py --summary | tail -n+2 | cut -f1)
@@ -225,3 +227,23 @@ rule repeatmasker_installation:
 ############################################################
 
 fastq-dump --outdir Downloads --split-files ~/ncbi/public/sra/SRR848973.sra
+
+
+ls /gpfs/software/VirusSeeker/databases/VirusDBNR_20160802
+
+
+<=======================================================>
+wget https://github.com/shenwei356/gtaxon/releases/download/V0.2/gtaxon_linux_amd64.gz
+gunzip gtaxon_linux_amd64.gz
+mv gtaxon_linux_amd64 gtaxon
+chmod a+x gtaxon
+./gtaxon db init
+wget ftp://ftp.ncbi.nih.gov/pub/taxonomy/gi_taxid_nucl.dmp.gz
+
+gtaxon db import -f -t gi_taxid_prot gi_taxid_prot.dmp.gz
+
+if cat output/test_seq_003_tantangood_1.fa
+
+if head -n 1 output/test_seq_003_tantangood_1.fa.out | grep -q "There"
+  then touch fuck.off
+fi

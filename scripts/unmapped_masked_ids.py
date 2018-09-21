@@ -14,7 +14,3 @@ masked = subset_records(SeqIO.parse(snakemake.input[1], "fasta"), unmapped_ids)
 
 # Write unmasked subset to file
 masked_count = SeqIO.write(masked, snakemake.output[0], 'fasta')
-
-with open(snakemake.output[0] + ".log", "w") as text_file:
-  print(f"Number of sequences before filtering: {len(list(SeqIO.parse(snakemake.input[0], 'fasta')))}\nNumber of sequences after filtering: {masked_count}", file = text_file)
-

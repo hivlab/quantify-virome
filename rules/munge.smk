@@ -2,44 +2,44 @@
 def get_fastq(wildcards, read_pair = 'fq1'):
  return samples.loc[wildcards.sample, [read_pair]].dropna()[0]
 
-## All-in-one preprocessing for FastQ files [1,3]
-# Adapter trimming is enabled by default
-# Quality filtering is enabled by default
+## Preprocessing for fastq files
+# Adapter trimming
+# Quality filtering
 # Replaces AdapteRemoval, prinseq and fastqc
 rule fastp:
     input:
       fq1 = lambda wildcards: get_fastq(wildcards, 'fq1'),
       fq2 = lambda wildcards: get_fastq(wildcards, 'fq2')
     output:
-      pair1 = temp("output/{sample}_pair1_truncated.gz"),
-      pair2 = temp("output/{sample}_pair2_truncated.gz"),
-      html = "output/logs/{sample}_fastp_report.html",
-      json = temp("output/logs/{sample}_fastp_report.json")
+      pair1 = "output/{sample}_pair1_trimmed.gz",
+      pair2 = "output/{sample}_pair2_trimmed.gz",
+      html = "output/{sample}_fastp_report.html",
+      json = "output/{sample}_fastp_report.json"
     params:
-      options = "-f 5 -t 5 -l 50 -y -Y 8"
+      "-f 5 -t 5 -l 50 -y -Y 8"
     threads: 8
     conda:
       "../envs/fastp.yml"
-    log: "output/logs/{sample}_fastp.log"
+    log: "logs/{sample}_fastp.log"
     shell:
       """
-      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params.options} -h {output.html} -j {output.json} -w {threads} > {log} 2>&1
+      fastp -i {input.fq1} -I {input.fq2} -o {output.pair1} -O {output.pair2} {params} -h {output.html} -j {output.json} -w {threads} > {log} 2>&1
       """
 
-## Stitch paired reads [2]
+## Stitch paired reads
 rule fastq_join:
   input: rules.fastp.output
   output:
-    temp("output/{sample}_join.fq.gz"),
-    temp("output/{sample}_un1.fq.gz"),
-    temp("output/{sample}_un2.fq.gz")
+    "output/{sample}_join.fq.gz",
+    "output/{sample}_un1.fq.gz",
+    "output/{sample}_un2.fq.gz"
   params:
     config["fastq-join"]["maximum_difference"],
     config["fastq-join"]["minimum_overlap"],
-    template = "output/{sample}_%.fq.gz"
+    "output/{sample}_%.fq.gz"
   conda:
     "../envs/fastq-join.yml"
-  log: "output/logs/{sample}_fastq_join.log"
+  log: "logs/{sample}_fastq_join.log"
   shell:
     """
     fastq-join \
@@ -47,39 +47,17 @@ rule fastq_join:
     -m {params[1]} \
     {input[0]} \
     {input[1]} \
-    -o {params.template} > {log} 2>&1
+    -o {params[2]} > {log} 2>&1
     """
 
-## Merge stitched reads [3]
+## Merge stitched reads
 rule merge_reads:
   input: rules.fastq_join.output
   output:
-    temp("output/{sample}_stitched_merged.fq.gz")
+    fq = "output/{sample}_merge_reads.fq.gz",
+    fa = "output/{sample}_merge_reads.fasta"
   shell:
     """
-    cat {input} > {output}
-    """
-
-## Convert fastq to fasta format [4]
-rule fastq2fasta:
-  input: rules.merge_reads.output
-  output:
-    temp("output/{sample}_stitched_merged.fasta")
-  shell:
-    """
-    zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}
-    """
-
-## Run cd-hit to find and munge duplicate reads [5]
-rule cd_hit:
-  input: rules.fastq2fasta.output
-  output:
-    clusters = temp("output/{sample}_cdhit.fa"),
-    report = "output/logs/{sample}_cdhit.report"
-  threads: 8
-  conda:
-    "../envs/cd-hit.yml"
-  shell:
-    """
-    cd-hit-est -i {input} -o {output.clusters} -T {threads} -c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0 > {output.report}
+    cat {input} > {output.fq}
+    zcat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
     """

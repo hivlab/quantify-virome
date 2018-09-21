@@ -1,6 +1,8 @@
+name: biopython
 channels:
   - bioconda
   - conda-forge
   - defaults
 dependencies:
-  - biopython=1.70=py36h637b7d7_0
+  - biopython=1.70
+  - pandas=0.23.4
