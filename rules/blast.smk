@@ -21,7 +21,7 @@ rule blastn_virus:
       task = "blastn",
       evalue = config["blastn_virus"]["evalue"],
       db_soft_mask = config["blastn_virus"]["db_soft_mask"],
-      max_target_seqs = config["blastn_virus"]["max_target_seqs"],
+      max_hsps = config["blastn_virus"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -55,7 +55,7 @@ rule blastx_virus:
       db = config["virus_nr"],
       evalue = config["blastx_virus"]["evalue"],
       db_soft_mask = config["blastx_virus"]["db_soft_mask"],
-      max_target_seqs = config["blastx_virus"]["max_target_seqs"],
+      max_hsps = config["blastx_virus"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -160,7 +160,7 @@ rule megablast_nt:
       task = "megablast",
       evalue = config["megablast_nt"]["evalue"],
       word_size = config["megablast_nt"]["word_size"],
-      max_target_seqs = config["megablast_nt"]["max_target_seqs"],
+      max_hsps = config["megablast_nt"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -194,7 +194,7 @@ rule blastn_nt:
       db = config["nt"],
       task = "blastn",
       evalue = config["blastn_nt"]["evalue"],
-      max_target_seqs = config["blastn_nt"]["max_target_seqs"],
+      max_hsps = config["blastn_nt"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
@@ -227,7 +227,7 @@ rule blastx_nr:
     params:
       db = config["nr"],
       evalue = config["blastx_nr"]["evalue"],
-      max_target_seqs = config["blastx_nr"]["max_target_seqs"],
+      max_hsps = config["blastx_nr"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
       outfmt = 5
