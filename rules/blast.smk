@@ -84,8 +84,8 @@ rule filter_viruses:
   input:
     rules.parse_blastn_virus.output.known_xml,
     rules.parse_blastx_virus.output.known_xml,
-    config["vhunter"],
-    "taxonomy/nodes.csv"
+    taxdb = config["vhunter"],
+    nodes = "taxonomy/nodes.csv"
   output:
     phages = "output/{sample}_phages_{n}.csv",
     viruses = "output/{sample}_candidate_viruses_{n}.csv"
