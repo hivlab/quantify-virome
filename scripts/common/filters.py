@@ -29,5 +29,3 @@ def run_filter_n(input, output, params):
   options.update(params)
   # run filter
   filter_N(**options)
-
-run_filter_n(snakemake.input, snakemake.output, snakemake.params)

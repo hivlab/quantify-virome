@@ -1,7 +1,7 @@
 
 from Bio import SeqIO
-from helpers import get_ids
-from helpers import subset_records
+from common.helpers import get_ids
+from common.helpers import subset_records
 
 # Ref genome unmapped reads
 unmapped = SeqIO.parse(snakemake.input[0], "fasta")

@@ -26,7 +26,7 @@ rule tantan_good:
   conda:
       "../envs/biopython.yml"
   script:
-      "../scripts/filter_n.py"
+      "../scripts/filter_masked.py"
 
 ## Split reads to smaller chunks for Repeatmasker [8]
 rule split_fasta:
@@ -93,4 +93,4 @@ rule repeatmasker_good:
   conda:
     "../envs/biopython.yml"
   script:
-    "../scripts/filter_n.py"
+    "../scripts/filter_masked.py"

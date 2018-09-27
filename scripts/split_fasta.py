@@ -2,7 +2,7 @@
 from re import search
 from math import ceil
 from Bio import SeqIO
-from helpers import batch_iterator
+from common.helpers import batch_iterator
 
 # Number of sequences in fasta file
 fasta_file = open(snakemake.input[0])
