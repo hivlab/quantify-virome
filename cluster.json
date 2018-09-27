@@ -59,7 +59,7 @@
     },
     "filter_viruses" : {
         "mem" : 4000,
-        "time": "01:00:00"
+        "time": "02:00:00"
     },
     "blastn_nt" :
     {
