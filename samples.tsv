@@ -1,5 +1,4 @@
 sample fq1 fq2
-test_seq_003 fastq/test_seq_003_R1.fq.gz fastq/test_seq_003_R2.fq.gz
-test_seq_004 fastq/test_seq_004_R1.fq.gz fastq/test_seq_004_R2.fq.gz
-test_seq_005 fastq/test_seq_005_R1.fq.gz fastq/test_seq_005_R2.fq.gz
-test_seq_012 fastq/test_seq_012_R1.fq.gz fastq/test_seq_012_R2.fq.gz
+A path/to/A_1.fq.gz path/to/A_2.fq.gz
+B path/to/B_1.fq.gz path/to/B_2.fq.gz
+C path/to/C_1.fq.gz path/to/C_2.fq.gz
