@@ -3,8 +3,6 @@
 .RData
 .Ruserdata
 .snakemake
+.test
 scripts/.snakemake*
-scripts/__pycache__
-output
-taxonomy
-fastq
+scripts/common/__pycache__

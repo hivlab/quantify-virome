@@ -1,13 +1,13 @@
 
 ## Align sequences to reference genome
-rule bwa_mem:
+rule map_refgenome:
     input:
         config["ref_genome"],
-        ["output/{sample}_unmaskedgood_{n}.fa"]
+        ["{sample}_unmaskedgood_{n}.fa"]
     output:
-        "output/bwa_mem/{sample}_mapped_{n}.bam"
+        temp("{sample}_mapped_{n}.bam")
     log:
-        "logs/{sample}_bwa_mem_{n}.log"
+        "logs/{sample}_map_refgenome_{n}.log"
     threads: 8
     conda:
       "../envs/bwa-sam-bed.yml"
@@ -16,12 +16,12 @@ rule bwa_mem:
         "samtools view -Sb - > {output}) 2> {log}"
 
 ## Extract unmapped reads
-rule unmapped_reads:
-    input: rules.bwa_mem.output
+rule refgenome_unmapped:
+    input: rules.map_refgenome.output
     output:
-      bam = "output/{sample}_refgenome_unmapped_{n}.bam",
-      fq = "output/{sample}_refgenome_unmapped_{n}.fq",
-      fa = "output/{sample}_refgenome_unmapped_{n}.fa"
+      bam = temp("{sample}_refgenome_unmapped_{n}.bam"),
+      fq = temp("{sample}_refgenome_unmapped_{n}.fq"),
+      fa = protected("{sample}_refgenome_unmapped_{n}.fa")
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:
@@ -32,22 +32,22 @@ rule unmapped_reads:
       """
 
 ## Subset repeatmasker masked reads using unmapped ids
-rule unmapped_masked:
-    input: rules.unmapped_reads.output.fa, rules.repeatmasker_good.output.masked_filt
+rule refgenome_unmapped_masked:
+    input: rules.refgenome_unmapped.output.fa, rules.repeatmasker_good.output.masked_filt
     output:
-      "output/{sample}_refgenome_unmapped_{n}_masked.fa"
+      protected("{sample}_refgenome_unmapped_{n}_masked.fa")
     conda:
       "../envs/biopython.yml"
     script:
       "../scripts/unmapped_masked_ids.py"
 
 ## MegaBlast against reference genome to remove host sequences
-rule megablast_ref_genome:
+rule megablast_refgenome:
     input:
       db = config["ref_genome"],
-      query = rules.unmapped_masked.output
+      query = rules.refgenome_unmapped_masked.output
     output:
-      out = "output/blast/{sample}_megablast_{n}.xml"
+      out = temp("blast/{sample}_megablast_{n}.xml")
     params:
       task = "megablast",
       perc_identity = config["megablast_ref_genome"]["perc_identity"],
@@ -65,11 +65,11 @@ rule megablast_ref_genome:
 ## Filter megablast records for the cutoff value
 rule parse_megablast:
     input:
-      rules.megablast_ref_genome.output.out,
-      rules.unmapped_masked.output
+      rules.megablast_refgenome.output.out,
+      rules.refgenome_unmapped_masked.output
     output:
-      "output/{sample}_refgenome_filtered_{n}_known-host.xml",
-      "output/{sample}_refgenome_filtered_{n}_unmapped.fa"
+      temp("{sample}_refgenome_filtered_{n}_known-host.xml"),
+      protected("{sample}_refgenome_filtered_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10
     conda:

@@ -19,9 +19,9 @@ snakemake -np --rerun-incomplete #--until parse_virusntblast
 snakemake --dag | dot -Tsvg > graph/taxonomy_dag.svg
 snakemake --dag -s virome.snakefile | dot -Tsvg > graph/virome_dag.svg
 
-snakemake -np -s blast.snakefile --rerun-incomplete
+snakemake -np --directory .test --rerun-incomplete
 
-snakemake -j -s blast.snakefile --rerun-incomplete \
+snakemake -j --directory .test --rerun-incomplete \
             --use-conda --cluster-config cluster.json  \
             --cluster "sbatch -J {cluster.name} \
             -p {cluster.partition} \

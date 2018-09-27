@@ -6,7 +6,7 @@
         "partition" : "testing",
         "cpus-per-task" : 1,
         "mem" : 2000,
-        "output" : "logs/cluster/{rule}.{wildcards}_slurm_%j.log"
+        "output" : "{rule}.{wildcards}_slurm_%j.log"
     },
     "fastp" :
     {

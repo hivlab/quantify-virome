@@ -28,6 +28,8 @@ input <- unique(file.path("..", snakemake@input))
 ```{r}
 taxonomy <- grep("names.csv|division.csv", input, value = TRUE)
 results <- setdiff(input, taxonomy)
+qc <- grep("fastq_join|bwa_mem", input, value = TRUE)
+results <- setdiff(results, qc)
 names <- read_csv(grep("names.csv", taxonomy, value = TRUE))
 division <- read_csv(grep("division.csv", taxonomy, value = TRUE))
 known <- data_frame(path = unlist(results)) %>% 

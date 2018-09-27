@@ -3,7 +3,7 @@
 rule tantan:
   input: rules.cd_hit.output.clusters
   output:
-    "output/{sample}_tantan.fasta"
+    temp("{sample}_tantan.fasta")
   conda:
       "../envs/tantan.yml"
   shell:
@@ -19,7 +19,7 @@ rule tantan_good:
   input:
     masked = rules.tantan.output
   output:
-    masked_filt = "output/{sample}_tantangood.fasta"
+    masked_filt = temp("{sample}_tantangood.fasta")
   params:
     min_length = 50,
     por_n = 40
@@ -33,7 +33,7 @@ rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    "output/{sample}_repeatmasker_{n}.fa"
+    temp("{sample}_repeatmasker_{n}.fa")
   params:
     config["split_fasta"]["n_files"]
   conda:
@@ -61,15 +61,13 @@ rule repeatmasker:
     fa = rules.split_fasta.output,
     repbase = config["repbase_file"]
   output:
-    masked = "output/{sample}_repeatmasker_{n}.fa.masked",
-    out = "output/{sample}_repeatmasker_{n}.fa.out"
-  params:
-    dir = "output"
+    masked = temp("{sample}_repeatmasker_{n}.fa.masked"),
+    out = temp("{sample}_repeatmasker_{n}.fa.out")
   threads: 8
   shell:
     """
     export REPEATMASKER_REPBASE_FILE={input.repbase}
-    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.dir}
+    RepeatMasker -qq -pa {threads} {input.fa}
     if head -n 1 {output.out} | grep -q "There were no repetitive sequences detected"
       then cp {input.fa} {output.masked}
     fi
@@ -85,8 +83,8 @@ rule repeatmasker_good:
     masked = rules.repeatmasker.output.masked,
     original = rules.split_fasta.output
   output:
-    masked_filt = "output/{sample}_repmaskedgood_{n}.fa",
-    original_filt = "output/{sample}_unmaskedgood_{n}.fa"
+    masked_filt = temp("{sample}_repmaskedgood_{n}.fa"),
+    original_filt = temp("{sample}_unmaskedgood_{n}.fa")
   params:
     min_length = 50,
     por_n = 40

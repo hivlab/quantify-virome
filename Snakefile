@@ -4,12 +4,24 @@ __copyright__ = "Copyright 2018, Avilab"
 __email__ = "taavi.pall@ut.ee"
 __license__ = "MIT"
 
-subworkflow blast:
-    snakefile: "blast.snakefile"
-
 include: "rules/common.smk"
 
+## Target rules
 rule all:
-  input: expand(["output/reports/{sample}_taxonomy_report.html"], sample = sample_ids)
+    input:
+      expand([
+      "{sample}_refgenome_filtered_{n}_unmapped.fa",
+      "{sample}_phages_{n}.csv",
+      "{sample}_phages_blasted_{n}.csv",
+      "{sample}_viruses_blasted_{n}.csv"
+      ],
+      sample = sample_ids,
+      n = list(range(1, n_files + 1, 1))),
+      expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
 
-include: "rules/taxonomy.smk"
+## Modules
+include: "rules/munge.smk"
+include: "rules/cd-hit.smk"
+include: "rules/mask.smk"
+include: "rules/refgenomefilter.smk"
+include: "rules/blast.smk"
