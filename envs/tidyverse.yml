@@ -16,4 +16,5 @@ dependencies:
   - r-rsqlite
   - r-dt
   - r-formattable
-  - pandoc
+  - r-markdown=1.10
+  - pandoc=2.3
