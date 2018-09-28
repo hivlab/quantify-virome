@@ -62,7 +62,7 @@ rule repeatmasker:
     repbase = config["repbase_file"]
   output:
     masked = temp("{sample}_repeatmasker_{n}.fa.masked"),
-    out = temp("{sample}_repeatmasker_{n}.fa.out")
+    out = "{sample}_repeatmasker_{n}.fa.out"
   threads: 8
   shell:
     """

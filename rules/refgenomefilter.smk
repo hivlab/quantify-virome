@@ -1,6 +1,6 @@
 
 ## Align sequences to reference genome
-rule map_refgenome:
+rule bwa_map_refgenome:
     input:
         config["ref_genome"],
         ["{sample}_unmaskedgood_{n}.fa"]
@@ -17,7 +17,7 @@ rule map_refgenome:
 
 ## Extract unmapped reads
 rule refgenome_unmapped:
-    input: rules.map_refgenome.output
+    input: rules.bwa_map_refgenome.output
     output:
       bam = temp("{sample}_refgenome_unmapped_{n}.bam"),
       fq = temp("{sample}_refgenome_unmapped_{n}.fq"),

@@ -101,14 +101,14 @@ rule unmasked_viral:
       rules.filter_viruses.output.viruses,
       "{sample}_refgenome_unmapped_{n}.fa"
     output:
-      "{sample}_candidate_viruses_{n}_unmasked.fa"
+      temp("{sample}_candidate_viruses_{n}_unmasked.fa")
     conda:
       "../envs/biopython.yml"
     script:
       "../scripts/unmasked_viral.py"
 
 ## Map against bacterial genomes
-rule map_refbac:
+rule bwa_map_refbac:
     input:
       config["ref_bacteria"],
       ["{sample}_candidate_viruses_{n}_unmasked.fa"]
@@ -124,11 +124,11 @@ rule map_refbac:
 
 ## Extract unmapped reads
 rule refbac_unmapped:
-    input: rules.map_refbac.output
+    input: rules.bwa_map_refbac.output
     output:
       bam = temp("{sample}_bac_unmapped_{n}.bam"),
       fq = temp("{sample}_bac_unmapped_{n}.fq"),
-      fa = "{sample}_bac_unmapped_{n}.fa"
+      fa = temp("{sample}_bac_unmapped_{n}.fa")
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:

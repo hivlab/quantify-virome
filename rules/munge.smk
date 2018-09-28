@@ -13,8 +13,8 @@ rule fastp:
     output:
       pair1 = temp("{sample}_pair1_trimmed.gz"),
       pair2 = temp("{sample}_pair2_trimmed.gz"),
-      html = temp("{sample}_fastp_report.html"),
-      json = temp("{sample}_fastp_report.json")
+      html = "qc/{sample}_fastp_report.html",
+      json = "qc/{sample}_fastp_report.json"
     params:
       "-f 5 -t 5 -l 50 -y -Y 8"
     threads: 8

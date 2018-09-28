@@ -4,7 +4,7 @@ rule cd_hit:
   input: rules.merge_reads.output.fa
   output:
     clusters = temp("{sample}_cdhit.fa"),
-    report = "{sample}_cdhit.report"
+    report = "qc/{sample}_cdhit.report"
   threads: 8
   conda:
     "../envs/cd-hit.yml"
