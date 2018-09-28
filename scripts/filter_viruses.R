@@ -1,5 +1,5 @@
 
-source("scripts/common/helpers.R")
+source("../scripts/common/helpers.R")
 
 blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3) {
 
