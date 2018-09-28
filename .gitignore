@@ -4,5 +4,9 @@
 .Ruserdata
 .snakemake
 .test
+!.test/config.yml
+!.test/samples.tsv
+!.test/cluster.json
+!.test/data
 scripts/.snakemake*
 scripts/common/__pycache__
