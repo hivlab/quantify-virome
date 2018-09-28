@@ -26,7 +26,12 @@
         "mem" : 32000,
         "time": "02:00:00"
     },
-    "bwa_mem" :
+    "map_refgenome" :
+    {
+        "mem" : 32000,
+        "time": "02:00:00"
+    },
+    "map_refbac" :
     {
         "mem" : 32000,
         "time": "02:00:00"
