@@ -10,10 +10,10 @@ include: "rules/common.smk"
 rule all:
     input:
       expand([
-      "{sample}_refgenome_filtered_{n}_unmapped.fa",
-      "{sample}_phages_{n}.csv",
-      "{sample}_phages_blasted_{n}.csv",
-      "{sample}_viruses_blasted_{n}.csv"
+      "results/{sample}_phages_{n}.csv",
+      "results/{sample}_unassigned_blasted_{n}.fa",
+      "results/{sample}_phages_blasted_{n}.csv",
+      "results/{sample}_viruses_blasted_{n}.csv"
       ],
       sample = sample_ids,
       n = list(range(1, n_files + 1, 1))),

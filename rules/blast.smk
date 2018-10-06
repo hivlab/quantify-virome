@@ -16,7 +16,7 @@ rule blastn_virus:
     input:
       query = "{sample}_refgenome_filtered_{n}_unmapped.fa"
     output:
-      out = protected("blast/{sample}_blastn_virus_{n}.xml")
+      out = "blast/{sample}_blastn_virus_{n}.xml"
     params:
       db = config["virus_nt"],
       task = "blastn",
@@ -51,7 +51,7 @@ rule blastx_virus:
     input:
       query = rules.parse_blastn_virus.output.unmapped
     output:
-      out = protected("blast/{sample}_blastx_virus_{n}.xml")
+      out = "blast/{sample}_blastx_virus_{n}.xml"
     params:
       db = config["virus_nr"],
       evalue = config["blastx_virus"]["evalue"],
@@ -88,8 +88,8 @@ rule filter_viruses:
     taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:
-    phages = protected("{sample}_phages_{n}.csv"),
-    viruses = protected("{sample}_candidate_viruses_{n}.csv")
+    phages = "results/{sample}_phages_{n}.csv",
+    viruses = temp("{sample}_candidate_viruses_{n}.csv")
   conda:
     "../envs/tidyverse.yml"
   script:
@@ -115,7 +115,7 @@ rule bwa_map_refbac:
     output:
       temp("{sample}_bac_mapped_{n}.sam")
     log:
-      "logs/{sample}_map_refbac_{n}.log"
+      "logs/{sample}_bwa_map_refbac_{n}.log"
     threads: 8
     conda:
       "../envs/bwa-sam-bed.yml"
@@ -244,7 +244,7 @@ rule parse_blastx_nr:
       rules.blastx_nr.input.query
     output:
       known_xml = temp("{sample}_blastx_nr_{n}_mapped.xml"),
-      unassigned = temp("{sample}_blastx_nr_{n}_unmapped.fa")
+      unassigned = "results/{sample}_unassigned_blasted_{n}.fa"
     params:
       e_cutoff = 1e-3
     conda:
@@ -252,7 +252,7 @@ rule parse_blastx_nr:
     script:
       "../scripts/parse_blast.py"
 
-## Filter out phage sequences
+## Filter out virus and phage sequences
 rule filter_blasted_viruses:
   input:
     "{sample}_blastn_nt_{n}_mapped.xml",
@@ -260,8 +260,8 @@ rule filter_blasted_viruses:
     taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:
-    phages = "{sample}_phages_blasted_{n}.csv",
-    viruses = "{sample}_viruses_blasted_{n}.csv"
+    phages = "results/{sample}_phages_blasted_{n}.csv",
+    viruses = "results/{sample}_viruses_blasted_{n}.csv"
   conda:
     "../envs/tidyverse.yml"
   script:

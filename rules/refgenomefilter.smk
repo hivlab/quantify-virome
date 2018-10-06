@@ -7,7 +7,7 @@ rule bwa_map_refgenome:
     output:
         temp("{sample}_mapped_{n}.bam")
     log:
-        "logs/{sample}_map_refgenome_{n}.log"
+        "logs/{sample}_bwa_map_refgenome_{n}.log"
     threads: 8
     conda:
       "../envs/bwa-sam-bed.yml"
@@ -21,7 +21,7 @@ rule refgenome_unmapped:
     output:
       bam = temp("{sample}_refgenome_unmapped_{n}.bam"),
       fq = temp("{sample}_refgenome_unmapped_{n}.fq"),
-      fa = protected("{sample}_refgenome_unmapped_{n}.fa")
+      fa = "{sample}_refgenome_unmapped_{n}.fa"
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:
@@ -35,7 +35,7 @@ rule refgenome_unmapped:
 rule refgenome_unmapped_masked:
     input: rules.refgenome_unmapped.output.fa, rules.repeatmasker_good.output.masked_filt
     output:
-      protected("{sample}_refgenome_unmapped_{n}_masked.fa")
+      "{sample}_refgenome_unmapped_{n}_masked.fa"
     conda:
       "../envs/biopython.yml"
     script:
@@ -69,7 +69,7 @@ rule parse_megablast:
       rules.refgenome_unmapped_masked.output
     output:
       temp("{sample}_refgenome_filtered_{n}_known-host.xml"),
-      protected("{sample}_refgenome_filtered_{n}_unmapped.fa")
+      "{sample}_refgenome_filtered_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:

@@ -6,7 +6,7 @@
         "partition" : "testing",
         "cpus-per-task" : 1,
         "mem" : 2000,
-        "output" : "{rule}.{wildcards}_slurm_%j.log"
+        "output" : "logs/{rule}.{wildcards}_slurm_%j.log"
     },
     "fastp" :
     {
@@ -15,7 +15,8 @@
     ,
     "repeatmasker" :
     {
-        "time": "00:45:00"
+        "time": "02:00:00",
+        "mem" : 4000
     },
     "megablast_ref_genome" :
     {
@@ -26,12 +27,12 @@
         "mem" : 32000,
         "time": "02:00:00"
     },
-    "map_refgenome" :
+    "bwa_map_refgenome" :
     {
         "mem" : 32000,
         "time": "02:00:00"
     },
-    "map_refbac" :
+    "bwa_map_refbac" :
     {
         "mem" : 32000,
         "time": "02:00:00"
@@ -43,9 +44,9 @@
     "cd_hit" :
     {
         "mem" : 8000,
-        "time": "02:00:00",
+        "time": "04:00:00",
         "cpus-per-task" : "{threads}",
-        "partition" : "testing"
+        "partition" : "main"
     },
     "blastn_virus" :
     {
