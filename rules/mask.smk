@@ -61,14 +61,14 @@ rule repeatmasker:
     fa = rules.split_fasta.output,
     repbase = config["repbase_file"]
   output:
-    masked = temp("{sample}_repeatmasker_{n}.fa.masked"),
-    out = "{sample}_repeatmasker_{n}.fa.out",
-    tbl = temp("{sample}_repeatmasker_{n}.fa.tbl")
+    masked = temp("RM/{sample}_repeatmasker_{n}.fa.masked"),
+    out = "RM/{sample}_repeatmasker_{n}.fa.out",
+    tbl = temp("RM/{sample}_repeatmasker_{n}.fa.tbl")
   threads: 8
   shell:
     """
     export REPEATMASKER_REPBASE_FILE={input.repbase}
-    RepeatMasker -qq -pa {threads} {input.fa}
+    RepeatMasker -qq -pa {threads} {input.fa} -dir RM
     if head -n 1 {output.out} | grep -q "There were no repetitive sequences detected"
       then cp {input.fa} {output.masked}
     fi
