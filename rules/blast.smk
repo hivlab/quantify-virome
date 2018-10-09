@@ -14,7 +14,7 @@ rule prepare_taxonomy_data:
 ## Blast against NT virus database
 rule blastn_virus:
     input:
-      query = "{sample}_refgenome_filtered_{n}_unmapped.fa"
+      query = rules.parse_megablast.output.unmapped
     output:
       out = "blast/{sample}_blastn_virus_{n}.xml"
     params:
@@ -35,10 +35,10 @@ rule blastn_virus:
 rule parse_blastn_virus:
     input:
       rules.blastn_virus.output.out,
-      "{sample}_refgenome_filtered_{n}_unmapped.fa"
+      rules.parse_megablast.output.unmapped
     output:
-      known_xml = temp("{sample}_blastn_virus_{n}_known-viral.xml"),
-      unmapped = temp("{sample}_blastn_virus_{n}_unmapped.fa")
+      known_xml = "blast/{sample}_blastn_virus_{n}_known-viral.xml",
+      unmapped = "blast/{sample}_blastn_virus_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-5
     conda:
@@ -71,8 +71,8 @@ rule parse_blastx_virus:
       rules.blastx_virus.output.out,
       rules.blastx_virus.input.query
     output:
-      known_xml = temp("{sample}_blastx_virus_{n}_known-viral.xml"),
-      unmapped = temp("{sample}_blastx_virus_{n}_unmapped.fa")
+      known_xml = "blast/{sample}_blastx_virus_{n}_known-viral.xml",
+      unmapped = "blast/{sample}_blastx_virus_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-3
     conda:
@@ -89,7 +89,7 @@ rule filter_viruses:
     nodes = "taxonomy/nodes.csv"
   output:
     phages = "results/{sample}_phages_{n}.csv",
-    viruses = temp("{sample}_candidate_viruses_{n}.csv")
+    viruses = "blast/{sample}_candidate_viruses_{n}.csv"
   conda:
     "../envs/tidyverse.yml"
   script:
@@ -99,9 +99,9 @@ rule filter_viruses:
 rule unmasked_viral:
     input:
       rules.filter_viruses.output.viruses,
-      "{sample}_refgenome_unmapped_{n}.fa"
+      rules.refgenome_unmapped.output.fa
     output:
-      temp("{sample}_candidate_viruses_{n}_unmasked.fa")
+      "blast/{sample}_candidate_viruses_{n}_unmasked.fa"
     conda:
       "../envs/biopython.yml"
     script:
@@ -111,9 +111,9 @@ rule unmasked_viral:
 rule bwa_map_refbac:
     input:
       config["ref_bacteria"],
-      ["{sample}_candidate_viruses_{n}_unmasked.fa"]
+      [rules.unmasked_viral.output]
     output:
-      temp("{sample}_bac_mapped_{n}.sam")
+      "blast/{sample}_bac_mapped_{n}.sam"
     log:
       "logs/{sample}_bwa_map_refbac_{n}.log"
     threads: 8
@@ -126,9 +126,9 @@ rule bwa_map_refbac:
 rule refbac_unmapped:
     input: rules.bwa_map_refbac.output
     output:
-      bam = temp("{sample}_bac_unmapped_{n}.bam"),
-      fq = temp("{sample}_bac_unmapped_{n}.fq"),
-      fa = temp("{sample}_bac_unmapped_{n}.fa")
+      bam = "blast/{sample}_bac_unmapped_{n}.bam",
+      fq = "blast/{sample}_bac_unmapped_{n}.fq",
+      fa = "blast/{sample}_bac_unmapped_{n}.fa"
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:
@@ -142,9 +142,9 @@ rule refbac_unmapped:
 rule refbac_unmapped_masked:
     input:
       rules.refbac_unmapped.output.fa,
-      "{sample}_repmaskedgood_{n}.fa"
+      rules.repeatmasker_good.output.masked_filt
     output:
-      temp("{sample}_bac_unmapped_{n}_masked.fa")
+      "blast/{sample}_bac_unmapped_{n}_masked.fa"
     conda:
       "../envs/biopython.yml"
     script:
@@ -176,8 +176,8 @@ rule parse_megablast_nt:
       rules.megablast_nt.output.out,
       rules.refbac_unmapped_masked.output
     output:
-      known_xml = temp("{sample}_nt_filtered_{n}_mapped.xml"),
-      unmapped = temp("{sample}_nt_filtered_{n}_unmapped.fa")
+      known_xml = "blast/{sample}_nt_filtered_{n}_mapped.xml",
+      unmapped = "blast/{sample}_nt_filtered_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:
@@ -210,8 +210,8 @@ rule parse_blastn_nt:
       rules.blastn_nt.output.out,
       rules.blastn_nt.input.query
     output:
-      known_xml = temp("{sample}_blastn_nt_{n}_mapped.xml"),
-      unmapped = temp("{sample}_blastn_nt_{n}_unmapped.fa")
+      known_xml = "blast/{sample}_blastn_nt_{n}_mapped.xml",
+      unmapped = "blast/{sample}_blastn_nt_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:
@@ -243,7 +243,7 @@ rule parse_blastx_nr:
       rules.blastx_nr.output.out,
       rules.blastx_nr.input.query
     output:
-      known_xml = temp("{sample}_blastx_nr_{n}_mapped.xml"),
+      known_xml = "blast/{sample}_blastx_nr_{n}_mapped.xml",
       unassigned = "results/{sample}_unassigned_blasted_{n}.fa"
     params:
       e_cutoff = 1e-3
@@ -255,8 +255,8 @@ rule parse_blastx_nr:
 ## Filter out virus and phage sequences
 rule filter_blasted_viruses:
   input:
-    "{sample}_blastn_nt_{n}_mapped.xml",
-    "{sample}_blastx_nr_{n}_mapped.xml",
+    rules.parse_blastn_nt.output.known_xml,
+    rules.parse_blastx_nr.output.known_xml,
     taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:

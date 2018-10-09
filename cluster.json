@@ -15,10 +15,11 @@
     ,
     "repeatmasker" :
     {
-        "time": "02:00:00",
-        "mem" : 4000
+        "time": "03:00:00",
+        "mem" : 4000,
+        "partition" : "main"
     },
-    "megablast_ref_genome" :
+    "megablast_refgenome" :
     {
         "time": "00:45:00"
     },
@@ -50,14 +51,14 @@
     },
     "blastn_virus" :
     {
-        "time": "02:00:00",
-        "partition" : "testing"
+        "time": "04:00:00",
+        "partition" : "main"
     },
     "blastx_virus" :
     {
         "mem" : 8000,
-        "time": "02:00:00",
-        "partition" : "testing"
+        "time": "16:00:00",
+        "partition" : "main"
     },
     "taxonomy_names" : {
         "mem" : 8000,

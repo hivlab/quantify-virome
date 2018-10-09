@@ -44,6 +44,10 @@ def subset_records(source, ids):
         if record.id in ids:
             yield record
 
+# https://stackoverflow.com/questions/1158076/implement-touch-using-python#1160227
+def touch(fname, times=None):
+    with open(fname, 'a'):
+        os.utime(fname, times)
 
 def parse_blast(blast_xml, unknowns_masked_fasta, known_out_xml, unknown_out_fasta, evalue_threshold = 1e-10):
     """Parse blast output

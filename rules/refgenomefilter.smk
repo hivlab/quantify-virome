@@ -3,9 +3,9 @@
 rule bwa_map_refgenome:
     input:
         config["ref_genome"],
-        ["{sample}_unmaskedgood_{n}.fa"]
+        [rules.repeatmasker_good.output.original_filt]
     output:
-        temp("{sample}_mapped_{n}.bam")
+        "refgenomefilter/{sample}_mapped_{n}.bam"
     log:
         "logs/{sample}_bwa_map_refgenome_{n}.log"
     threads: 8
@@ -19,9 +19,9 @@ rule bwa_map_refgenome:
 rule refgenome_unmapped:
     input: rules.bwa_map_refgenome.output
     output:
-      bam = temp("{sample}_refgenome_unmapped_{n}.bam"),
-      fq = temp("{sample}_refgenome_unmapped_{n}.fq"),
-      fa = "{sample}_refgenome_unmapped_{n}.fa"
+      bam = "refgenomefilter/{sample}_refgenome_unmapped_{n}.bam",
+      fq = "refgenomefilter/{sample}_refgenome_unmapped_{n}.fq",
+      fa = "refgenomefilter/{sample}_refgenome_unmapped_{n}.fa"
     conda:
       "../envs/bwa-sam-bed.yml"
     shell:
@@ -35,7 +35,7 @@ rule refgenome_unmapped:
 rule refgenome_unmapped_masked:
     input: rules.refgenome_unmapped.output.fa, rules.repeatmasker_good.output.masked_filt
     output:
-      "{sample}_refgenome_unmapped_{n}_masked.fa"
+      "refgenomefilter/{sample}_refgenome_unmapped_{n}_masked.fa"
     conda:
       "../envs/biopython.yml"
     script:
@@ -47,7 +47,7 @@ rule megablast_refgenome:
       db = config["ref_genome"],
       query = rules.refgenome_unmapped_masked.output
     output:
-      out = temp("blast/{sample}_megablast_{n}.xml")
+      out = "refgenomefilter/{sample}_megablast_{n}.xml"
     params:
       task = "megablast",
       perc_identity = config["megablast_ref_genome"]["perc_identity"],
@@ -68,8 +68,8 @@ rule parse_megablast:
       rules.megablast_refgenome.output.out,
       rules.refgenome_unmapped_masked.output
     output:
-      temp("{sample}_refgenome_filtered_{n}_known-host.xml"),
-      "{sample}_refgenome_filtered_{n}_unmapped.fa"
+      known_host = "refgenomefilter/{sample}_refgenome_filtered_{n}_known-host.xml",
+      unmapped = "refgenomefilter/{sample}_refgenome_filtered_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:

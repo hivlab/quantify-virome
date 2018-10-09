@@ -1,3 +1,2 @@
 sample fq1 fq2
-test_seq_004 data/reads/test_seq_004_R1.fq.gz data/reads/test_seq_004_R2.fq.gz
 test_seq_012 data/reads/test_seq_012_R1.fq.gz data/reads/test_seq_012_R2.fq.gz

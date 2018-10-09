@@ -11,10 +11,10 @@ rule fastp:
       fq1 = lambda wildcards: get_fastq(wildcards, 'fq1'),
       fq2 = lambda wildcards: get_fastq(wildcards, 'fq2')
     output:
-      pair1 = temp("{sample}_pair1_trimmed.gz"),
-      pair2 = temp("{sample}_pair2_trimmed.gz"),
-      html = "qc/{sample}_fastp_report.html",
-      json = "qc/{sample}_fastp_report.json"
+      pair1 = "munge/{sample}_pair1_trimmed.gz",
+      pair2 = "munge/{sample}_pair2_trimmed.gz",
+      html = "munge/{sample}_fastp_report.html",
+      json = "munge/{sample}_fastp_report.json"
     params:
       "-f 5 -t 5 -l 50 -y -Y 8"
     threads: 8
@@ -30,13 +30,13 @@ rule fastp:
 rule fastq_join:
   input: rules.fastp.output
   output:
-    temp("{sample}_join.fq.gz"),
-    temp("{sample}_un1.fq.gz"),
-    temp("{sample}_un2.fq.gz")
+    "munge/{sample}_join.fq.gz",
+    "munge/{sample}_un1.fq.gz",
+    "munge/{sample}_un2.fq.gz"
   params:
     config["fastq-join"]["maximum_difference"],
     config["fastq-join"]["minimum_overlap"],
-    "{sample}_%.fq.gz"
+    "munge/{sample}_%.fq.gz"
   conda:
     "../envs/fastq-join.yml"
   log: "logs/{sample}_fastq_join.log"
@@ -54,8 +54,8 @@ rule fastq_join:
 rule merge_reads:
   input: rules.fastq_join.output
   output:
-    fq = temp("{sample}_merge_reads.fq.gz"),
-    fa = temp("{sample}_merge_reads.fasta")
+    fq = "munge/{sample}_merge_reads.fq.gz",
+    fa = "munge/{sample}_merge_reads.fasta"
   shell:
     """
     cat {input} > {output.fq}
