@@ -11,6 +11,9 @@ seqs = sum([bool(search(r"^>", line)) for line in fasta_file])
 # Calculate batch size given number of files
 batch_size = ceil(seqs / snakemake.params[0])
 
+print(snakemake.params[0])
+print(snakemake.params[1])
+
 # Split sequences into chunks based on batch size and write into files
 record_iter = SeqIO.parse(snakemake.input[0], "fasta")
 for n, batch in enumerate(batch_iterator(record_iter, batch_size), start = 1):
