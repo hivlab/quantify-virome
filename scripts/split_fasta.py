@@ -14,6 +14,6 @@ batch_size = ceil(seqs / snakemake.params[0])
 # Split sequences into chunks based on batch size and write into files
 record_iter = SeqIO.parse(snakemake.input[0], "fasta")
 for n, batch in enumerate(batch_iterator(record_iter, batch_size), start = 1):
-    filename = snakemake.params[1].format(n)
+    filename = snakemake.output[0].format(n)
     with open(filename, "w") as handle:
         count = SeqIO.write(batch, handle, "fasta")

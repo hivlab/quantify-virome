@@ -33,10 +33,9 @@ rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    "mask/{sample}_repeatmasker_{n}.fa"
+    dynamic("mask/{sample}_repeatmasker_{n}.fa")
   params:
-    config["split_fasta"]["n_files"],
-    "mask/{sample}_repeatmasker_{n}.fa"
+    config["split_fasta"]["n_files"]
   conda:
     "../envs/biopython.yml"
   script:
