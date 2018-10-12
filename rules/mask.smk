@@ -35,8 +35,7 @@ rule split_fasta:
   output:
     "mask/{sample}_repeatmasker_{n}.fa"
   params:
-    config["split_fasta"]["n_files"],
-    "mask/{sample}_repeatmasker_%i.fa"
+    config["split_fasta"]["n_files"]
   conda:
     "../envs/biopython.yml"
   script:
