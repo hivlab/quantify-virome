@@ -35,7 +35,7 @@ rule split_fasta:
   output:
     "mask/{sample}_repeatmasker_{n}.fa"
   params:
-    n_files,
+    config["split_fasta"]["n_files"],
     lambda wildcards: wildcards.n
   conda:
     "../envs/biopython.yml"
