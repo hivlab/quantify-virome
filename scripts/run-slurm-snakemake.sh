@@ -19,9 +19,9 @@ snakemake -np --rerun-incomplete #--until parse_virusntblast
 snakemake --dag | dot -Tsvg > graph/taxonomy_dag.svg
 snakemake --dag -s virome.snakefile | dot -Tsvg > graph/virome_dag.svg
 
-snakemake -np --directory .test --rerun-incomplete
+snakemake -np --directory ~/fastq/prjna361402/ --rerun-incomplete --until filter_viruses
 
-snakemake -j --directory .test --rerun-incomplete \
+snakemake -j --directory ~/fastq/prjna361402 --rerun-incomplete --until filter_viruses \
             --use-conda --cluster-config cluster.json  \
             --cluster "sbatch -J {cluster.name} \
             -p {cluster.partition} \
@@ -30,6 +30,7 @@ snakemake -j --directory .test --rerun-incomplete \
             --output {cluster.output} \
             --cpus-per-task {cluster.cpus-per-task}"
 
+snakemake --directory ~/fastq/prjna361402/ --cleanup-metadata blast/SRR5580233_blastx_virus_*.xml --until filter_viruses
 
 # List status info for a currently running job:
 sstat --format=AveCPU,AvePages,AveRSS,AveVMSize,JobID -j 3094867 --allsteps
@@ -38,7 +39,7 @@ sstat --format=AveCPU,AvePages,AveRSS,AveVMSize,JobID -j 3094867 --allsteps
 scontrol show jobid -dd 3094867
 
 # Delete all files
-rm $(snakemake --snakefile Snakefile.py --summary | tail -n+2 | cut -f1)
+rm $(snakemake --directory .test --summary | tail -n+2 | cut -f1)
 
 sacctmgr show association where user=taavi74
 

@@ -3,7 +3,7 @@
     {
         "name" : "{rule}.{wildcards}",
         "time" : "00:10:00",
-        "partition" : "testing",
+        "partition" : "main",
         "cpus-per-task" : 1,
         "mem" : 2000,
         "output" : "logs/{rule}.{wildcards}_slurm_%j.log"
@@ -15,17 +15,17 @@
     ,
     "repeatmasker" :
     {
-        "time": "03:00:00",
+        "time": "02:00:00",
         "mem" : 4000,
         "partition" : "main"
     },
     "megablast_refgenome" :
     {
-        "time": "00:45:00"
+        "time": "00:30:00"
     },
     "megablast_nt" :
     {
-        "mem" : 32000,
+        "mem" : 8000,
         "time": "02:00:00"
     },
     "bwa_map_refgenome" :
@@ -51,13 +51,13 @@
     },
     "blastn_virus" :
     {
-        "time": "04:00:00",
+        "time": "02:00:00",
         "partition" : "main"
     },
     "blastx_virus" :
     {
-        "mem" : 8000,
-        "time": "16:00:00",
+        "mem" : 4000,
+        "time": "04:00:00",
         "partition" : "main"
     },
     "taxonomy_names" : {
