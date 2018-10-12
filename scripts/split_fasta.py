@@ -4,15 +4,15 @@ from math import ceil
 from Bio import SeqIO
 from common.helpers import batch_iterator
 
-print("Number of sequences in fasta file")
+# Number of sequences in fasta file
 fasta_file = open(snakemake.input[0])
 
 seqs = sum([bool(search(r"^>", line)) for line in fasta_file])
 
-print("Calculate batch size given number of files")
+# Calculate batch size given number of files
 batch_size = ceil(seqs / snakemake.params[0])
 
-print("Split sequences into chunks based on batch size and write into files")
+# Split sequences into chunks based on batch size and write into files
 record_iter = SeqIO.parse(snakemake.input[0], "fasta")
 
 for n, batch in enumerate(batch_iterator(record_iter, batch_size), start = 1):
