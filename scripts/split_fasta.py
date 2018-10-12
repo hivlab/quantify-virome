@@ -16,6 +16,8 @@ record_iter = SeqIO.parse(snakemake.input[0], "fasta")
 
 for n, batch in enumerate(batch_iterator(record_iter, batch_size), start = 1):
     if n == snakemake.params[1]:
+        print(snakemake.output[0])
+        print(snakemake.params[1])
         with open(snakemake.output[0], "w") as handle:
             count = SeqIO.write(batch, handle, "fasta")
             break
