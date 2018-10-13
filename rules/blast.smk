@@ -54,6 +54,7 @@ rule blastx_virus:
       out = "blast/{sample}_blastx_virus_{n}.xml"
     params:
       db = config["virus_nr"],
+      word_size = 6,
       evalue = config["blastx_virus"]["evalue"],
       db_soft_mask = config["blastx_virus"]["db_soft_mask"],
       max_hsps = config["blastx_virus"]["max_hsps"],
@@ -227,6 +228,7 @@ rule blastx_nr:
       out = "blast/{sample}_blastx_nr_{n}.xml"
     params:
       db = config["nr"],
+      word_size = 6,
       evalue = config["blastx_nr"]["evalue"],
       max_hsps = config["blastx_nr"]["max_hsps"],
       show_gis = True,
