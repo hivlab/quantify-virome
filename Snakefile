@@ -11,7 +11,7 @@ rule all:
     input:
       expand([
       "results/{sample}_phages_{n}.csv",
-      "results/{sample}_unassigned_blasted_{n}.fa",
+      "results/{sample}_unassigned_{n}.fa",
       "results/{sample}_phages_blasted_{n}.csv",
       "results/{sample}_viruses_blasted_{n}.csv"
       ],

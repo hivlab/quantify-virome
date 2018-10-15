@@ -84,8 +84,8 @@ rule parse_blastx_virus:
 ## Filter out phage sequences
 rule filter_viruses:
   input:
-    rules.parse_blastn_virus.output.known_xml,
-    rules.parse_blastx_virus.output.known_xml,
+    [rules.parse_blastn_virus.output.known_xml,
+    rules.parse_blastx_virus.output.known_xml] if config["run_blastx"] else rules.parse_blastn_virus.output.known_xml,
     taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:
@@ -212,7 +212,7 @@ rule parse_blastn_nt:
       rules.blastn_nt.input.query
     output:
       known_xml = "blast/{sample}_blastn_nt_{n}_mapped.xml",
-      unmapped = "blast/{sample}_blastn_nt_{n}_unmapped.fa"
+      unmapped = "blast/{sample}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n}.fa"
     params:
       e_cutoff = 1e-10
     conda:
@@ -246,7 +246,7 @@ rule parse_blastx_nr:
       rules.blastx_nr.input.query
     output:
       known_xml = "blast/{sample}_blastx_nr_{n}_mapped.xml",
-      unassigned = "results/{sample}_unassigned_blasted_{n}.fa"
+      unmapped = "results/{sample}_unassigned_{n}.fa"
     params:
       e_cutoff = 1e-3
     conda:
@@ -257,8 +257,8 @@ rule parse_blastx_nr:
 ## Filter out virus and phage sequences
 rule filter_blasted_viruses:
   input:
-    rules.parse_blastn_nt.output.known_xml,
-    rules.parse_blastx_nr.output.known_xml,
+    [rules.parse_blastn_nt.output.known_xml,
+    rules.parse_blastx_nr.output.known_xml] if config["run_blastx"] else rules.parse_blastn_nt.output.known_xml,
     taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:
