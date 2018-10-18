@@ -56,7 +56,7 @@ rule megablast_refgenome:
       max_hsps = config["blastn_virus"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = "6 qseqid sseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore"
+      outfmt = "'6 qseqid sseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
     conda:
       "../envs/biopython.yml"
     script:
