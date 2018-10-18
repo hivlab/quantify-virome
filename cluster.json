@@ -21,12 +21,14 @@
     },
     "megablast_refgenome" :
     {
-        "time": "00:30:00"
+        "time": "00:30:00",
+        "cpus-per-task" : "{threads}"
     },
     "megablast_nt" :
     {
-        "mem" : 8000,
-        "time": "02:00:00"
+        "mem" : 40000,
+        "time": "04:00:00",
+        "cpus-per-task" : "{threads}"
     },
     "bwa_map_refgenome" :
     {
@@ -57,7 +59,7 @@
     "blastx_virus" :
     {
         "mem" : 4000,
-        "time": "04:00:00",
+        "time": "08:00:00",
         "partition" : "main"
     },
     "taxonomy_names" : {
@@ -70,13 +72,13 @@
     },
     "blastn_nt" :
     {
-        "mem" : 16000,
+        "mem" : 32000,
         "time": "02:00:00",
         "partition" : "testing"
     },
     "blastx_nr" :
     {
-        "mem" : 16000,
+        "mem" : 32000,
         "time": "06:00:00",
         "partition" : "main"
     },

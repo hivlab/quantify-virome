@@ -1,6 +1,12 @@
 
 # Global parameters -------------------
 
+# Run virome characterisation (default) or virus discovery workflow (set virome to False)
+virome: True
+
+# Option to save time by not running blastx
+run_blastx: False
+
 # path or URL to sample sheet (CSV format, columns: sample, condition, ...)
 samples: samples.tsv
 
@@ -59,15 +65,13 @@ megablast_nt:
     evalue: 1e-8
     word_size: 16
     max_hsps: 50
+    max_target_seqs: 5
 
 # Blastn against virus nucleotide database
 blastn_virus:
     evalue: 1e-4
     db_soft_mask: 100
     max_hsps: 50
-
-# Option to save time by not running blastx
-run_blastx: False
 
 # Blastx against virus protein database
 blastx_virus:
