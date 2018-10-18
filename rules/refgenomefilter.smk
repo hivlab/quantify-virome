@@ -56,7 +56,7 @@ rule megablast_refgenome:
       max_hsps = config["blastn_virus"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = "'6 qseqid sseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
+      outfmt = "'6 qseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
     conda:
       "../envs/biopython.yml"
     script:
@@ -65,14 +65,14 @@ rule megablast_refgenome:
 ## Filter megablast records for the cutoff value
 rule parse_megablast:
     input:
-      rules.megablast_refgenome.output.out,
-      rules.refgenome_unmapped_masked.output
+      blast_result = rules.megablast_refgenome.output.out,
+      query = rules.refgenome_unmapped_masked.output
     output:
-      known_host = "refgenomefilter/{sample}_refgenome_filtered_{n}_known-host.xml",
+      known_host = "refgenomefilter/{sample}_refgenome_filtered_{n}_known-host.tsv",
       unmapped = "refgenomefilter/{sample}_refgenome_filtered_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast.py"
+      "../scripts/parse_blast_tsv.py"

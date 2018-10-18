@@ -21,7 +21,7 @@ snakemake --dag -s virome.snakefile | dot -Tsvg > graph/virome_dag.svg
 
 snakemake -np --directory ~/fastq/prjna361402/ --rerun-incomplete --until filter_viruses
 
-snakemake -j --directory ~/fastq/prjna361402 --rerun-incomplete --until filter_viruses \
+snakemake -j --directory ~/fastq/prjna361402 --rerun-incomplete --until parse_megablast_nt \
             --use-conda --cluster-config cluster.json  \
             --cluster "sbatch -J {cluster.name} \
             -p {cluster.partition} \
