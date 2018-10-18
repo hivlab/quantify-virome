@@ -47,7 +47,7 @@ rule megablast_refgenome:
       db = config["ref_genome"],
       query = rules.refgenome_unmapped_masked.output
     output:
-      out = "refgenomefilter/{sample}_megablast_{n}.xml"
+      out = "refgenomefilter/{sample}_megablast_{n}.tsv"
     params:
       task = "megablast",
       perc_identity = config["megablast_ref_genome"]["perc_identity"],
@@ -56,7 +56,7 @@ rule megablast_refgenome:
       max_hsps = config["blastn_virus"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
+      outfmt = 6
     conda:
       "../envs/biopython.yml"
     script:
