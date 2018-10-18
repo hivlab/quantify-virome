@@ -87,3 +87,23 @@ def subset_unmasked_csv(blast_csv, unmasked_fasta, output):
     # write to fasta
     SeqIO.write(filtered_records, output, "fasta")
 
+def parse_blast_fmt6(blast_result, query, e_cutoff, outfmt, known_host, unmapped):
+  # import blast output table
+  tab = pd.read_table(blast_result)
+  # import column names
+  colnames = list(filter(lambda x: '6' not in x, outfmt.split()))
+  # assign column names
+  tab.columns = colnames
+  # filter results
+  known = tab[(tab.evalue <= e_cutoff)]
+  # write seqs below threshold to file
+  known.to_csv(known_host, sep = '\t', encoding = 'utf-8', index = False)
+  knownids = set(known.qseqid)
+  # parse blast input sequences
+  query = SeqIO.parse(query, "fasta")
+  # subset blast input
+  with open(out_fasta, "w") as out_fa:
+    for seq in query:
+        if seq.id not in knownids:
+            SeqIO.write(seq, unmapped, "fasta")
+
