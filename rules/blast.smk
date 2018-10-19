@@ -84,8 +84,8 @@ rule parse_blastx_virus:
 ## Filter out phage sequences
 rule filter_viruses:
   input:
-    [rules.parse_blastn_virus.output.known_xml,
-    rules.parse_blastx_virus.output.known_xml] if config["run_blastx"] else rules.parse_blastn_virus.output.known_xml,
+    [rules.parse_blastn_virus.output.mapped,
+    rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
     taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:
