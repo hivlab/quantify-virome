@@ -17,7 +17,6 @@ rule blastn_virus:
       query = rules.parse_megablast.output.unmapped
     output:
       out = "blast2/{sample}_blastn_virus_{n}.tsv"
-    group: "bnv"
     params:
       db = config["virus_nt"],
       task = "blastn",
@@ -40,7 +39,6 @@ rule parse_blastn_virus:
     output:
       known_xml = "blast2/{sample}_blastn_virus_{n}_known-viral.tsv",
       unmapped = "blast2/{sample}_blastn_virus_{n}_unmapped.fa"
-    group: "bnv"
     params:
       e_cutoff = 1e-5
     conda:
@@ -54,7 +52,6 @@ rule blastx_virus:
       query = rules.parse_blastn_virus.output.unmapped
     output:
       out = "blast/{sample}_blastx_virus_{n}.xml"
-    group: "bxv"
     params:
       db = config["virus_nr"],
       word_size = 6,
@@ -77,7 +74,6 @@ rule parse_blastx_virus:
     output:
       known_xml = "blast/{sample}_blastx_virus_{n}_known-viral.xml",
       unmapped = "blast/{sample}_blastx_virus_{n}_unmapped.fa"
-    group: "bxv"
     params:
       e_cutoff = 1e-3
     conda:
