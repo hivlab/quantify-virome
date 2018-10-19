@@ -1,12 +1,12 @@
 {
     "__default__" :
     {
-        "name" : "{rule}.{wildcards}",
+        "name" : "{rule}_{wildcards}",
         "time" : "00:10:00",
         "partition" : "main",
         "cpus-per-task" : 1,
         "mem" : 2000,
-        "output" : "logs/{rule}.{wildcards}_slurm_%j.log"
+        "output" : "logs/{rule}_{wildcards}_slurm_%j.log"
     },
     "fastp" :
     {
