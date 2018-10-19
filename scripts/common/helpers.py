@@ -92,14 +92,14 @@ def read_data(file):
         df = pd.read_table(file)
     except EmptyDataError:
         df = pd.DataFrame()
-    return df 
+    return df
 
-def parse_blast_fmt6(blast_result, query, e_cutoff, outfmt, known_host, unmapped):
+def parse_blast_fmt6(blast_result, query, e_cutoff, outfmt, mapped, unmapped):
   # import blast output table
   tab = read_data(blast_result)
   if len(tab.index) == 0:
     known_ids = set()
-    touch(known_host)
+    touch(mapped)
   else:
     # import column names
     colnames = list(filter(lambda x: '6' not in x, outfmt.split()))
@@ -108,7 +108,7 @@ def parse_blast_fmt6(blast_result, query, e_cutoff, outfmt, known_host, unmapped
     # filter results
     known = tab[(tab.evalue <= e_cutoff)]
     # write seqs below threshold to file
-    known.to_csv(known_host, sep = '\t', encoding = 'utf-8', index = False)
+    known.to_csv(mapped, sep = '\t', encoding = 'utf-8', index = False)
     known_ids = set(known.qseqid)
   # subset blast input
   with open(unmapped, "w") as out:

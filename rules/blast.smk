@@ -37,7 +37,7 @@ rule parse_blastn_virus:
       rules.blastn_virus.output.out,
       rules.parse_megablast.output.unmapped
     output:
-      known_xml = "blast2/{sample}_blastn_virus_{n}_known-viral.tsv",
+      mapped = "blast2/{sample}_blastn_virus_{n}_known-viral.tsv",
       unmapped = "blast2/{sample}_blastn_virus_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-5

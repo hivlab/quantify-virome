@@ -68,7 +68,7 @@ rule parse_megablast:
       blast_result = rules.megablast_refgenome.output.out,
       query = rules.refgenome_unmapped_masked.output
     output:
-      known_host = "refgenomefilter2/{sample}_refgenome_filtered_{n}_known-host.tsv",
+      mapped = "refgenomefilter2/{sample}_refgenome_filtered_{n}_known-host.tsv",
       unmapped = "refgenomefilter2/{sample}_refgenome_filtered_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10,
