@@ -34,13 +34,14 @@ rule blastn_virus:
 ## Filter blastn records for the cutoff value
 rule parse_blastn_virus:
     input:
-      rules.blastn_virus.output.out,
-      rules.parse_megablast.output.unmapped
+      blast_result = rules.blastn_virus.output.out,
+      query = rules.parse_megablast.output.unmapped
     output:
       mapped = "blast2/{sample}_blastn_virus_{n}_known-viral.tsv",
       unmapped = "blast2/{sample}_blastn_virus_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-5
+      e_cutoff = 1e-5,
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
