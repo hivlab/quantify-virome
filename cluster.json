@@ -1,7 +1,7 @@
 {
     "__default__" :
     {
-        "name" : "{rule}_{wildcards}",
+        "name" : "{rule}.{wildcards}",
         "time" : "00:10:00",
         "partition" : "main",
         "cpus-per-task" : 1,
