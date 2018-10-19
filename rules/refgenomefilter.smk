@@ -71,7 +71,8 @@ rule parse_megablast:
       known_host = "refgenomefilter2/{sample}_refgenome_filtered_{n}_known-host.tsv",
       unmapped = "refgenomefilter2/{sample}_refgenome_filtered_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-10
+      e_cutoff = 1e-10,
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
