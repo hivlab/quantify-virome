@@ -16,7 +16,8 @@ rule blastn_virus:
     input:
       query = rules.parse_megablast.output.unmapped
     output:
-      out = "blast/{sample}_blastn_virus_{n}.xml"
+      out = "blast2/{sample}_blastn_virus_{n}.tsv"
+    group: "bnv"
     params:
       db = config["virus_nt"],
       task = "blastn",
@@ -25,7 +26,7 @@ rule blastn_virus:
       max_hsps = config["blastn_virus"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -37,14 +38,15 @@ rule parse_blastn_virus:
       rules.blastn_virus.output.out,
       rules.parse_megablast.output.unmapped
     output:
-      known_xml = "blast/{sample}_blastn_virus_{n}_known-viral.xml",
-      unmapped = "blast/{sample}_blastn_virus_{n}_unmapped.fa"
+      known_xml = "blast2/{sample}_blastn_virus_{n}_known-viral.tsv",
+      unmapped = "blast2/{sample}_blastn_virus_{n}_unmapped.fa"
+    group: "bnv"
     params:
       e_cutoff = 1e-5
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast.py"
+      "../scripts/parse_blast_tsv.py"
 
 ## Blastx unmapped sequences against NR virus database
 rule blastx_virus:
@@ -52,6 +54,7 @@ rule blastx_virus:
       query = rules.parse_blastn_virus.output.unmapped
     output:
       out = "blast/{sample}_blastx_virus_{n}.xml"
+    group: "bxv"
     params:
       db = config["virus_nr"],
       word_size = 6,
@@ -74,6 +77,7 @@ rule parse_blastx_virus:
     output:
       known_xml = "blast/{sample}_blastx_virus_{n}_known-viral.xml",
       unmapped = "blast/{sample}_blastx_virus_{n}_unmapped.fa"
+    group: "bxv"
     params:
       e_cutoff = 1e-3
     conda:

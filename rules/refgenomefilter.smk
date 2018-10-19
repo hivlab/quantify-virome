@@ -48,6 +48,7 @@ rule megablast_refgenome:
       query = rules.refgenome_unmapped_masked.output
     output:
       out = "refgenomefilter2/{sample}_megablast_{n}.tsv"
+    group: "bmg"
     params:
       task = "megablast",
       perc_identity = config["megablast_ref_genome"]["perc_identity"],
@@ -70,6 +71,7 @@ rule parse_megablast:
     output:
       known_host = "refgenomefilter2/{sample}_refgenome_filtered_{n}_known-host.tsv",
       unmapped = "refgenomefilter2/{sample}_refgenome_filtered_{n}_unmapped.fa"
+    group: "bmg"
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
