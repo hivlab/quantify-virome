@@ -158,7 +158,7 @@ rule megablast_nt:
     input:
       query = rules.refbac_unmapped_masked.output
     output:
-      out = "blast/{sample}_megablast_nt_{n}.xml"
+      out = "blast/{sample}_megablast_nt_{n}.tsv"
     params:
       db = config["nt"],
       task = "megablast",
