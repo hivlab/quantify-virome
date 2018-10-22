@@ -165,18 +165,18 @@ filter_division <- function(tab, nodes, div_id, div, not_div) {
   UseMethod("filter_division", tab)
 }
 
-#' @param blast_results_taxids blast results tab with tax_ids, a data_frame.
+#' @param tab blast results tab with tax_ids, a data_frame.
 #' @param nodes path to nodes.csv file, a character string.
 
 #' @param div path ot output.csv file for records belonging to div_id, a character string.
 #' @param not_div path ot output.csv file for records NOT belongigng to div_id, a character string.
-filter_division.blast_results_taxids <- function(blast_results_taxids, nodes, div_id, div, not_div) {
+filter_division.blast_results_taxids <- function(tab, nodes, div_id, div, not_div) {
 
   message("Import gi tax_id table and taxonomy nodes table")
   nodes <- read_csv(nodes)
 
   message("Merge names by tax_id to known sequences")
-  mapped_tab <- left_join(blast_results_taxids, nodes)
+  mapped_tab <- left_join(tab, nodes)
 
   division <- filter(mapped_tab, division_id == div_id)
   not_division <- filter(mapped_tab, division_id != div_id)
@@ -222,7 +222,7 @@ blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3) {
   tab <- gi2taxid(tab$result, taxdb)
 
   message("Filter phages (division_id == 3) and save results to csv files\n")
-  filter_division(blast_results_taxids = tab, nodes = nodes, div = phages, not_div = viruses, div_id = div_id)
+  filter_division(tab = tab, nodes = nodes, div = phages, not_div = viruses, div_id = div_id)
 }
 
 do.call(blast_taxonomy, c(snakemake@input, snakemake@output))
