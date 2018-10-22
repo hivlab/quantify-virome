@@ -201,13 +201,13 @@ blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3) {
 
   if (any(grepl("xml$", dots))) {
 
-    xmls <- grep("xml$", dots, value = TRUE)
-    tab <- parse_blast_xml_safe(xmls)
+    blast_results <- grep("xml$", dots, value = TRUE)
+    tab <- parse_blast_xml_safe(blast_results)
 
   } else if (any(grepl("tsv$", dots))) {
 
-    tsvs <- grep("tsv$", dots, value = TRUE)
-    tab <- parse_blast_tsv_safe(xmls)
+    blast_results <- grep("tsv$", dots, value = TRUE)
+    tab <- parse_blast_tsv_safe(blast_results)
 
   } else {
 
