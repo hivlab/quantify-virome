@@ -176,8 +176,8 @@ rule megablast_nt:
 ## Filter megablast records for the cutoff value
 rule parse_megablast_nt:
     input:
-      rules.megablast_nt.output.out,
-      rules.refbac_unmapped_masked.output
+      blast_result = rules.megablast_nt.output.out,
+      query = rules.refbac_unmapped_masked.output
     output:
       mapped = "blast/{sample}_nt_filtered_{n}_mapped.tsv",
       unmapped = "blast/{sample}_nt_filtered_{n}_unmapped.fa"
@@ -211,8 +211,8 @@ rule blastn_nt:
 ## Filter blastn records for the cutoff value
 rule parse_blastn_nt:
     input:
-      rules.blastn_nt.output.out,
-      rules.blastn_nt.input.query
+      blast_result = rules.blastn_nt.output.out,
+      query = rules.blastn_nt.input.query
     output:
       mapped = "blast/{sample}_blastn_nt_{n}_mapped.tsv",
       unmapped = "blast/{sample}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n}.fa"
@@ -246,8 +246,8 @@ rule blastx_nr:
 ## Filter blastn records for the cutoff value
 rule parse_blastx_nr:
     input:
-      rules.blastx_nr.output.out,
-      rules.blastx_nr.input.query
+      blast_result = rules.blastx_nr.output.out,
+      query = rules.blastx_nr.input.query
     output:
       mapped = "blast/{sample}_blastx_nr_{n}_mapped.tsv",
       unmapped = "results/{sample}_unassigned_{n}.fa"
