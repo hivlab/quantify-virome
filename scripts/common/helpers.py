@@ -101,8 +101,9 @@ def parse_blast_fmt6(blast_result, query, e_cutoff, outfmt, mapped, unmapped):
     known_ids = set()
     touch(mapped)
   else:
-    # import column names
-    colnames = list(filter(lambda x: '6' not in x, outfmt.split()))
+    # import column names, replace std when present
+    std = 'qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore'
+    colnames = list(filter(lambda x: '6' not in x, outfmt.replace('std', std).split()))
     # assign column names
     tab.columns = colnames
     # filter results
