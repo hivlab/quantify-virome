@@ -74,7 +74,7 @@ parse_blast_xml <- function(...) {
 
   message("Extract blast results from list")
   blast_results <- dplyr::select(xml_parsed, hits) %>% unnest()
-  class(blast_results) <- append(class(blast_results), "blast_xml_tab")
+  class(blast_results) <- append(class(blast_results), "blast_tab")
   return(blast_results)
 }
 
@@ -87,12 +87,37 @@ empty_blast_xml_tab <- function() {
                     `Hsp_hit-to` = numeric(0), Hsp_hseq = character(0), Hsp_identity = numeric(0), Hsp_midline = character(0),
                     Hsp_num = numeric(0), Hsp_positive = numeric(0), Hsp_qseq = character(0), `Hsp_query-frame` = numeric(0),
                     `Hsp_query-from` = numeric(0), `Hsp_query-to` = numeric(0), Hsp_score = numeric(0))
-  class(tab) <- append(class(tab), "blast_xml_tab")
+  class(tab) <- append(class(tab), "blast_tab")
   return(tab)
 }
 
 # put safe wrapping around parse_blast function and return empty blast_xml_tab when no blast hits in sample
 parse_blast_xml_safe <- safely(parse_blast_xml, otherwise = empty_blast_xml_tab())
+
+
+parse_blast_tsv <- function(...) {
+
+  message("Importing BLAST+ tsv")
+  blast_results <- data_frame(path = c(...)) %>%
+    mutate(tsv = map(path, read_tsv)) %>%
+    unnest()
+
+  message("Munging metadata")
+  blast_results <- rename(blast_results, query = qseqid, gi = sgi) %>%
+    mutate_at(vars(gi), as.character) %>%
+    mutate(path = basename(path)) %>%
+    select(path, query, gi, everything())
+  class(blast_results) <- append(class(blast_results), "blast_tab")
+  return(blast_results)
+}
+
+empty_blast_tsv_tab <- function() {
+  tab <- data_frame(path = character(0), query = character(0), gi = character(0))
+  class(tab) <- append(class(tab), "blast_tab")
+  return(tab)
+}
+
+parse_blast_tsv_safe <- safely(parse_blast_tsv, otherwise = empty_blast_tsv_tab())
 
 gi2taxid <- function(tab, taxdb) {
   UseMethod("gi2taxid", tab)
@@ -100,7 +125,7 @@ gi2taxid <- function(tab, taxdb) {
 
 #' @param tab data_frame with parsed blast results
 #' @param taxdb sqlite database with gi_taxid_nucl and gi_taxid_prot tables
-gi2taxid.blast_xml_tab <- function(tab, taxdb) {
+gi2taxid.blast_tab <- function(tab, taxdb) {
 
   mapped_gis <- tab$gi
 
@@ -140,33 +165,55 @@ filter_division <- function(tab, nodes, div_id, div, not_div) {
   UseMethod("filter_division", tab)
 }
 
-#' @param tab blast results tab with tax_ids, a data_frame.
+#' @param blast_results_taxids blast results tab with tax_ids, a data_frame.
 #' @param nodes path to nodes.csv file, a character string.
-#' @param div_id division id of interest, integer. Defaults to 3, viruses.
+
 #' @param div path ot output.csv file for records belonging to div_id, a character string.
 #' @param not_div path ot output.csv file for records NOT belongigng to div_id, a character string.
-filter_division.blast_results_taxids <- function(tab, nodes, div_id, div, not_div) {
+filter_division.blast_results_taxids <- function(blast_results_taxids, nodes, div_id, div, not_div) {
 
   message("Import gi tax_id table and taxonomy nodes table")
   nodes <- read_csv(nodes)
 
   message("Merge names by tax_id to known sequences")
-  mapped_tab <- left_join(tab, nodes)
+  mapped_tab <- left_join(blast_results_taxids, nodes)
 
-  division <- filter(mapped_tab, near(division_id, div_id))
-  not_division <- filter(mapped_tab, !near(division_id, div_id))
+  division <- filter(mapped_tab, division_id == div_id)
+  not_division <- filter(mapped_tab, division_id != div_id)
 
   write_csv(division, div)
   write_csv(not_division, not_div)
 }
 
-
+#' Parse and add taxonomy to blast+ results
+#' @param ... paths(s) to blast results xml- or tsv file, a chracter string.
+#' @param div_id division id of interest, integer. Defaults to 3, viruses.
+#' @param taxdb path to taxonomy database, sqlite database, a character string.
+#' @param nodes path to taxonomy nodes.csv file, a chracter string.
+#' @param phages path to output file for phage hits, a character string.
+#' @param viruses path to output file for virus hits, character string
+#' @div_id taxonomy divition id, integer.
+#'
 blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3) {
 
-  message("Parse blast results xml\n")
+  message("Parse blast results\n")
   dots <- c(...)
-  xmls <- grep("xml$", dots, value = TRUE)
-  tab <- parse_blast_xml_safe(xmls)
+
+  if (any(grepl("xml$", dots))) {
+
+    xmls <- grep("xml$", dots, value = TRUE)
+    tab <- parse_blast_xml_safe(xmls)
+
+  } else if (any(grepl("tsv$", dots))) {
+
+    tsvs <- grep("tsv$", dots, value = TRUE)
+    tab <- parse_blast_tsv_safe(xmls)
+
+  } else {
+
+    stop("No files with blast results!")
+
+  }
 
   # if it's not empty result then stop error
   if (!is.null(tab$error) && !str_detect(tab$error$message, "No BLAST hits to parse")) stop(tab$error)
@@ -175,7 +222,7 @@ blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3) {
   tab <- gi2taxid(tab$result, taxdb)
 
   message("Filter phages (division_id == 3) and save results to csv files\n")
-  filter_division(tab = tab, nodes = nodes, div = phages, not_div = viruses, div_id = div_id)
+  filter_division(blast_results_taxids = tab, nodes = nodes, div = phages, not_div = viruses, div_id = div_id)
 }
 
 do.call(blast_taxonomy, c(snakemake@input, snakemake@output))
