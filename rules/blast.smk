@@ -167,7 +167,7 @@ rule megablast_nt:
       max_hsps = config["megablast_nt"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -182,11 +182,12 @@ rule parse_megablast_nt:
       known_xml = "blast/{sample}_nt_filtered_{n}_mapped.xml",
       unmapped = "blast/{sample}_nt_filtered_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-10
+      e_cutoff = 1e-10,
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast.py"
+      "../scripts/parse_blast_tsv.py"
 
 ## Blastn against NT database
 rule blastn_nt:
@@ -201,7 +202,7 @@ rule blastn_nt:
       max_hsps = config["blastn_nt"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -216,11 +217,12 @@ rule parse_blastn_nt:
       known_xml = "blast/{sample}_blastn_nt_{n}_mapped.xml",
       unmapped = "blast/{sample}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n}.fa"
     params:
-      e_cutoff = 1e-10
+      e_cutoff = 1e-10,
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast.py"
+      "../scripts/parse_blast_tsv.py"
 
 ## Blastx unmapped sequences against NR virus database
 rule blastx_nr:
@@ -235,7 +237,7 @@ rule blastx_nr:
       max_hsps = config["blastx_nr"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -250,11 +252,12 @@ rule parse_blastx_nr:
       known_xml = "blast/{sample}_blastx_nr_{n}_mapped.xml",
       unmapped = "results/{sample}_unassigned_{n}.fa"
     params:
-      e_cutoff = 1e-3
+      e_cutoff = 1e-3,
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast.py"
+      "../scripts/parse_blast_tsv.py"
 
 ## Filter out virus and phage sequences
 rule filter_blasted_viruses:
