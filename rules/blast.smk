@@ -52,7 +52,7 @@ rule blastx_virus:
     input:
       query = rules.parse_blastn_virus.output.unmapped
     output:
-      out = "blast/{sample}_blastx_virus_{n}.xml"
+      out = "blast/{sample}_blastx_virus_{n}.tsv"
     params:
       db = config["virus_nr"],
       word_size = 6,
@@ -179,7 +179,7 @@ rule parse_megablast_nt:
       rules.megablast_nt.output.out,
       rules.refbac_unmapped_masked.output
     output:
-      known_xml = "blast/{sample}_nt_filtered_{n}_mapped.xml",
+      mapped = "blast/{sample}_nt_filtered_{n}_mapped.tsv",
       unmapped = "blast/{sample}_nt_filtered_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10,
@@ -194,7 +194,7 @@ rule blastn_nt:
     input:
       query = rules.parse_megablast_nt.output.unmapped
     output:
-      out = "blast/{sample}_blastn_nt_{n}.xml"
+      out = "blast/{sample}_blastn_nt_{n}.tsv"
     params:
       db = config["nt"],
       task = "blastn",
@@ -214,7 +214,7 @@ rule parse_blastn_nt:
       rules.blastn_nt.output.out,
       rules.blastn_nt.input.query
     output:
-      known_xml = "blast/{sample}_blastn_nt_{n}_mapped.xml",
+      mapped = "blast/{sample}_blastn_nt_{n}_mapped.tsv",
       unmapped = "blast/{sample}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n}.fa"
     params:
       e_cutoff = 1e-10,
@@ -229,7 +229,7 @@ rule blastx_nr:
     input:
       query = rules.parse_blastn_nt.output.unmapped
     output:
-      out = "blast/{sample}_blastx_nr_{n}.xml"
+      out = "blast/{sample}_blastx_nr_{n}.tsv"
     params:
       db = config["nr"],
       word_size = 6,
@@ -249,7 +249,7 @@ rule parse_blastx_nr:
       rules.blastx_nr.output.out,
       rules.blastx_nr.input.query
     output:
-      known_xml = "blast/{sample}_blastx_nr_{n}_mapped.xml",
+      mapped = "blast/{sample}_blastx_nr_{n}_mapped.tsv",
       unmapped = "results/{sample}_unassigned_{n}.fa"
     params:
       e_cutoff = 1e-3,
@@ -262,8 +262,8 @@ rule parse_blastx_nr:
 ## Filter out virus and phage sequences
 rule filter_blasted_viruses:
   input:
-    [rules.parse_blastn_nt.output.known_xml,
-    rules.parse_blastx_nr.output.known_xml] if config["run_blastx"] else rules.parse_blastn_nt.output.known_xml,
+    [rules.parse_blastn_nt.output.mapped,
+    rules.parse_blastx_nr.output.mapped] if config["run_blastx"] else rules.parse_blastn_nt.output.mapped,
     taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:
