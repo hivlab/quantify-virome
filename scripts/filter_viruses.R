@@ -20,7 +20,7 @@ parse_blast_tsv <- function(...) {
 
   message("Importing BLAST+ tabular output")
   blast_results <- dplyr::data_frame(path = c(...)) %>%
-    dplyr::dplyr::mutate(tsv = purrr::map(path, readr::read_tsv)) %>%
+    dplyr::mutate(tsv = purrr::map(path, readr::read_tsv)) %>%
     tidyr::unnest()
 
   message("Munging metadata")
