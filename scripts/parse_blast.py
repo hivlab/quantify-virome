@@ -1,7 +1,14 @@
 # Find out whether the MegaBLAST best hit has a e value lower than the cutoff. If
 # yes, output query information. If no, the sequence will be kept for further analysis.
 # http://biopython.org/DIST/docs/tutorial/Tutorial.html#htoc93
-from common.helpers import parse_blast
+from common.helpers import parse_blast_fmt6
 
-# Write known hits and unknowns to xml and fasta file, respectively
-parse_blast(blast_xml = snakemake.input[0], unknowns_masked_fasta = snakemake.input[1], known_out_xml = snakemake.output[0], unknown_out_fasta = snakemake.output[1], evalue_threshold = snakemake.params["e_cutoff"])
+def run_parse_blast(input, output, params):
+  # merge function arguments into dictionary
+  options = dict(input)
+  options.update(output)
+  options.update(params)
+  # unwrap arguments and run function
+  parse_blast_fmt6(**options)
+
+run_parse_blast(snakemake.input, snakemake.output, snakemake.params)

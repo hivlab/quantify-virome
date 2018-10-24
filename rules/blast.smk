@@ -45,7 +45,7 @@ rule parse_blastn_virus:
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast_tsv.py"
+      "../scripts/parse_blast.py"
 
 ## Blastx unmapped sequences against NR virus database
 rule blastx_virus:
@@ -81,7 +81,7 @@ rule parse_blastx_virus:
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast_tsv.py"
+      "../scripts/parse_blast.py"
 
 ## Filter out phage sequences
 rule filter_viruses:
@@ -187,7 +187,7 @@ rule parse_megablast_nt:
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast_tsv.py"
+      "../scripts/parse_blast.py"
 
 ## Blastn against NT database
 rule blastn_nt:
@@ -222,7 +222,7 @@ rule parse_blastn_nt:
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast_tsv.py"
+      "../scripts/parse_blast.py"
 
 ## Blastx unmapped sequences against NR virus database
 rule blastx_nr:
@@ -257,7 +257,7 @@ rule parse_blastx_nr:
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast_tsv.py"
+      "../scripts/parse_blast.py"
 
 ## Filter out virus and phage sequences
 rule filter_blasted_viruses:

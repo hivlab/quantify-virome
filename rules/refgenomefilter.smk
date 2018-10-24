@@ -76,4 +76,4 @@ rule parse_megablast:
     conda:
       "../envs/biopython.yml"
     script:
-      "../scripts/parse_blast_tsv.py"
+      "../scripts/parse_blast.py"
