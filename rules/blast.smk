@@ -179,8 +179,8 @@ rule parse_megablast_nt:
       blast_result = rules.megablast_nt.output.out,
       query = rules.refbac_unmapped_masked.output
     output:
-      mapped = "blast/{sample}_nt_filtered_{n}_mapped.tsv",
-      unmapped = "blast/{sample}_nt_filtered_{n}_unmapped.fa"
+      mapped = "blast/{sample}_megablast_nt_{n}_mapped.tsv",
+      unmapped = "blast/{sample}_megablast_nt_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
