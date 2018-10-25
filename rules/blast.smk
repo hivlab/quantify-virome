@@ -211,13 +211,13 @@ rule blastn_nt:
 ## Filter blastn records for the cutoff value
 rule parse_blastn_nt:
     input:
-      blast_result = rules.blastn_nt.output.out,
-      query = rules.blastn_nt.input.query
+      blast_result = rules.blastn_nt.output.out
     output:
       mapped = "blast/{sample}_blastn_nt_{n}_mapped.tsv",
       unmapped = "blast/{sample}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n}.fa"
     params:
       e_cutoff = 1e-10,
+      query = rules.blastn_nt.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
