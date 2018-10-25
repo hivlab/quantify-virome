@@ -263,13 +263,13 @@ rule parse_blastx_nr:
 rule filter_blasted_viruses:
   input:
     [rules.parse_blastn_nt.output.mapped,
-    rules.parse_blastx_nr.output.mapped] if config["run_blastx"] else rules.parse_blastn_nt.output.mapped
+    rules.parse_blastx_nr.output.mapped] if config["run_blastx"] else rules.parse_blastn_nt.output.mapped,
+    nodes = "taxonomy/nodes.csv"
   output:
     phages = "results/{sample}_phages_blasted_{n}.csv",
     viruses = "results/{sample}_viruses_blasted_{n}.csv"
   params:
-    taxdb = config["vhunter"],
-    nodes = "taxonomy/nodes.csv"
+    taxdb = config["vhunter"]
   conda:
     "../envs/tidyverse.yml"
   script:
