@@ -1,14 +1,6 @@
 
-library(dplyr)
-library(tidyr)
-library(purrr)
-library(stringr)
-library(magrittr)
-library(xml2)
-library(httr)
-library(rvest)
-library(readr)
-
+#' Query taxonomy id number for nucleotide GenInfo Identifier (GI) from NCBI nucleotide database
+#' @param gi GenInfo Identifier (GI), a character string.
 query_taxid <- function(gi) {
   res <- httr::GET("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
              query = list(db = "nucleotide", id = gi, rettype = "fasta", retmode = "xml"))
@@ -16,6 +8,8 @@ query_taxid <- function(gi) {
   rvest::xml_node(cont, xpath = "//TSeq_taxid") %>% xml2::xml_text()
 }
 
+#' Import and parse BLAST+ tabular output to data_frame
+#' @param ... path to BLAST+ tabular output, a character vector.
 parse_blast_tsv <- function(...) {
 
   message("Importing BLAST+ tabular output")
@@ -32,20 +26,22 @@ parse_blast_tsv <- function(...) {
   return(blast_results)
 }
 
+#' Create empty data_frame of class blast_tabular
 empty_blast_tsv_tab <- function() {
   tab <- dplyr::data_frame(path = character(0), query = character(0), gi = character(0))
   class(tab) <- append(class(tab), "blast_tabular")
   return(tab)
 }
 
+#' Parse blast output safely, in case of error output empty blast_tabular dataframe
 parse_blast_tsv_safe <- purrr::safely(parse_blast_tsv, otherwise = empty_blast_tsv_tab())
 
 gi2taxid <- function(tab, taxdb) {
   UseMethod("gi2taxid", tab)
 }
 
-#' @param tab data_frame with parsed blast results
-#' @param taxdb sqlite database with gi_taxid_nucl and gi_taxid_prot tables
+#' @param tab data_frame with parsed blast results of class blast_tabular.
+#' @param taxdb sqlite database with gi_taxid_nucl and gi_taxid_prot tables.
 gi2taxid.blast_tabular <- function(tab, taxdb) {
 
   mapped_gis <- tab$gi
@@ -86,9 +82,10 @@ filter_division <- function(tab, nodes, div_id, div, not_div) {
   UseMethod("filter_division", tab)
 }
 
-#' @param tab blast results tab with tax_ids, a data_frame.
+#' Filter BLAST hits belonging to div_id
+#' @param tab blast results tab with tax_ids, a data_frame of class blast_results_taxids.
 #' @param nodes path to nodes.csv file, a character string.
-
+#' @param div_id taxonomic division id, an integer.
 #' @param div path ot output.csv file for records belonging to div_id, a character string.
 #' @param not_div path ot output.csv file for records NOT belongigng to div_id, a character string.
 filter_division.blast_results_taxids <- function(tab, nodes, div_id, div, not_div) {
@@ -129,7 +126,7 @@ blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3) {
   message("Map tax_ids to gis\n")
   tab <- gi2taxid(tab$result, taxdb)
 
-  message("dplyr::filter phages (division_id == 3) and save results to csv files\n")
+  message("Filter phages (division_id == 3) and save results to csv files\n")
   filter_division(tab = tab, nodes = nodes, div = phages, not_div = viruses, div_id = div_id)
 }
 
