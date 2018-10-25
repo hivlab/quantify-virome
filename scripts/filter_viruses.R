@@ -1,4 +1,6 @@
 
+library(magrittr)
+
 #' Query taxonomy id number for nucleotide GenInfo Identifier (GI) from NCBI nucleotide database
 #' @param gi GenInfo Identifier (GI), a character string.
 query_taxid <- function(gi) {
@@ -26,9 +28,12 @@ parse_blast_tsv <- function(...) {
   return(blast_results)
 }
 
-#' Create empty data_frame of class blast_tabular
+#' Create empty data_frame of class blast_tabular with path and all std outfmt 6 columns
 empty_blast_tsv_tab <- function() {
-  tab <- dplyr::data_frame(path = character(0), query = character(0), gi = character(0))
+  tab <- dplyr::data_frame(path = character(0), query = character(0), gi = character(0), pident = numeric(0),
+                           length = integer(0), mismatch = integer(0), gapopen = integer(0), qstart = integer(0),
+                           qend = integer(0), sstart = integer(0), send = integer(0),
+                           evalue = numeric(0), bitscore = numeric(0))
   class(tab) <- append(class(tab), "blast_tabular")
   return(tab)
 }
