@@ -203,7 +203,6 @@ rule blastn_nt:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    group: "blastnt"
     conda:
       "../envs/biopython.yml"
     script:
@@ -220,7 +219,6 @@ rule parse_blastn_nt:
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
-    group: "blastnt"
     conda:
       "../envs/biopython.yml"
     script:
