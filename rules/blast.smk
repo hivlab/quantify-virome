@@ -34,13 +34,13 @@ rule blastn_virus:
 ## Filter blastn records for the cutoff value
 rule parse_blastn_virus:
     input:
-      blast_result = rules.blastn_virus.output.out,
-      query = rules.parse_megablast.output.unmapped
+      blast_result = rules.blastn_virus.output.out
     output:
       mapped = "blast/{sample}_blastn_virus_{n}_known-viral.tsv",
       unmapped = "blast/{sample}_blastn_virus_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-5,
+      query = rules.parse_megablast.output.unmapped,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
@@ -70,13 +70,13 @@ rule blastx_virus:
 ## Filter blastn records for the cutoff value
 rule parse_blastx_virus:
     input:
-      blast_result = rules.blastx_virus.output.out,
-      query = rules.blastx_virus.input.query
+      blast_result = rules.blastx_virus.output.out
     output:
       mapped = "blast/{sample}_blastx_virus_{n}_known-viral.tsv",
       unmapped = "blast/{sample}_blastx_virus_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-3,
+      query = rules.blastx_virus.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
@@ -176,13 +176,13 @@ rule megablast_nt:
 ## Filter megablast records for the cutoff value
 rule parse_megablast_nt:
     input:
-      blast_result = rules.megablast_nt.output.out,
-      query = rules.refbac_unmapped_masked.output
+      blast_result = rules.megablast_nt.output.out
     output:
       mapped = "blast/{sample}_megablast_nt_{n}_mapped.tsv",
       unmapped = "blast/{sample}_megablast_nt_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-10,
+      query = rules.refbac_unmapped_masked.output,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
@@ -246,13 +246,13 @@ rule blastx_nr:
 ## Filter blastn records for the cutoff value
 rule parse_blastx_nr:
     input:
-      blast_result = rules.blastx_nr.output.out,
-      query = rules.blastx_nr.input.query
+      blast_result = rules.blastx_nr.output.out
     output:
       mapped = "blast/{sample}_blastx_nr_{n}_mapped.tsv",
       unmapped = "results/{sample}_unassigned_{n}.fa"
     params:
       e_cutoff = 1e-3,
+      query = rules.blastx_nr.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
