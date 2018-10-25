@@ -135,4 +135,4 @@ blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3) {
   filter_division(tab = tab, nodes = nodes, div = phages, not_div = viruses, div_id = div_id)
 }
 
-do.call(blast_taxonomy, c(snakemake@input, snakemake@params, snakemake@output))
+do.call(blast_taxonomy, c(snakemake@input, snakemake@output))
