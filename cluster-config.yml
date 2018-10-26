@@ -1,0 +1,8 @@
+__default__:
+  constraint: mem2000M, time10
+
+blastn_nt:
+  constraint: mem40G, time120
+
+megablast_nt:
+  constraint: mem40G, time240
