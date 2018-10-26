@@ -168,6 +168,7 @@ rule megablast_nt:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
+    constraint: mem40G, time240
     conda:
       "../envs/biopython.yml"
     script:
@@ -205,6 +206,7 @@ rule blastn_nt:
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
     priority: 50
+    constraint: mem40G, time120
     conda:
       "../envs/biopython.yml"
     script:
