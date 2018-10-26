@@ -72,13 +72,13 @@
     },
     "blastn_nt" :
     {
-        "mem" : 32000,
+        "mem" : 40000,
         "time": "02:00:00",
         "partition" : "testing"
     },
     "blastx_nr" :
     {
-        "mem" : 32000,
+        "mem" : 40000,
         "time": "06:00:00",
         "partition" : "main"
     },
