@@ -26,8 +26,7 @@ rule blastn_virus:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yml"
+    group: "bnv"  
     script:
       "../scripts/blast.py"
 
@@ -42,6 +41,7 @@ rule parse_blastn_virus:
     params:
       e_cutoff = 1e-5,
       outfmt = rules.megablast_refgenome.params.outfmt
+    group: "bnv"
     conda:
       "../envs/biopython.yml"
     script:
@@ -168,7 +168,6 @@ rule megablast_nt:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    constraint: mem40G, time240
     conda:
       "../envs/biopython.yml"
     script:
@@ -185,7 +184,6 @@ rule parse_megablast_nt:
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
-    priority: 50
     conda:
       "../envs/biopython.yml"
     script:
@@ -205,8 +203,6 @@ rule blastn_nt:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    priority: 50
-    constraint: mem40G, time120
     conda:
       "../envs/biopython.yml"
     script:
