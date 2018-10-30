@@ -19,9 +19,13 @@ snakemake -np --rerun-incomplete #--until parse_virusntblast
 snakemake --dag | dot -Tsvg > graph/taxonomy_dag.svg
 snakemake --dag -s virome.snakefile | dot -Tsvg > graph/virome_dag.svg
 
-snakemake -np --directory ~/fastq/prjna361402/ --rerun-incomplete --until filter_viruses
+snakemake -np --directory ~/fastq/prjna361402 --debug --rerun-incomplete
 
-snakemake -j --directory ~/fastq/prjna361402 --rerun-incomplete --until filter_viruses \
+
+snakemake -j --directory ~/fastq/prjna361402 --rerun-incomplete --restart-times 1 \
+
+snakemake -j --directory ~/fastq/prjna361402 --rerun-incomplete --until parse_megablast_nt \
+
             --use-conda --cluster-config cluster.json  \
             --cluster "sbatch -J {cluster.name} \
             -p {cluster.partition} \

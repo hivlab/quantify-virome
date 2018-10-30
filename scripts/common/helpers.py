@@ -3,7 +3,7 @@ from Bio import SearchIO
 from Bio import SeqIO
 import os
 import pandas as pd
-
+from pandas.io.common import EmptyDataError
 
 # http://biopython.org/wiki/Split_large_file
 
@@ -86,4 +86,34 @@ def subset_unmasked_csv(blast_csv, unmasked_fasta, output):
     filtered_records = (qresult for qresult in raw_qresults if qresult.id in queryid_with_hits)
     # write to fasta
     SeqIO.write(filtered_records, output, "fasta")
+
+def read_data(file):
+    try:
+        df = pd.read_table(file)
+    except EmptyDataError:
+        df = pd.DataFrame()
+    return df
+
+def parse_blast_fmt6(blast_result, query, e_cutoff, outfmt, mapped, unmapped):
+  # import blast output table
+  tab = read_data(blast_result)
+  if len(tab.index) == 0:
+    known_ids = set()
+    touch(mapped)
+  else:
+    # import column names, replace std when present
+    std = 'qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore'
+    colnames = list(filter(lambda x: '6' not in x, outfmt.replace('std', std).split()))
+    # assign column names
+    tab.columns = colnames
+    # filter results
+    known = tab[(tab.evalue <= e_cutoff)]
+    # write seqs below threshold to file
+    known.to_csv(mapped, sep = '\t', encoding = 'utf-8', index = False)
+    known_ids = set(known.qseqid)
+  # subset blast input
+  with open(unmapped, "w") as out:
+    for record in SeqIO.parse(str(query), "fasta"):
+        if record.id not in known_ids:
+            SeqIO.write(record, out, "fasta")
 

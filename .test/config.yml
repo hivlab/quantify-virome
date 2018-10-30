@@ -1,6 +1,9 @@
 
 # Global parameters -------------------
 
+#
+run_blastx: False
+
 # path or URL to sample sheet (CSV format, columns: sample, condition, ...)
 samples: samples.tsv
 

@@ -16,7 +16,7 @@ rule blastn_virus:
     input:
       query = rules.parse_megablast.output.unmapped
     output:
-      out = "blast/{sample}_blastn_virus_{n}.xml"
+      out = "blast/{sample}_blastn_virus_{n}.tsv"
     params:
       db = config["virus_nt"],
       task = "blastn",
@@ -25,22 +25,23 @@ rule blastn_virus:
       max_hsps = config["blastn_virus"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
-    conda:
-      "../envs/biopython.yml"
+      outfmt = rules.megablast_refgenome.params.outfmt
+    group: "bnv"  
     script:
       "../scripts/blast.py"
 
 ## Filter blastn records for the cutoff value
 rule parse_blastn_virus:
     input:
-      rules.blastn_virus.output.out,
-      rules.parse_megablast.output.unmapped
+      blast_result = rules.blastn_virus.output.out
     output:
-      known_xml = "blast/{sample}_blastn_virus_{n}_known-viral.xml",
+      mapped = "blast/{sample}_blastn_virus_{n}_known-viral.tsv",
       unmapped = "blast/{sample}_blastn_virus_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-5
+      e_cutoff = 1e-5,
+      query = rules.parse_megablast.output.unmapped,
+      outfmt = rules.megablast_refgenome.params.outfmt
+    group: "bnv"
     conda:
       "../envs/biopython.yml"
     script:
@@ -51,7 +52,7 @@ rule blastx_virus:
     input:
       query = rules.parse_blastn_virus.output.unmapped
     output:
-      out = "blast/{sample}_blastx_virus_{n}.xml"
+      out = "blast/{sample}_blastx_virus_{n}.tsv"
     params:
       db = config["virus_nr"],
       word_size = 6,
@@ -60,7 +61,7 @@ rule blastx_virus:
       max_hsps = config["blastx_virus"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -69,13 +70,14 @@ rule blastx_virus:
 ## Filter blastn records for the cutoff value
 rule parse_blastx_virus:
     input:
-      rules.blastx_virus.output.out,
-      rules.blastx_virus.input.query
+      blast_result = rules.blastx_virus.output.out
     output:
-      known_xml = "blast/{sample}_blastx_virus_{n}_known-viral.xml",
+      mapped = "blast/{sample}_blastx_virus_{n}_known-viral.tsv",
       unmapped = "blast/{sample}_blastx_virus_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-3
+      e_cutoff = 1e-3,
+      query = rules.blastx_virus.input.query,
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -84,8 +86,8 @@ rule parse_blastx_virus:
 ## Filter out phage sequences
 rule filter_viruses:
   input:
-    [rules.parse_blastn_virus.output.known_xml,
-    rules.parse_blastx_virus.output.known_xml] if config["run_blastx"] else rules.parse_blastn_virus.output.known_xml,
+    [rules.parse_blastn_virus.output.mapped,
+    rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
     taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:
@@ -156,7 +158,7 @@ rule megablast_nt:
     input:
       query = rules.refbac_unmapped_masked.output
     output:
-      out = "blast/{sample}_megablast_nt_{n}.xml"
+      out = "blast/{sample}_megablast_nt_{n}.tsv"
     params:
       db = config["nt"],
       task = "megablast",
@@ -165,7 +167,7 @@ rule megablast_nt:
       max_hsps = config["megablast_nt"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -174,13 +176,14 @@ rule megablast_nt:
 ## Filter megablast records for the cutoff value
 rule parse_megablast_nt:
     input:
-      rules.megablast_nt.output.out,
-      rules.refbac_unmapped_masked.output
+      blast_result = rules.megablast_nt.output.out
     output:
-      known_xml = "blast/{sample}_nt_filtered_{n}_mapped.xml",
-      unmapped = "blast/{sample}_nt_filtered_{n}_unmapped.fa"
+      mapped = "blast/{sample}_megablast_nt_{n}_mapped.tsv",
+      unmapped = "blast/{sample}_megablast_nt_{n}_unmapped.fa"
     params:
-      e_cutoff = 1e-10
+      e_cutoff = 1e-10,
+      query = rules.refbac_unmapped_masked.output,
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -191,7 +194,7 @@ rule blastn_nt:
     input:
       query = rules.parse_megablast_nt.output.unmapped
     output:
-      out = "blast/{sample}_blastn_nt_{n}.xml"
+      out = "blast/{sample}_blastn_nt_{n}.tsv"
     params:
       db = config["nt"],
       task = "blastn",
@@ -199,7 +202,7 @@ rule blastn_nt:
       max_hsps = config["blastn_nt"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -208,13 +211,14 @@ rule blastn_nt:
 ## Filter blastn records for the cutoff value
 rule parse_blastn_nt:
     input:
-      rules.blastn_nt.output.out,
-      rules.blastn_nt.input.query
+      blast_result = rules.blastn_nt.output.out
     output:
-      known_xml = "blast/{sample}_blastn_nt_{n}_mapped.xml",
+      mapped = "blast/{sample}_blastn_nt_{n}_mapped.tsv",
       unmapped = "blast/{sample}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n}.fa"
     params:
-      e_cutoff = 1e-10
+      e_cutoff = 1e-10,
+      query = rules.blastn_nt.input.query,
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -225,7 +229,7 @@ rule blastx_nr:
     input:
       query = rules.parse_blastn_nt.output.unmapped
     output:
-      out = "blast/{sample}_blastx_nr_{n}.xml"
+      out = "blast/{sample}_blastx_nr_{n}.tsv"
     params:
       db = config["nr"],
       word_size = 6,
@@ -233,7 +237,7 @@ rule blastx_nr:
       max_hsps = config["blastx_nr"]["max_hsps"],
       show_gis = True,
       num_threads = 8,
-      outfmt = 5
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -242,13 +246,14 @@ rule blastx_nr:
 ## Filter blastn records for the cutoff value
 rule parse_blastx_nr:
     input:
-      rules.blastx_nr.output.out,
-      rules.blastx_nr.input.query
+      blast_result = rules.blastx_nr.output.out
     output:
-      known_xml = "blast/{sample}_blastx_nr_{n}_mapped.xml",
+      mapped = "blast/{sample}_blastx_nr_{n}_mapped.tsv",
       unmapped = "results/{sample}_unassigned_{n}.fa"
     params:
-      e_cutoff = 1e-3
+      e_cutoff = 1e-3,
+      query = rules.blastx_nr.input.query,
+      outfmt = rules.megablast_refgenome.params.outfmt
     conda:
       "../envs/biopython.yml"
     script:
@@ -257,8 +262,7 @@ rule parse_blastx_nr:
 ## Filter out virus and phage sequences
 rule filter_blasted_viruses:
   input:
-    [rules.parse_blastn_nt.output.known_xml,
-    rules.parse_blastx_nr.output.known_xml] if config["run_blastx"] else rules.parse_blastn_nt.output.known_xml,
+    [rules.parse_blastn_nt.output.mapped, rules.parse_blastx_nr.output.mapped] if config["run_blastx"] else rules.parse_blastn_nt.output.mapped,
     taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:
