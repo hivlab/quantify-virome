@@ -26,8 +26,7 @@ rule blastn_virus:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yml"
+    group: "bnv"  
     script:
       "../scripts/blast.py"
 
@@ -42,6 +41,7 @@ rule parse_blastn_virus:
       e_cutoff = 1e-5,
       query = rules.parse_megablast.output.unmapped,
       outfmt = rules.megablast_refgenome.params.outfmt
+    group: "bnv"
     conda:
       "../envs/biopython.yml"
     script:

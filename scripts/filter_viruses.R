@@ -73,7 +73,7 @@ gi2taxid.blast_tabular <- function(tab, taxdb) {
   with_taxid <- dplyr::filter(known, !is.na(tax_id))
   no_taxid <- dplyr::filter(known, is.na(tax_id))
 
-  query <- dplyr::mutate(no_taxid, tax_id = map_chr(gi, query_taxid)) %>%
+  query <- dplyr::mutate(no_taxid, tax_id = purrr::map_chr(gi, query_taxid)) %>%
     dplyr::select(gi, tax_id) %>%
     dplyr::mutate_at("tax_id", as.integer)
 
