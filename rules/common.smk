@@ -21,5 +21,3 @@ import os
 if not os.path.exists("logs"):
     os.makedirs("logs")
 
-__default__:
-  constraint: mem2000M, time10
