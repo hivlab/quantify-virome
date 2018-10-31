@@ -57,7 +57,6 @@ rule megablast_refgenome:
       show_gis = True,
       num_threads = 8,
       outfmt = "'6 qseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
-    group: "mbrg"
     conda:
       "../envs/biopython.yml"
     script:
@@ -74,7 +73,6 @@ rule parse_megablast:
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
-    group: "mbrg"
     conda:
       "../envs/biopython.yml"
     script:
