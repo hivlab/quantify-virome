@@ -249,7 +249,7 @@ rule parse_blastx_nr:
       blast_result = rules.blastx_nr.output.out
     output:
       mapped = "blast/{sample}_blastx_nr_{n}_mapped.tsv",
-      unmapped = "results/{sample}_unassigned_{n}.fa" if config["run_blastx"] else None
+      unmapped = "results/{sample}_unassigned_{n}.fa" if config["run_blastx"] else "None"
     params:
       e_cutoff = 1e-3,
       query = rules.blastx_nr.input.query,
