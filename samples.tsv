@@ -1,4 +1,0 @@
-sample fq1 fq2
-A path/to/A_1.fq.gz path/to/A_2.fq.gz
-B path/to/B_1.fq.gz path/to/B_2.fq.gz
-C path/to/C_1.fq.gz path/to/C_2.fq.gz
