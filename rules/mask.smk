@@ -47,7 +47,7 @@ rule split_fasta:
 # If no repetitive sequences were detected symlink output to input file
 rule repeatmasker:
   input:
-    fa = rules.split_fasta.output
+    fa = "mask/{sample}_repeatmasker_{n}.fa"
   output:
     masked = "mask/{sample}_repeatmasker_{n}.fa.masked",
     out = "mask/{sample}_repeatmasker_{n}.fa.out",
