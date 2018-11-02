@@ -53,13 +53,14 @@ rule repeatmasker:
     out = "mask/{sample}_repeatmasker_{n}.fa.out",
     tbl = "mask/{sample}_repeatmasker_{n}.fa.tbl"
   params:
-    repbase = config["repbase_file"]
+    repbase = config["repbase_file"],
+    outdir = "mask"
   threads: 8
   conda: "../envs/repeatmasker.yml"
   shell:
     """
     export REPEATMASKER_REPBASE_FILE={params.repbase}
-    RepeatMasker -qq -pa {threads} {input.fa} -dir mask
+    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
     if head -n 1 {output.out} | grep -q "There were no repetitive sequences detected"
       then ln -sr {input.fa} {output.masked}
     fi
