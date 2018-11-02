@@ -36,15 +36,15 @@ bash Miniconda3-latest-Linux-x86_64.sh
 
 ### Install environment
 
-Create conda environment with preinstalled **snakemake**, **repeatmasker**, **trf** and **rmblast**:
+Create conda environment with preinstalled **snakemake**:
 ```
-conda create -n virome -c bioconda snakemake repeatmasker trf rmblast
+conda create -n snakemake -c bioconda -c conda-forge snakemake
 ```
 
 ### Activate environment
 
 ```
-source activate virome
+source activate snakemake
 ```
 
 ### Clone this repo and cd to repo
