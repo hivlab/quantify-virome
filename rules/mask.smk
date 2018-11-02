@@ -59,9 +59,6 @@ rule repeatmasker:
   conda: "../envs/repeatmasker.yml"
   shell:
     """
-    export REPEATMASKER_REPBASE_FILE={params.repbase}
-    export REPEATMASKER_CACHE_DIR="/tmp"
-    set
     RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
     if head -n 1 {output.out} | grep -q "There were no repetitive sequences detected"
       then ln -sr {input.fa} {output.masked}
