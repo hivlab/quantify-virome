@@ -88,7 +88,7 @@ snakemake -j --use-conda --cluster-config cluster.json  \
 When snakemake starts erroring with "Failed to submit job..." error messages try to decrease the number of jobs submitted per second. You may also need to rerun incomplete jobs, for examle when hitting cluster max wall time limit in the middle of the job. All possible [snakemake execution](https://snakemake.readthedocs.io/en/stable/executable.html) options can be printed by calling `snakemake -h`.
 
 ```
---max-jobs-per-second 4 --max-status-checks-per-second 4 --rerun-incomplete
+--max-jobs-per-second 1 --max-status-checks-per-second 10 --rerun-incomplete
 ```
 
 ### Exit/deactivate environment
