@@ -12,8 +12,7 @@ rule tantan:
     """
 
 ## Filter tantan output [7]
-# 1) Sequences that do not have greater than 50 nt of consecutive
-# sequence without N
+# 1) Sequences > 50 nt of consecutive sequence without N
 # 2) Sequences with >= 40% of total length of being masked
 rule tantan_good:
   input:
@@ -67,8 +66,7 @@ rule repeatmasker:
     """
 
 ## Filter repeatmasker output [10]
-# 1) Sequences that do not have greater than 50 nt of consecutive
-# sequence without N
+# 1) Sequences > 50 nt of consecutive sequence without N
 # 2) Sequences with >= 40% of total length of being masked
 # input, output, and params names must match function arguments
 rule repeatmasker_good:
