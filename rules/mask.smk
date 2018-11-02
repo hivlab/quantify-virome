@@ -33,45 +33,36 @@ rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    "mask/{sample}_repeatmasker_{n}.fa"
+    expand("mask/{{sample}}_repeatmasker_{n}.fa", n = list(range(1, n_files + 1, 1)))
   params:
-    config["split_fasta"]["n_files"],
-    lambda wildcards: wildcards.n
+    config["split_fasta"]["n_files"]
   conda:
     "../envs/biopython.yml"
   script:
     "../scripts/split_fasta.py"
 
 ## Repeatmasker [9]
-# Set RepBase library location environment variable and copy repeatmasker configuration file
-
-shell(
-"""
-if [ ! -n "$(find $CONDA_PREFIX/share/RepeatMasker/ -maxdepth 1 -name 'RepeatMaskerConfig.pm' -print -quit)" ]
-then
-  cp envs/RepeatMaskerConfig.pm $CONDA_PREFIX/share/RepeatMasker/
-fi
-"""
-)
-
 # Outputs are generated from input file names by RepeatMasker
 # must have file extension '.masked'
-# If no repetitive sequences were detected copy all input files to output
+# If no repetitive sequences were detected symlink output to input file
 rule repeatmasker:
   input:
-    fa = rules.split_fasta.output,
-    repbase = config["repbase_file"]
+    fa = "mask/{sample}_repeatmasker_{n}.fa"
   output:
     masked = "mask/{sample}_repeatmasker_{n}.fa.masked",
     out = "mask/{sample}_repeatmasker_{n}.fa.out",
     tbl = "mask/{sample}_repeatmasker_{n}.fa.tbl"
+  params:
+    repbase = config["repbase_file"],
+    outdir = "mask"
   threads: 8
+  conda: "../envs/repeatmasker.yml"
   shell:
     """
-    export REPEATMASKER_REPBASE_FILE={input.repbase}
-    RepeatMasker -qq -pa {threads} {input.fa} -dir mask
+    export REPEATMASKER_REPBASE_FILE={params.repbase}
+    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
     if head -n 1 {output.out} | grep -q "There were no repetitive sequences detected"
-      then cp {input.fa} {output.masked}
+      then ln -sr {input.fa} {output.masked}
     fi
     """
 

@@ -5,7 +5,6 @@ import json
 from os import listdir
 import glob
 import pandas as pd
-shell.executable("bash")
 
 # Load configuration file with sample and path info
 configfile: "config.yml"
