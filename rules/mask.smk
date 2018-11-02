@@ -41,6 +41,8 @@ rule split_fasta:
   script:
     "../scripts/split_fasta.py"
 
+os.environ['REPEATMASKER_REPBASE_FILE']=config["repbase_file"]
+
 ## Repeatmasker [9]
 # Outputs are generated from input file names by RepeatMasker
 # must have file extension '.masked'
@@ -53,7 +55,6 @@ rule repeatmasker:
     out = "mask/{sample}_repeatmasker_{n}.fa.out",
     tbl = "mask/{sample}_repeatmasker_{n}.fa.tbl"
   params:
-    repbase = config["repbase_file"],
     outdir = "mask"
   threads: 8
   conda: "../envs/repeatmasker.yml"
