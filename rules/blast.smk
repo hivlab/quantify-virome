@@ -16,7 +16,7 @@ rule blastn_virus:
     input:
       query = rules.parse_megablast.output.unmapped
     output:
-      out = "blast/{sample}_blastn_virus_{n}.tsv"
+      out = "blast/{sample}_blastn_virus_{n,\d+}.tsv"
     params:
       db = config["virus_nt"],
       task = "blastn",
@@ -34,8 +34,8 @@ rule parse_blastn_virus:
     input:
       blast_result = rules.blastn_virus.output.out
     output:
-      mapped = "blast/{sample}_blastn_virus_{n}_known-viral.tsv",
-      unmapped = "blast/{sample}_blastn_virus_{n}_unmapped.fa"
+      mapped = "blast/{sample}_blastn_virus_{n,\d+}_known-viral.tsv",
+      unmapped = "blast/{sample}_blastn_virus_{n,\d+}_unmapped.fa"
     params:
       e_cutoff = 1e-5,
       query = rules.parse_megablast.output.unmapped,
@@ -156,7 +156,7 @@ rule megablast_nt:
     input:
       query = rules.refbac_unmapped_masked.output
     output:
-      out = "blast/{sample}_megablast_nt_{n}.tsv"
+      out = "blast/{sample}_megablast_nt_{n,\d+}.tsv"
     params:
       db = config["nt"],
       task = "megablast",
@@ -176,8 +176,8 @@ rule parse_megablast_nt:
     input:
       blast_result = rules.megablast_nt.output.out
     output:
-      mapped = "blast/{sample}_megablast_nt_{n}_mapped.tsv",
-      unmapped = "blast/{sample}_megablast_nt_{n}_unmapped.fa"
+      mapped = "blast/{sample}_megablast_nt_{n,\d+}_mapped.tsv",
+      unmapped = "blast/{sample}_megablast_nt_{n,\d+}_unmapped.fa"
     params:
       e_cutoff = 1e-10,
       query = rules.refbac_unmapped_masked.output,
@@ -192,7 +192,7 @@ rule blastn_nt:
     input:
       query = rules.parse_megablast_nt.output.unmapped
     output:
-      out = "blast/{sample}_blastn_nt_{n}.tsv"
+      out = "blast/{sample}_blastn_nt_{n,\d+}.tsv"
     params:
       db = config["nt"],
       task = "blastn",
@@ -211,8 +211,8 @@ rule parse_blastn_nt:
     input:
       blast_result = rules.blastn_nt.output.out
     output:
-      mapped = "blast/{sample}_blastn_nt_{n}_mapped.tsv",
-      unmapped = "blast/{sample}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n}.fa"
+      mapped = "blast/{sample}_blastn_nt_{n,\d+}_mapped.tsv",
+      unmapped = "blast/{sample}_blastn_nt_{n,\d+}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n,\d+}.fa"
     params:
       e_cutoff = 1e-10,
       query = rules.blastn_nt.input.query,
@@ -227,7 +227,7 @@ rule blastx_nr:
     input:
       query = rules.parse_blastn_nt.output.unmapped
     output:
-      out = "blast/{sample}_blastx_nr_{n}.tsv"
+      out = "blast/{sample}_blastx_nr_{n,\d+}.tsv"
     params:
       db = config["nr"],
       word_size = 6,
@@ -246,8 +246,8 @@ rule parse_blastx_nr:
     input:
       blast_result = rules.blastx_nr.output.out
     output:
-      mapped = "blast/{sample}_blastx_nr_{n}_mapped.tsv",
-      unmapped = "results/{sample}_unassigned_{n}.fa" if config["run_blastx"] else "{sample}_None_{n}"
+      mapped = "blast/{sample}_blastx_nr_{n,\d+}_mapped.tsv",
+      unmapped = "results/{sample}_unassigned_{n,\d+}.fa" if config["run_blastx"] else "{sample}_None_{n}"
     params:
       e_cutoff = 1e-3,
       query = rules.blastx_nr.input.query,
