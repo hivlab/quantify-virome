@@ -143,7 +143,7 @@ rule refbac_unmapped:
 rule refbac_unmapped_masked:
     input:
       rules.refbac_unmapped.output.fa,
-      rules.repeatmasker_good.output.masked_filt
+      rules.repeatmasker.output.masked_filt
     output:
       "blast/{sample}_bac_unmapped_{n}_masked.fa"
     conda:
