@@ -72,7 +72,7 @@ rule repeatmasker:
 rule repeatmasker_good:
   input:
     masked = rules.repeatmasker.output.masked,
-    original = rules.split_fasta.output
+    original = rules.repeatmasker.input.fa
   output:
     masked_filt = "mask/{sample}_repmaskedgood_{n}.fa",
     original_filt = "mask/{sample}_unmaskedgood_{n}.fa"
