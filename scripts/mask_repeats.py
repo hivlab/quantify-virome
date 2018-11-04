@@ -12,7 +12,7 @@ output, error = p.communicate()
 if p.returncode != 0:
    raise Exception("Job failed\n" + output + error)
 else:
-	print(output)
+	print(output.encode("utf8"))
 
 # Filter repeatmasker output
 filters.run_filter_n(snakemake.input, snakemake.output, snakemake.params)
