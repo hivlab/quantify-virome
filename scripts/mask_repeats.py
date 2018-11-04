@@ -10,8 +10,8 @@ noreps = "if head -n 1 {output} | grep -q 'There were no repetitive sequences de
 rm = rm.format(threads = str(snakemake.threads), input = snakemake.input["fa"], outdir = snakemake.params["outdir"])
 noreps = noreps.format(output = snakemake.output["out"], input = snakemake.input["fa"], masked = snakemake.output["masked"])
 
-p = Popen('/bin/bash', shell = False, universal_newlines = True, stdin = PIPE, stdout = PIPE, stderr = PIPE )
-output, error = p.communicate(rm + "\n" + noreps + "\n")
+p = Popen('/bin/bash', shell = False, universal_newlines = True, stdin = PIPE, stdout = PIPE, stderr = PIPE)
+output, error = p.communicate(rm)
 if p.returncode != 0:
    raise Exception("Job failed\n" + output + error)
 else:
