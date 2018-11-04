@@ -55,7 +55,6 @@ rule repeatmasker:
     tbl = "mask/{sample}_repeatmasker_{n}.fa.tbl"
   params:
     outdir = "mask"
-  group: "rm"
   threads: 8
   conda: "../envs/repeatmasker.yml"
   shell:
@@ -80,7 +79,6 @@ rule repeatmasker_good:
   params:
     min_length = 50,
     por_n = 40
-  group: "rm"
   conda:
     "../envs/biopython.yml"
   script:
