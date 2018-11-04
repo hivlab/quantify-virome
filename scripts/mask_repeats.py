@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 
 from subprocess import Popen, PIPE
 from common import filters
@@ -17,4 +16,5 @@ else:
 # Filter repeatmasker output
 print("Filtering runs..\n")
 filters.run_filter_n(snakemake.input, snakemake.output, snakemake.params)
+
 print("Filtering runs done!\n")

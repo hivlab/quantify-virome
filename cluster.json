@@ -6,7 +6,7 @@
         "partition" : "main",
         "cpus-per-task" : 1,
         "mem" : 2000,
-        "output" : "logs/{rule}_{wildcards}_slurm_%j.log"
+        "output" : "logs/slurm/{rule}_{wildcards}_slurm_%j.log"
     },
     "fastp" :
     {
@@ -15,7 +15,7 @@
     ,
     "repeatmasker" :
     {
-        "time": "01:20:00",
+        "time": "02:30:00",
         "mem" : 4000,
         "partition" : "main"
     },
