@@ -59,12 +59,12 @@ git clone git@github.com:avilab/vs.git
 
 ## Example
 
-Pay attention to partitition and time arguments in cluster.json. Snakefile has .py extension only to get the code highlighting to work in Rstudio...
+Customise partition and runtime arguments in cluster.json and update database paths in config.yaml. 
 
 ### Dry run
 
 ```
-snakemake -n
+snakemake -nSnakefile
 ```
 
 ### Create workflow graph
