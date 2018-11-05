@@ -3,7 +3,7 @@
 rule bwa_map_refgenome:
     input:
         config["ref_genome"],
-        [rules.repeatmasker.output.fa_filt]
+        [rules.repeatmasker_good.output.original_filt]
     output:
         "refgenomefilter/{sample}_mapped_{n}.bam"
     log:
@@ -33,7 +33,7 @@ rule refgenome_unmapped:
 
 ## Subset repeatmasker masked reads using unmapped ids
 rule refgenome_unmapped_masked:
-    input: rules.refgenome_unmapped.output.fa, rules.repeatmasker.output.masked_filt
+    input: rules.refgenome_unmapped.output.fa, rules.repeatmasker_good.output.masked_filt
     output:
       "refgenomefilter/{sample}_refgenome_unmapped_{n}_masked.fa"
     conda:
