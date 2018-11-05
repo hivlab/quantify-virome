@@ -2,4 +2,5 @@ name: repeatmasker
 channels:
   - bioconda
 dependencies:
-  - repeatmasker
+  - repeatmasker=4.0.7
+  - biopython=1.70
