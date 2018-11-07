@@ -30,7 +30,7 @@
         "time": 240,
         "cpus-per-task" : "{threads}"
     },
-    "bwa_map_refgenome" :
+    "refgenome_unmapped" :
     {
         "mem" : 32000,
         "time": "02:00:00"
