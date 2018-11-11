@@ -30,13 +30,12 @@ rule fastp:
 rule fastq_join:
   input: rules.fastp.output
   output:
-    "munge/{sample}_join.fq.gz",
     "munge/{sample}_un1.fq.gz",
-    "munge/{sample}_un2.fq.gz"
+    "munge/{sample}_un2.fq.gz",
+    "munge/{sample}_join.fq.gz"
   params:
     config["fastq-join"]["maximum_difference"],
-    config["fastq-join"]["minimum_overlap"],
-    "munge/{sample}_%.fq.gz"
+    config["fastq-join"]["minimum_overlap"]
   conda:
     "../envs/fastq-join.yml"
   log: "logs/{sample}_fastq_join.log"
@@ -47,7 +46,7 @@ rule fastq_join:
     -m {params[1]} \
     {input[0]} \
     {input[1]} \
-    -o {params[2]} > {log} 2>&1
+    -o {output} > {log} 2>&1
     """
 
 ## Merge stitched reads
