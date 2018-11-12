@@ -1,9 +1,13 @@
 
 ## Run cd-hit to find and munge duplicate reads
+## cd-hit-est input format is fasta, therefore
+## we concatenate stitched fastq reads and convert to fasta
 rule cd_hit:
-  input: rules.merge_reads.output.fa
+  input:
+    rules.fastq_join.output
   output:
-    clusters = "cdhit/{sample}_cdhit.fa",
+    fa = "munge/{sample}_merge_reads.fasta",
+    repres = "cdhit/{sample}_cdhit.fa",
     report = "cdhit/{sample}_cdhit.report",
     clstr = "cdhit/{sample}_cdhit.fa.clstr"
   params:
@@ -13,5 +17,6 @@ rule cd_hit:
     "../envs/cd-hit.yml"
   shell:
     """
-    cd-hit-est -i {input} -o {output.clusters} -T {threads} {params} > {output.report}
+    zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
+    cd-hit-est -i {output.fa} -o {output.repres} -T {threads} {params} > {output.report}
     """
