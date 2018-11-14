@@ -98,6 +98,14 @@ rule filter_viruses:
   script:
     "../scripts/filter_viruses.R"
 
+rule upload_phages:
+    input:
+      expand("results/{{sample}}_phages_{n}.csv", n = list(range(1, n_files + 1, 1))) if config["zenodo"]["deposition_id"]
+    params:
+      config["zenodo"]["deposition_id"]
+    script:
+      "../scripts/zenodo_upload.py"
+
 ## Get unmasked candidate viral sequences
 rule unmasked_viral:
     input:

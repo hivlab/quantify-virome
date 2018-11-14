@@ -4,6 +4,10 @@
 # Option to save time by not running blastx
 run_blastx: False
 
+# Upload results to zenodo
+zenodo:
+    deposition_id: None
+
 # path or URL to sample sheet (CSV format, columns: sample, condition, ...)
 samples: samples.tsv
 
