@@ -7,7 +7,7 @@ run_blastx: False
 # Upload results to zenodo
 # For upload, setup ZENODO_PAT environment variable for access_token
 zenodo:
-    deposition_id: None
+    deposition_id: 1486558
 
 # path or URL to sample sheet (CSV format, columns: sample, condition, ...)
 samples: samples.tsv

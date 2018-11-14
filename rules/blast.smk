@@ -104,7 +104,7 @@ rule upload_phages:
     output:
       touch("logs/{sample}_upload_phages.done") if config["zenodo"]["deposition_id"]
     params:
-      config["zenodo"]["deposition_id"]
+      config["zenodo"]["deposition_id"] if config["zenodo"]["deposition_id"]
     conda:
       "../envs/upload.yml"
     script:
