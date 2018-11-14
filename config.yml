@@ -5,6 +5,7 @@
 run_blastx: False
 
 # Upload results to zenodo
+# For upload, setup ZENODO_PAT environment variable for access_token
 zenodo:
     deposition_id: None
 

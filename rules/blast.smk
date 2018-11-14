@@ -100,9 +100,13 @@ rule filter_viruses:
 
 rule upload_phages:
     input:
-      expand("results/{{sample}}_phages_{n}.csv", n = list(range(1, n_files + 1, 1))) if config["zenodo"]["deposition_id"]
+      expand("results/{{sample}}_phages_{n}.csv", n = list(range(1, n_files + 1, 1)))
+    output:
+      touch("logs/{sample}_upload_phages.done") if config["zenodo"]["deposition_id"]
     params:
       config["zenodo"]["deposition_id"]
+    conda:
+      "../envs/upload.yml"
     script:
       "../scripts/zenodo_upload.py"
 
