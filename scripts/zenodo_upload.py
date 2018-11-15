@@ -5,6 +5,9 @@ import re
 from subprocess import Popen
 import hashlib
 
+if not os.environ['ZENODO_PAT']:
+      raise ValueError("Missing ZENODO_PAT environment variable with zenodo access token!")
+
 def md5(fname):
     hash_md5 = hashlib.md5()
     with open(fname, "rb") as f:
