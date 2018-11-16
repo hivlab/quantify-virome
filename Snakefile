@@ -8,13 +8,7 @@ include: "rules/common.smk"
 
 ## Main output files
 file_ids = list(range(1, n_files + 1, 1))
-outputs = expand([
-        "results/{sample}_phages_{n}.csv",
-        "results/{sample}_unassigned_{n}.fa",
-        "results/{sample}_phages_blasted_{n}.csv",
-        "results/{sample}_viruses_blasted_{n}.csv"],
-        sample = sample_ids, n = file_ids),
-        expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
+outputs = expand(["results/{sample}_phages_{n}.csv", "results/{sample}_unassigned_{n}.fa", "results/{sample}_phages_blasted_{n}.csv", "results/{sample}_viruses_blasted_{n}.csv"], sample = sample_ids, n = file_ids) + expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
 
 ## Target rules
 rule all:
