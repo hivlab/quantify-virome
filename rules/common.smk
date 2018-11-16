@@ -11,6 +11,7 @@ configfile: "config.yml"
 samples = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dtype = str)
 sample_ids = samples.index.values.tolist()
 n_files = config["split_fasta"]["n_files"]
+N = list(range(1, n_files + 1, 1))
 
 # Create slurm logs dir
 if not os.path.exists("logs/slurm"):

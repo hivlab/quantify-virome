@@ -32,7 +32,7 @@ rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    expand("mask/{{sample}}_repeatmasker_{n}.fa", n = list(range(1, n_files + 1, 1)))
+    expand("mask/{{sample}}_repeatmasker_{n}.fa", n = N)
   params:
     config["split_fasta"]["n_files"]
   conda:
