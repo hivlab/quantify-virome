@@ -102,7 +102,7 @@ rule upload_phages:
     input:
       expand("results/{{sample}}_phages_{n}.csv", n = list(range(1, n_files + 1, 1)))
     output:
-      temp("results/{sample}_phages.csv.tar.gz") if config["zenodo"]["deposition_id"] else None
+      temp("results/{sample}_phages.csv.tar.gz") if config["zenodo"]["deposition_id"] else "{input}"
     params:
       config["zenodo"]["deposition_id"]
     conda:
