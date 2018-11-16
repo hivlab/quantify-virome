@@ -40,8 +40,6 @@ params = {'access_token': os.environ['ZENODO_PAT']}
 r = requests.get(url, params = params)
 filename = [deposit['filename'] for deposit in r.json()]
 
-print(filename)
-
 # Upload, if file is not present
 if os.path.basename(zipfile) not in filename:
     with open(zipfile, "rb") as handle:
@@ -53,4 +51,4 @@ if os.path.basename(zipfile) not in filename:
                 raise requests.HTTPError(f"Error in data upload, status code: {r.status_code}   {r.json()['message']}")
 
 else:
-    print("File {} is already uploaded as {}".format(zipfile, [f for f in list(filename) if f == os.path.basename(list(filename))][0]))
+    print("File {} is already uploaded!".format(os.path.basename(zipfile)))
