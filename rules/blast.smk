@@ -98,6 +98,18 @@ rule filter_viruses:
   script:
     "../scripts/filter_viruses.R"
 
+rule upload_phages:
+    input:
+      expand("results/{{sample}}_phages_{n}.csv", n = N)
+    output:
+      temp("results/{sample}_phages.csv.tar.gz") if config["zenodo"]["deposition_id"] else expand("results/{{sample}}_phages_{n}.csv", n = N)
+    params:
+      config["zenodo"]["deposition_id"]
+    conda:
+      "../envs/upload.yml"
+    script:
+      "../scripts/zenodo_upload.py"
+
 ## Get unmasked candidate viral sequences
 rule unmasked_viral:
     input:
@@ -272,3 +284,28 @@ rule filter_blasted_viruses:
     "../envs/tidyverse.yml"
   script:
     "../scripts/filter_viruses.R"
+
+rule upload_phages_blasted:
+    input:
+      expand("results/{{sample}}_phages_blasted_{n}.csv", n = N)
+    output:
+      temp("results/{sample}_phages_blasted.csv.tar.gz") if config["zenodo"]["deposition_id"] else expand("results/{{sample}}_phages_blasted_{n}.csv", n = N)
+    params:
+      config["zenodo"]["deposition_id"]
+    conda:
+      "../envs/upload.yml"
+    script:
+      "../scripts/zenodo_upload.py"
+
+rule upload_viruses_blasted:
+    input:
+      expand("results/{{sample}}_viruses_blasted_{n}.csv", n = N)
+    output:
+      temp("results/{sample}_viruses_blasted.csv.tar.gz") if config["zenodo"]["deposition_id"] else expand("results/{{sample}}_viruses_blasted_{n}.csv", n = N)
+    params:
+      config["zenodo"]["deposition_id"]
+    conda:
+      "../envs/upload.yml"
+    script:
+      "../scripts/zenodo_upload.py"
+
