@@ -43,7 +43,7 @@ filename = [deposit['filename'] for deposit in r.json()]
 print(filename)
 
 # Upload, if file is not present
-if zipfile not in filename:
+if os.path.basename(zipfile) not in filename:
     with open(zipfile, "rb") as handle:
         r = requests.post(url, params = params,
                           data = {'filename': str(zipfile)},
