@@ -2,11 +2,11 @@ import os
 import requests
 import gzip
 import re
-from subprocess import Popen
+from subprocess import Popen, PIPE
 import hashlib
 
 if not os.environ['ZENODO_PAT']:
-      raise ValueError("Missing ZENODO_PAT environment variable with zenodo access token!")
+      raise ValueError("Missing ZENODO_PAT environment variable with zenodo API access token!")
 
 def md5(fname):
     hash_md5 = hashlib.md5()
@@ -22,22 +22,29 @@ deposition_id = snakemake.params[0]
 files = snakemake.input
 zipfile = list(set([re.sub("_\d+", "", file) for file in files]))[0] + ".tar.gz"
 cmd = ['tar', '-cvzf', zipfile] + files
-p = Popen(cmd)
+p = Popen(cmd, stdout = PIPE, stderr = PIPE)
+stout, stderr = p.communicate()
 
 # Check if file is present
 # calculate md5 checksum for local file
 hash = md5(zipfile)
 
+# Compose files query and upload url
+base_url = 'https://zenodo.org/api'
+url = os.path.join(base_url, 'deposit/depositions/{}/files'.format(deposition_id))
+
+# Setup access token
+params = {'access_token': os.environ['ZENODO_PAT']}
+
 # Get info for remote files
-r = requests.get('https://zenodo.org/api/deposit/depositions/{}/files'.format(deposition_id),
-                        params={'access_token': os.environ['ZENODO_PAT']})
+r = requests.get(url, params = params)
 fchk = [{deposit['filename'], deposit['checksum']} for deposit in r.json()]
 filename, checksum = zip(*fchk)
 
+# Upload, if file is not present
 if hash not in list(checksum):
     with open(zipfile, "rb") as handle:
-        r = requests.post('https://zenodo.org/api/deposit/depositions/{}/files'.format(deposition_id),
-                          params = {'access_token': os.environ['ZENODO_PAT']},
+        r = requests.post(url, params = params,
                           data = {'filename': str(zipfile)},
                           files = {'file': handle})
 
