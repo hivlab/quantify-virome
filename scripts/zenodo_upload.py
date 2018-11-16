@@ -38,12 +38,12 @@ params = {'access_token': os.environ['ZENODO_PAT']}
 
 # Get info for remote files
 r = requests.get(url, params = params)
-checksum = [deposit['checksum'] for deposit in r.json()]
+filename = [deposit['filename'] for deposit in r.json()]
 
-print(hash)
+print(filename)
 
 # Upload, if file is not present
-if hash not in checksum:
+if zipfile not in filename:
     with open(zipfile, "rb") as handle:
         r = requests.post(url, params = params,
                           data = {'filename': str(zipfile)},
