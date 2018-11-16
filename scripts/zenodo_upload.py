@@ -51,4 +51,4 @@ if os.path.basename(zipfile) not in filename:
                 raise requests.HTTPError(f"Error in data upload, status code: {r.status_code}   {r.json()['message']}")
 
 else:
-    print("File {} is already uploaded!".format(os.path.basename(zipfile)))
+    print("Doing nothing. File {} is already uploaded!\nPlease delete local and remote copy of the file\nif you wish to upload new version.".format(os.path.basename(zipfile)))
