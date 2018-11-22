@@ -5,7 +5,7 @@ rule prepare_taxonomy_data:
   output:
       expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
   conda:
-    "../envs/tidyverse.yml"
+    "../envs/tidyverse.yaml"
   script:
     "../scripts/prepare_taxonomy_data.R"
 
@@ -27,7 +27,7 @@ rule blastn_virus:
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/blast.py"
 
@@ -43,7 +43,7 @@ rule parse_blastn_virus:
       query = rules.parse_megablast.output.unmapped,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/parse_blast.py"
 
@@ -63,7 +63,7 @@ rule blastx_virus:
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/blast.py"
 
@@ -79,7 +79,7 @@ rule parse_blastx_virus:
       query = rules.blastx_virus.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/parse_blast.py"
 
@@ -94,7 +94,7 @@ rule filter_viruses:
     phages = "results/{sample}_phages_{n}.csv",
     viruses = "blast/{sample}_candidate_viruses_{n}.csv"
   conda:
-    "../envs/tidyverse.yml"
+    "../envs/tidyverse.yaml"
   script:
     "../scripts/filter_viruses.R"
 
@@ -106,7 +106,7 @@ rule upload_phages:
     params:
       config["zenodo"]["deposition_id"]
     conda:
-      "../envs/upload.yml"
+      "../envs/upload.yaml"
     script:
       "../scripts/zenodo_upload.py"
 
@@ -118,7 +118,7 @@ rule unmasked_viral:
     output:
       "blast/{sample}_candidate_viruses_{n}_unmasked.fa"
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/unmasked_viral.py"
 
@@ -133,7 +133,7 @@ rule bwa_map_refbac:
       "logs/{sample}_bwa_map_refbac_{n}.log"
     threads: 8
     conda:
-      "../envs/bwa-sam-bed.yml"
+      "../envs/bwa-sam-bed.yaml"
     shell:
       "bwa mem -k 15 -t {threads} {input} > {output} 2> {log}"
 
@@ -145,7 +145,7 @@ rule refbac_unmapped:
       fq = "blast/{sample}_bac_unmapped_{n}.fq",
       fa = "blast/{sample}_bac_unmapped_{n}.fa"
     conda:
-      "../envs/bwa-sam-bed.yml"
+      "../envs/bwa-sam-bed.yaml"
     shell:
       """
       samtools view -b -S -f 4 {input} > {output.bam}
@@ -161,7 +161,7 @@ rule refbac_unmapped_masked:
     output:
       "blast/{sample}_bac_unmapped_{n}_masked.fa"
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/unmapped_masked_ids.py"
 
@@ -181,7 +181,7 @@ rule megablast_nt:
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/blast.py"
 
@@ -197,7 +197,7 @@ rule parse_megablast_nt:
       query = rules.refbac_unmapped_masked.output,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/parse_blast.py"
 
@@ -216,7 +216,7 @@ rule blastn_nt:
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/blast.py"
 
@@ -232,7 +232,7 @@ rule parse_blastn_nt:
       query = rules.blastn_nt.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/parse_blast.py"
 
@@ -251,7 +251,7 @@ rule blastx_nr:
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/blast.py"
 
@@ -267,7 +267,7 @@ rule parse_blastx_nr:
       query = rules.blastx_nr.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/parse_blast.py"
 
@@ -281,7 +281,7 @@ rule filter_blasted_viruses:
     phages = "results/{sample}_phages_blasted_{n}.csv",
     viruses = "results/{sample}_viruses_blasted_{n}.csv"
   conda:
-    "../envs/tidyverse.yml"
+    "../envs/tidyverse.yaml"
   script:
     "../scripts/filter_viruses.R"
 
@@ -293,7 +293,7 @@ rule upload_phages_blasted:
     params:
       config["zenodo"]["deposition_id"]
     conda:
-      "../envs/upload.yml"
+      "../envs/upload.yaml"
     script:
       "../scripts/zenodo_upload.py"
 
@@ -305,7 +305,7 @@ rule upload_viruses_blasted:
     params:
       config["zenodo"]["deposition_id"]
     conda:
-      "../envs/upload.yml"
+      "../envs/upload.yaml"
     script:
       "../scripts/zenodo_upload.py"
 

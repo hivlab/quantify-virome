@@ -20,6 +20,6 @@ rule virus_nt_taxonomy_report:
     params:
       lambda wildcards: wildcards.sample
     conda:
-      "../envs/tidyverse.yml"
+      "../envs/tidyverse.yaml"
     script:
       "../scripts/taxonomy_report.Rmd"

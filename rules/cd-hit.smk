@@ -14,7 +14,7 @@ rule cd_hit:
     "-c 0.984 -G 0 -n 8 -d 0 -aS 0.984 -g 1 -r 1 -M 0"
   threads: 8
   conda:
-    "../envs/cd-hit.yml"
+    "../envs/cd-hit.yaml"
   shell:
     """
     zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
