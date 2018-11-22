@@ -15,7 +15,7 @@ def downsample(wildcards):
 # Quality filtering
 rule fastp:
     input:
-      lambda wildcards: FTP.remote(get_fastq(wildcards)) if config["remote"] else get_fastq(wildcards)
+      lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close = True) if config["remote"] else get_fastq(wildcards)
     output:
       pair1 = "munge/{sample}_pair1_trimmed.fq.gz",
       pair2 = "munge/{sample}_pair2_trimmed.fq.gz",
