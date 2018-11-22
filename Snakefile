@@ -15,7 +15,7 @@ shell.executable("bash")
 
 ## Load configuration file with sample and path info
 configfile: "config.yaml"
-SAMPLES = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dtype = str)
+SAMPLES = pd.read_table(config["samples"], sep = "\s+").set_index("sample", drop=False)
 validate(SAMPLES, "samples.schema.yaml")
 SAMPLE_IDS = SAMPLES.index.values.tolist()
 N_FILES = config["split_fasta"]["n_files"]
