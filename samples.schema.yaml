@@ -11,7 +11,7 @@ properties:
     type: string
     description: path to fastq(.gz) pair 2 file
   frac:
-    type: number
+    type: string
     default: 1
     description: a number between 0 and 1 that indicates proportion of reads to sample from fastq file. No subsampling with 0 or >=1
 

@@ -6,7 +6,7 @@ def get_fastq(wildcards):
   return list(urls)
 
 def downsample(wildcards):
-  return float(SAMPLES.loc[wildcards.sample, ['frac']][0])
+  return SAMPLES.loc[wildcards.sample, ['frac']][0]
 
 ## Preprocessing for fastq files
 # Imports local or remote fastq(.gz) files
