@@ -5,7 +5,7 @@ rule tantan:
   output:
     "mask/{sample}_tantan.fasta"
   conda:
-      "../envs/tantan.yml"
+      "../envs/tantan.yaml"
   shell:
     """
     tantan -x N {input} > {output}
@@ -23,7 +23,7 @@ rule tantan_good:
     min_length = 50,
     por_n = 40
   conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
   script:
       "../scripts/filter_masked.py"
 
@@ -36,7 +36,7 @@ rule split_fasta:
   params:
     config["split_fasta"]["n_files"]
   conda:
-    "../envs/biopython.yml"
+    "../envs/biopython.yaml"
   script:
     "../scripts/split_fasta.py"
 
@@ -45,7 +45,7 @@ os.environ['REPEATMASKER_REPBASE_FILE']=config["repbase_file"]
 ## Repeatmasker [9]
 # Outputs are generated from input file names by RepeatMasker
 # must have file extension '.masked'
-# If no repetitive sequences were detected symlink output to input file
+# If no repetitive sequences were detected syamlink output to input file
 rule repeatmasker:
   input:
     fa = "mask/{sample}_repeatmasker_{n}.fa"
@@ -56,7 +56,7 @@ rule repeatmasker:
   params:
     outdir = "mask"
   threads: 8
-  conda: "../envs/repeatmasker.yml"
+  conda: "../envs/repeatmasker.yaml"
   shell:
     """
     RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
@@ -80,6 +80,6 @@ rule repeatmasker_good:
     min_length = 50,
     por_n = 40
   conda:
-    "../envs/biopython.yml"
+    "../envs/biopython.yaml"
   script:
     "../scripts/filter_masked.py"

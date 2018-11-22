@@ -10,11 +10,13 @@ import json
 import glob
 import pandas as pd
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
+from snakemake.utils import validate
 shell.executable("bash")
 
 ## Load configuration file with sample and path info
-configfile: "config.yml"
+configfile: "config.yaml"
 SAMPLES = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dtype = str)
+validate(SAMPLES, "samples.schema.yaml")
 SAMPLE_IDS = SAMPLES.index.values.tolist()
 N_FILES = config["split_fasta"]["n_files"]
 N = list(range(1, N_FILES + 1, 1))

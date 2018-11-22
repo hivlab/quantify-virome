@@ -30,7 +30,7 @@ rule fastp:
     threads: 8
     log: "logs/{sample}_fastp.log"
     conda:
-      "../envs/fastp.yml"
+      "../envs/fastp.yaml"
     shell:
       """
       if (( $(echo "{params.frac} > 0" | bc) )) && (( $(echo "{params.frac} < 1" | bc) )) ; then
@@ -60,7 +60,7 @@ rule fastq_join:
     overlap = config["fastq-join"]["minimum_overlap"],
     template = "munge/{sample}_%.fq.gz"
   conda:
-    "../envs/fastq-join.yml"
+    "../envs/fastq-join.yaml"
   log:
     "logs/{sample}_fastq_join.log"
   shell:

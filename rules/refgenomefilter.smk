@@ -12,7 +12,7 @@ rule refgenome_unmapped:
         "logs/{sample}_bwa_map_refgenome_{n}.log"
     threads: 8
     conda:
-      "../envs/bwa-sam-bed.yml"
+      "../envs/bwa-sam-bed.yaml"
     shell:
       """
         (bwa mem -L 100,100 -k 15 -t {threads} {input} | samtools view -b -S -f 4 - > {output.bam}) 2> {log}
@@ -26,7 +26,7 @@ rule refgenome_unmapped_masked:
     output:
       "refgenomefilter/{sample}_refgenome_unmapped_{n}_masked.fa"
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/unmapped_masked_ids.py"
 
@@ -47,7 +47,7 @@ rule megablast_refgenome:
       num_threads = 8,
       outfmt = "'6 qseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/blast.py"
 
@@ -63,6 +63,6 @@ rule parse_megablast:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
     conda:
-      "../envs/biopython.yml"
+      "../envs/biopython.yaml"
     script:
       "../scripts/parse_blast.py"
