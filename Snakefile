@@ -4,16 +4,30 @@ __copyright__ = "Copyright 2018, Avilab"
 __email__ = "taavi.pall@ut.ee"
 __license__ = "MIT"
 
-include: "rules/common.smk"
+## Load libraries
+import os
+import json
+import glob
+import pandas as pd
+shell.executable("bash")
 
-## Main output files
-file_ids = list(range(1, n_files + 1, 1))
-outputs = expand(["results/{sample}_phages_{n}.csv", "results/{sample}_unassigned_{n}.fa", "results/{sample}_phages_blasted_{n}.csv", "results/{sample}_viruses_blasted_{n}.csv"], sample = sample_ids, n = file_ids) + expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
+## Load configuration file with sample and path info
+configfile: "config.yml"
+SAMPLES = pd.read_table(config["samples"], sep = "\s+", index_col = "sample", dtype = str)
+SAMPLE_IDS = samples.index.values.tolist()
+N_FILES = config["split_fasta"]["n_files"]
+N = list(range(1, N_FILES + 1, 1))
 
-## Target rules
+## Create slurm logs dir
+if not os.path.exists("logs/slurm"):
+    os.makedirs("logs/slurm")
+
+## Main output files and Target rules
+OUTPUTS = expand(["results/{sample}_phages_{n}.csv", "results/{sample}_unassigned_{n}.fa", "results/{sample}_phages_blasted_{n}.csv", "results/{sample}_viruses_blasted_{n}.csv"], sample = SAMPLE_IDS, n = N) + expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
+
 rule all:
     input:
-        outputs, expand("results/{sample}_phages.csv.tar.gz", sample = sample_ids) if config["zenodo"]["deposition_id"] else outputs
+        OUTPUTS, expand("results/{sample}_phages.csv.tar.gz", sample = SAMPLE_IDS) if config["zenodo"]["deposition_id"] else OUTPUTS
 
 ## Modules
 include: "rules/munge.smk"
