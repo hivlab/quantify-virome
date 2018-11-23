@@ -12,7 +12,7 @@ def get_fastq(wildcards):
 # Quality filtering
 rule fastp:
   input:
-    FTP.remote(get_fastq, immediate_close = True) if config["remote"] else get_fastq
+    lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close = True) if config["remote"] else get_fastq
   output:
     pair1 = "munge/{sample}_pair1_trimmed.fq.gz",
     pair2 = "munge/{sample}_pair2_trimmed.fq.gz",
