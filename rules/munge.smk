@@ -5,9 +5,6 @@ def get_fastq(wildcards):
   urls = SAMPLES.loc[wildcards.sample, ['fq1', 'fq2']]
   return list(urls)
 
-def downsample(wildcards):
-  return SAMPLES.loc[wildcards.sample, ['frac']][0]
-
 ## Preprocessing for fastq files
 # Imports local or remote fastq(.gz) files
 # Downsamples runs based on user-provided fractions in samples.tsv file
@@ -15,7 +12,7 @@ def downsample(wildcards):
 # Quality filtering
 rule fastp:
   input:
-    FTP.remote(get_fastq(wildcards), immediate_close = True) if config["remote"] else get_fastq(wildcards)
+    FTP.remote(get_fastq, immediate_close = True) if config["remote"] else get_fastq
   output:
     pair1 = "munge/{sample}_pair1_trimmed.fq.gz",
     pair2 = "munge/{sample}_pair2_trimmed.fq.gz",
@@ -24,7 +21,7 @@ rule fastp:
     sub1 = temp("munge/{sample}_sub1.fq.gz"),
     sub2 = temp("munge/{sample}_sub2.fq.gz")
   params:
-    frac = downsample(wildcards),
+    frac = lambda wildcards: SAMPLES.loc[wildcards.sample, ['frac']][0],
     seed = config["seed"],
     fastp = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8"
   threads: 8
