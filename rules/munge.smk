@@ -15,7 +15,7 @@ def downsample(wildcards):
 # Quality filtering
 rule fastp:
   input:
-    lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close = True) if config["remote"] else get_fastq(wildcards)
+    FTP.remote(get_fastq(wildcards), immediate_close = True) if config["remote"] else get_fastq(wildcards)
   output:
     pair1 = "munge/{sample}_pair1_trimmed.fq.gz",
     pair2 = "munge/{sample}_pair2_trimmed.fq.gz",
@@ -24,7 +24,7 @@ rule fastp:
     sub1 = temp("munge/{sample}_sub1.fq.gz"),
     sub2 = temp("munge/{sample}_sub2.fq.gz")
   params:
-    frac = lambda wildcards: downsample(wildcards),
+    frac = downsample(wildcards),
     seed = config["seed"],
     fastp = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8"
   threads: 8
