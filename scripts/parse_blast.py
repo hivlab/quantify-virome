@@ -26,9 +26,9 @@ def parse_blast(blast_result, query, e_cutoff, outfmt, mapped, unmapped):
     known_ids = set()
     touch(mapped)
   else:
-    # Import column names, replace std when present
-    std = 'qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore'
-    colnames = list(filter(lambda x: '6' not in x, outfmt.replace('std', std).split()))
+    # Import column names, replace std when present, remove double quote
+    std = "'qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
+    colnames = list(filter(lambda x: '6' not in x, outfmt.replace('std', std).replace("'", "").split()))
     # Assign column names
     tab.columns = colnames
     # Filter results
