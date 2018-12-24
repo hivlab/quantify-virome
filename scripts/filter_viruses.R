@@ -10,6 +10,17 @@ query_taxid <- function(gi) {
   rvest::xml_node(cont, xpath = "//TSeq_taxid") %>% xml2::xml_text()
 }
 
+#' @param gids GenInfo Identifier (GI), a character (or integer) vector.
+#' @param api_key ncbi api key, a character string. Set to NULL for no key.
+get_taxid <- function(gids, api_key) {
+  res <- httr::GET("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi", query = list(db = "nucleotide", id = paste0(gids, collapse = ";"), rettype = "fasta", retmode = "xml", api_key = api_key))
+  cont <- httr::content(res, as = "parsed", encoding = "UTF-8")
+  xml2::xml_children(cont) %>%
+    purrr::map(xml2::xml_find_first, ".//TSeq_taxid") %>%
+    purrr::map(xml2::xml_text) %>%
+    unlist()
+}
+
 #' Import and parse BLAST+ tabular output to data_frame
 #' @param ... path to BLAST+ tabular output, a character vector.
 parse_blast_tsv <- function(...) {
@@ -41,13 +52,14 @@ empty_blast_tsv_tab <- function() {
 #' Parse blast output safely, in case of error output empty blast_tabular dataframe
 parse_blast_tsv_safe <- purrr::safely(parse_blast_tsv, otherwise = empty_blast_tsv_tab())
 
-gi2taxid <- function(tab, taxdb) {
+gi2taxid <- function(tab, taxdb, api_key) {
   UseMethod("gi2taxid", tab)
 }
 
 #' @param tab data_frame with parsed blast results of class blast_tabular.
 #' @param taxdb sqlite database with gi_taxid_nucl and gi_taxid_prot tables.
-gi2taxid.blast_tabular <- function(tab, taxdb) {
+#' @param api_key ncbi API key, a character string, defaults to NULL.
+gi2taxid.blast_tabular <- function(tab, taxdb, api_key) {
 
   mapped_gis <- tab$gi
 
@@ -73,7 +85,7 @@ gi2taxid.blast_tabular <- function(tab, taxdb) {
   with_taxid <- dplyr::filter(known, !is.na(tax_id))
   no_taxid <- dplyr::filter(known, is.na(tax_id))
 
-  query <- dplyr::mutate(no_taxid, tax_id = purrr::map_chr(gi, query_taxid)) %>%
+  query <- dplyr::mutate(no_taxid, tax_id = get_taxid(gi, api_key = api_key)) %>%
     dplyr::select(gi, tax_id) %>%
     dplyr::mutate_at("tax_id", as.integer)
 
@@ -117,7 +129,7 @@ filter_division.blast_results_taxids <- function(tab, nodes, div_id, div, not_di
 #' @param viruses path to output file for virus hits, character string
 #' @div_id taxonomy divition id, integer.
 #'
-blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3) {
+blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3, api_key = NULL) {
 
   message("Parse blast results\n")
   dots <- c(...)
@@ -129,10 +141,10 @@ blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3) {
   if (!is.null(tab$error) && !stringr::str_detect(tab$error$message, "No BLAST hits to parse")) stop(tab$error)
 
   message("Map tax_ids to gis\n")
-  tab <- gi2taxid(tab$result, taxdb)
+  tab <- gi2taxid(tab$result, taxdb, api_key)
 
   message("Filter phages (division_id == 3) and save results to csv files\n")
   filter_division(tab = tab, nodes = nodes, div = phages, not_div = viruses, div_id = div_id)
 }
 
-do.call(blast_taxonomy, c(snakemake@input, snakemake@output))
+do.call(blast_taxonomy, c(snakemake@input, snakemake@output, snakemake@params))

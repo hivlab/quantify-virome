@@ -23,6 +23,20 @@ run_blastx: False
 zenodo:
     deposition_id:
 
+# Query gi tax_id-s from NCBI
+# "On December 1, 2018, NCBI will begin enforcing the use of API keys that will
+# offer enhanced levels of supported access to the E-utilities. After that date,
+#  any site (IP address) posting more than 3 requests per second to the
+#  E-utilities without an API key will receive an error message. By including
+#  an API key, a site can post up to 10 requests per second by default.
+#  Higher rates are available by request (vog.hin.mln.ibcn@seitilitue).
+#  Users can obtain an API key now from the Settings page of their NCBI account
+#  (to create an account, visit http://www.ncbi.nlm.nih.gov/account/).
+#  After creating the key, users should include it in each E-utility request
+#  by assigning it to the new api_key parameter."
+ncbi:
+    api_key:
+
 # Split fasta
 split_fasta:
     n_files: 2
