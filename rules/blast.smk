@@ -106,7 +106,7 @@ if config["zenodo"]["deposition_id"]:
         input:
           expand("results/{{sample}}_phages_{n}.csv", n = N)
         output:
-          temp("results/{sample}_phages.csv.tar.gz")
+          "results/{sample}_phages.csv.tar.gz"
         params:
           config["zenodo"]["deposition_id"]
         conda:
@@ -297,7 +297,7 @@ if config["zenodo"]["deposition_id"]:
         input:
           expand("results/{{sample}}_phages_blasted_{n}.csv", n = N)
         output:
-          temp("results/{sample}_phages_blasted.csv.tar.gz")
+          "results/{sample}_phages_blasted.csv.tar.gz"
         params:
           config["zenodo"]["deposition_id"]
         conda:
@@ -309,7 +309,7 @@ if config["zenodo"]["deposition_id"]:
         input:
           expand("results/{{sample}}_viruses_blasted_{n}.csv", n = N)
         output:
-          temp("results/{sample}_viruses_blasted.csv.tar.gz")
+          "results/{sample}_viruses_blasted.csv.tar.gz"
         params:
           config["zenodo"]["deposition_id"]
         conda:
