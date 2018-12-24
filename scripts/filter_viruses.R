@@ -12,9 +12,14 @@ query_taxid <- function(gi) {
 
 #' @param gids GenInfo Identifier (GI), a character (or integer) vector.
 #' @param api_key ncbi api key, a character string. Set to NULL for no key.
-get_taxid <- function(gids, api_key) {
+get_taxid <- function(gids) {
+  if (Sys.getenv("NCBI_API_KEY") == "") {
+    warning("NCBI_API_KEY environment variable not set.\nPosting more than 3 requests per second to the NCBI E-utilities without an API key will receive an error message. API key can be obtained from the Settings page of their NCBI account (to create an account, visit http://www.ncbi.nlm.nih.gov/account/).\n")
+    api_key <- NULL
+  } else {
+    api_key <- Sys.getenv("NCBI_API_KEY")
+  }
   res <- httr::GET("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi", query = list(db = "nucleotide", id = paste0(gids, collapse = ";"), rettype = "fasta", retmode = "xml", api_key = api_key))
-  stop_for_status(res, task = "get tax_ids from ncbi")
   cont <- httr::content(res, as = "parsed", encoding = "UTF-8")
   xml2::xml_children(cont) %>%
     purrr::map(xml2::xml_find_first, ".//TSeq_taxid") %>%
