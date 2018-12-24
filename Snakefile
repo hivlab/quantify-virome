@@ -31,7 +31,7 @@ OUTPUTS = expand(["results/{sample}_phages_{n}.csv", "results/{sample}_unassigne
 
 rule all:
     input:
-        OUTPUTS, expand("results/{sample}_phages.csv.tar.gz", sample = SAMPLE_IDS) if config["zenodo"]["deposition_id"] else OUTPUTS
+        OUTPUTS, expand("results/{sample}_{results}.csv.tar.gz", sample = SAMPLE_IDS, results = ["phages", "phages_blasted", "viruses_blasted"]) if config["zenodo"]["deposition_id"] else OUTPUTS
 
 ## Modules
 include: "rules/munge.smk"
