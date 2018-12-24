@@ -93,6 +93,8 @@ rule filter_viruses:
   output:
     phages = "results/{sample}_phages_{n}.csv",
     viruses = "blast/{sample}_candidate_viruses_{n}.csv"
+  params:
+    api_key = config["ncbi"]["api_key"] if config["ncbi"]["api_key"] else None
   conda:
     "../envs/tidyverse.yaml"
   script:
@@ -282,6 +284,8 @@ rule filter_blasted_viruses:
   output:
     phages = "results/{sample}_phages_blasted_{n}.csv",
     viruses = "results/{sample}_viruses_blasted_{n}.csv"
+  params:
+    api_key = config["ncbi"]["api_key"] if config["ncbi"]["api_key"] else None
   conda:
     "../envs/tidyverse.yaml"
   script:
