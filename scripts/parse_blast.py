@@ -28,13 +28,17 @@ def parse_blast(blast_result, query, e_cutoff, outfmt, mapped, unmapped):
   else:
     # Import column names, replace std when present, remove double quote
     std = "'qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
-    colnames = list(filter(lambda x: '6' not in x, outfmt.replace('std', std).replace("'", "").split()))
+    # Munge outfmt string
+    outfmt = outfmt.replace("std", std)
+    outfmt = outfmt.replace("'", "")
+    # Get colnames from outfmt string
+    colnames = list(filter(lambda x: '6' not in x, outfmt.split()))
     # Assign column names
     tab.columns = colnames
     # Filter results
     known = tab[(tab.evalue <= e_cutoff)]
     # Write seqs below threshold to file
-    known.to_csv(mapped, sep = '\t', encoding = 'utf-8', index = False)
+    known.to_csv(mapped, sep = '\t', encoding = "utf-8", index = False)
     known_ids = set(known.qseqid)
   # Subset blast input
   with open(unmapped, "w") as out:
