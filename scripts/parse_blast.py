@@ -32,7 +32,7 @@ def parse_blast_result(blast_result, query, e_cutoff, outfmt, mapped, unmapped):
     outfmt = outfmt.replace("std", std)
     outfmt = outfmt.replace("'", "")
     # Get colnames from outfmt string
-    colnames = list(filter(lambda x: '6' not in x, outfmt.split()))
+    colnames = [colname for colname in outfmt.split() if "6" not in colname]
     # Assign column names
     tab.columns = colnames
     # Filter results
