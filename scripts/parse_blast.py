@@ -19,7 +19,7 @@ def read_data(file):
         df = pd.DataFrame()
     return df
 
-def parse_blast_tab(blast_result, query, e_cutoff, outfmt, mapped, unmapped):
+def parse_blast_result(blast_result, query, e_cutoff, outfmt, mapped, unmapped):
   # Import blast output table
   tab = read_data(blast_result)
   if len(tab.index) == 0:
@@ -52,6 +52,6 @@ def run_parse_blast(input, output, params):
   options.update(output)
   options.update(params)
   # Unwrap arguments and run function
-  parse_blast_tab(**options)
+  parse_blast_result(**options)
 
 run_parse_blast(snakemake.input, snakemake.output, snakemake.params)
