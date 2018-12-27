@@ -54,4 +54,5 @@ def run_parse_blast(input, output, params):
   # Unwrap arguments and run function
   parse_blast_result(**options)
 
-run_parse_blast(snakemake.input, snakemake.output, snakemake.params)
+if __name__ == '__main__':
+    run_parse_blast(snakemake.input, snakemake.output, snakemake.params)
