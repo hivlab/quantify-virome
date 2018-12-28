@@ -198,10 +198,8 @@ rule parse_megablast_nt:
       e_cutoff = 1e-10,
       query = rules.refbac_unmapped_masked.output,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/parse-blast"
 
 ## Blastn against NT database
 rule blastn_nt:
@@ -233,10 +231,8 @@ rule parse_blastn_nt:
       e_cutoff = 1e-10,
       query = rules.blastn_nt.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/parse-blast"
 
 ## Blastx unmapped sequences against NR virus database
 rule blastx_nr:
