@@ -33,11 +33,11 @@ rule refgenome_unmapped_masked:
 ## MegaBlast against reference genome to remove host sequences
 rule megablast_refgenome:
     input:
-      db = config["ref_genome"],
       query = rules.refgenome_unmapped_masked.output
     output:
       out = "refgenomefilter/{sample}_megablast_{n}.tsv"
     params:
+      db = config["ref_genome"],
       task = "megablast",
       perc_identity = config["megablast_ref_genome"]["perc_identity"],
       evalue = config["megablast_ref_genome"]["evalue"],
@@ -46,10 +46,8 @@ rule megablast_refgenome:
       show_gis = True,
       num_threads = 8,
       outfmt = "'6 qseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter megablast records for the cutoff value
 rule parse_megablast:
@@ -62,7 +60,5 @@ rule parse_megablast:
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]

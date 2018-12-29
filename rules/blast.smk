@@ -26,26 +26,22 @@ rule blastn_virus:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter blastn records for the cutoff value
 rule parse_blastn_virus:
     input:
+      query = rules.parse_megablast.output.unmapped,
       blast_result = rules.blastn_virus.output.out
     output:
       mapped = "blast/{sample}_blastn_virus_{n,\d+}_known-viral.tsv",
       unmapped = "blast/{sample}_blastn_virus_{n,\d+}_unmapped.fa"
     params:
       e_cutoff = 1e-5,
-      query = rules.parse_megablast.output.unmapped,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]
 
 ## Blastx unmapped sequences against NR virus database
 rule blastx_virus:
@@ -62,26 +58,22 @@ rule blastx_virus:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter blastn records for the cutoff value
 rule parse_blastx_virus:
     input:
+      query = rules.blastx_virus.input.query,
       blast_result = rules.blastx_virus.output.out
     output:
       mapped = "blast/{sample}_blastx_virus_{n}_known-viral.tsv",
       unmapped = "blast/{sample}_blastx_virus_{n}_unmapped.fa"
     params:
       e_cutoff = 1e-3,
-      query = rules.blastx_virus.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]
 
 ## Filter out phage sequences
 rule filter_viruses:
@@ -182,26 +174,22 @@ rule megablast_nt:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter megablast records for the cutoff value
 rule parse_megablast_nt:
     input:
+      query = rules.refbac_unmapped_masked.output,
       blast_result = rules.megablast_nt.output.out
     output:
       mapped = "blast/{sample}_megablast_nt_{n,\d+}_mapped.tsv",
       unmapped = "blast/{sample}_megablast_nt_{n,\d+}_unmapped.fa"
     params:
       e_cutoff = 1e-10,
-      query = rules.refbac_unmapped_masked.output,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]
 
 ## Blastn against NT database
 rule blastn_nt:
@@ -217,26 +205,22 @@ rule blastn_nt:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter blastn records for the cutoff value
 rule parse_blastn_nt:
     input:
+      query = rules.blastn_nt.input.query,
       blast_result = rules.blastn_nt.output.out
     output:
       mapped = "blast/{sample}_blastn_nt_{n,\d+}_mapped.tsv",
       unmapped = "blast/{sample}_blastn_nt_{n,\d+}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n,\d+}.fa"
     params:
       e_cutoff = 1e-10,
-      query = rules.blastn_nt.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]
 
 ## Blastx unmapped sequences against NR virus database
 rule blastx_nr:
@@ -252,26 +236,22 @@ rule blastx_nr:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter blastn records for the cutoff value
 rule parse_blastx_nr:
     input:
+      query = rules.blastx_nr.input.query,
       blast_result = rules.blastx_nr.output.out
     output:
       mapped = "blast/{sample}_blastx_nr_{n,\d+}_mapped.tsv",
       unmapped = "results/{sample}_unassigned_{n,\d+}.fa" if config["run_blastx"] else "{sample}_None_{n}"
     params:
       e_cutoff = 1e-3,
-      query = rules.blastx_nr.input.query,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]
 
 ## Filter out virus and phage sequences
 rule filter_blasted_viruses:

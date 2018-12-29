@@ -2,8 +2,15 @@
 FTP = FTPRemoteProvider(username = config["username"], password = config["password"])
 
 def get_fastq(wildcards):
-  urls = SAMPLES.loc[wildcards.sample, ['fq1', 'fq2']]
-  return list(urls)
+    """Get fraction read file paths from samples.tsv
+    """
+    urls = SAMPLES.loc[wildcards.sample, ['fq1', 'fq2']]
+    return list(urls)
+
+def get_frac(wildcards):
+    """Get fraction of reads to be sampled from samples.tsv
+    """
+    SAMPLES.loc[wildcards.sample, ['frac']][0]
 
 ## Preprocessing for fastq files
 # Imports local or remote fastq(.gz) files
@@ -21,7 +28,7 @@ rule fastp:
     sub1 = temp("munge/{sample}_sub1.fq.gz"),
     sub2 = temp("munge/{sample}_sub2.fq.gz")
   params:
-    frac = lambda wildcards: SAMPLES.loc[wildcards.sample, ['frac']][0],
+    frac = get_frac,
     seed = config["seed"],
     fastp = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8"
   threads: 8
