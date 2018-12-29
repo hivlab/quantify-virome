@@ -46,10 +46,8 @@ rule megablast_refgenome:
       show_gis = True,
       num_threads = 8,
       outfmt = "'6 qseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter megablast records for the cutoff value
 rule parse_megablast:

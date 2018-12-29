@@ -26,10 +26,8 @@ rule blastn_virus:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter blastn records for the cutoff value
 rule parse_blastn_virus:
@@ -60,10 +58,8 @@ rule blastx_virus:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter blastn records for the cutoff value
 rule parse_blastx_virus:
@@ -178,10 +174,8 @@ rule megablast_nt:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter megablast records for the cutoff value
 rule parse_megablast_nt:
@@ -211,10 +205,8 @@ rule blastn_nt:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter blastn records for the cutoff value
 rule parse_blastn_nt:
@@ -244,10 +236,8 @@ rule blastx_nr:
       show_gis = True,
       num_threads = 8,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/blast.py"
+    wrapper:
+      config["wrappers"]["blast"]
 
 ## Filter blastn records for the cutoff value
 rule parse_blastx_nr:
