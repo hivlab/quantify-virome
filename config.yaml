@@ -96,3 +96,7 @@ blastn_nt:
 blastx_nr:
     evalue: 1e-2
     max_hsps: 50
+
+# Wrapper urls
+wrappers:
+    parse_blast: "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/parse-blast"

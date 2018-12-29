@@ -42,10 +42,8 @@ rule parse_blastn_virus:
     params:
       e_cutoff = 1e-5,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]
 
 ## Blastx unmapped sequences against NR virus database
 rule blastx_virus:
@@ -78,10 +76,8 @@ rule parse_blastx_virus:
     params:
       e_cutoff = 1e-3,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]
 
 ## Filter out phage sequences
 rule filter_viruses:
@@ -199,7 +195,7 @@ rule parse_megablast_nt:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
-      "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/parse-blast"
+      config["wrappers"]["parse_blast"]
 
 ## Blastn against NT database
 rule blastn_nt:
@@ -232,7 +228,7 @@ rule parse_blastn_nt:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
-      "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/parse-blast"
+      config["wrappers"]["parse_blast"]
 
 ## Blastx unmapped sequences against NR virus database
 rule blastx_nr:
@@ -264,10 +260,8 @@ rule parse_blastx_nr:
     params:
       e_cutoff = 1e-3,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]
 
 ## Filter out virus and phage sequences
 rule filter_blasted_viruses:

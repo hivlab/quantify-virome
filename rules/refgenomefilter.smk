@@ -62,7 +62,5 @@ rule parse_megablast:
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/parse_blast.py"
+    wrapper:
+      config["wrappers"]["parse_blast"]
