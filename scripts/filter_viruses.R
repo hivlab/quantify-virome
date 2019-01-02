@@ -143,8 +143,8 @@ blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3, api_k
   blast_results <- grep("tsv$", dots, value = TRUE)
   tab <- parse_blast_tsv_safe(blast_results)
 
-  # if it's not empty result then stop error
-  if (!is.null(tab$error) && !stringr::str_detect(tab$error$message, "No BLAST hits to parse")) stop(tab$error)
+  # If it's not empty result then stop with error
+  if (!is.null(tab$error) && !stringr::str_detect(tab$error$message, "object 'qseqid' not found")) stop(tab$error)
 
   message("Map tax_ids to gis\n")
   tab <- gi2taxid(tab$result, taxdb, api_key)
