@@ -90,20 +90,6 @@ rule filter_viruses:
   script:
     "../scripts/filter_viruses.R"
 
-## Upload phage data to Zenodo
-if config["zenodo"]["deposition_id"]:
-    rule upload_phages:
-        input:
-          expand("results/{{sample}}_phages_{n}.csv", n = N)
-        output:
-          "results/{sample}_phages.csv.tar.gz"
-        params:
-          config["zenodo"]["deposition_id"]
-        conda:
-          "../envs/upload.yaml"
-        script:
-          "../scripts/zenodo_upload.py"
-
 ## Get unmasked candidate viral sequences
 rule unmasked_viral:
     input:
@@ -267,25 +253,13 @@ rule filter_blasted_viruses:
   script:
     "../scripts/filter_viruses.R"
 
-## Upload blasted phages and viruses to Zenodo
+## Upload results to Zenodo
 if config["zenodo"]["deposition_id"]:
-    rule upload_phages_blasted:
+    rule upload:
         input:
-          expand("results/{{sample}}_phages_blasted_{n}.csv", n = N)
+          expand("results/{{sample}}_{{result}}_{n}.csv", n = N)
         output:
-          "results/{sample}_phages_blasted.csv.tar.gz"
-        params:
-          config["zenodo"]["deposition_id"]
-        conda:
-          "../envs/upload.yaml"
-        script:
-          "../scripts/zenodo_upload.py"
-
-    rule upload_viruses_blasted:
-        input:
-          expand("results/{{sample}}_viruses_blasted_{n}.csv", n = N)
-        output:
-          "results/{sample}_viruses_blasted.csv.tar.gz"
+          "results/{sample}_{result}.csv.tar.gz"
         params:
           config["zenodo"]["deposition_id"]
         conda:

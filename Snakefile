@@ -26,12 +26,13 @@ N = list(range(1, N_FILES + 1, 1))
 if not os.path.exists("logs/slurm"):
     os.makedirs("logs/slurm")
 
-## Main output files and Target rules
-OUTPUTS = expand(["results/{sample}_phages_{n}.csv", "results/{sample}_unassigned_{n}.fa", "results/{sample}_phages_blasted_{n}.csv", "results/{sample}_viruses_blasted_{n}.csv"], sample = SAMPLE_IDS, n = N) + expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
+## Main output files and target rules
+RESULTS = ["phages", "phages_blasted", "viruses_blasted", "unassigned"]
+OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
 
 rule all:
     input:
-        OUTPUTS, expand("results/{sample}_{results}.csv.tar.gz", sample = SAMPLE_IDS, results = ["phages", "phages_blasted", "viruses_blasted"]) if config["zenodo"]["deposition_id"] else OUTPUTS
+        OUTPUTS, expand("results/{sample}_{result}.csv.tar.gz", sample = SAMPLE_IDS, result = RESULTS) if config["zenodo"]["deposition_id"] else OUTPUTS
 
 ## Modules
 include: "rules/munge.smk"
