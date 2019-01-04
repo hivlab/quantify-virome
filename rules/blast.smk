@@ -257,9 +257,9 @@ rule filter_blasted_viruses:
 if config["zenodo"]["deposition_id"]:
     rule upload:
         input:
-          expand("results/{{sample}}_{{result}}_{n}.csv", n = N)
+          expand("results/{{sample}}_{{result}}_{n}.{{ext}}", n = N)
         output:
-          "results/{sample}_{result}.csv.tar.gz"
+          "results/{sample}_{result}.{ext}.tar.gz"
         params:
           config["zenodo"]["deposition_id"]
         conda:
