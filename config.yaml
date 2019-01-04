@@ -101,3 +101,4 @@ blastx_nr:
 wrappers:
     blast: "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast"
     parse_blast: "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/parse-blast"
+    upload: "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/zenodo/upload"

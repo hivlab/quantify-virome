@@ -262,7 +262,5 @@ if config["zenodo"]["deposition_id"]:
           "results/{sample}_{result}.{ext}.tar.gz"
         params:
           config["zenodo"]["deposition_id"]
-        conda:
-          "../envs/upload.yaml"
-        script:
-          "../scripts/zenodo_upload.py"
+        wrapper:
+          config["wrappers"]["upload"]
