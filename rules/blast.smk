@@ -259,7 +259,7 @@ if config["zenodo"]["deposition_id"]:
         input:
           expand("results/{{sample}}_{{result}}_{n}.csv", n = N)
         output:
-          "results/{sample}_{result}.csv.tar.gz"
+          "results/{sample}_{result}.{ext}.tar.gz"
         params:
           config["zenodo"]["deposition_id"]
         conda:
