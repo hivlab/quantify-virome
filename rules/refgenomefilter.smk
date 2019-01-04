@@ -33,11 +33,11 @@ rule refgenome_unmapped_masked:
 ## MegaBlast against reference genome to remove host sequences
 rule megablast_refgenome:
     input:
-      query = rules.refgenome_unmapped_masked.output
+      query = rules.refgenome_unmapped_masked.output,
+      db = config["ref_genome"]
     output:
       out = "refgenomefilter/{sample}_megablast_{n}.tsv"
     params:
-      db = config["ref_genome"],
       task = "megablast",
       perc_identity = config["megablast_ref_genome"]["perc_identity"],
       evalue = config["megablast_ref_genome"]["evalue"],
