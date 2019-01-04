@@ -14,11 +14,11 @@ rule prepare_taxonomy_data:
 ## Blast against NT virus database
 rule blastn_virus:
     input:
-      query = rules.parse_megablast.output.unmapped
+      query = rules.parse_megablast.output.unmapped,
+      db = config["virus_nt"]
     output:
       out = "blast/{sample}_blastn_virus_{n,\d+}.tsv"
     params:
-      db = config["virus_nt"],
       task = "blastn",
       evalue = config["blastn_virus"]["evalue"],
       db_soft_mask = config["blastn_virus"]["db_soft_mask"],
@@ -46,11 +46,11 @@ rule parse_blastn_virus:
 ## Blastx unmapped sequences against NR virus database
 rule blastx_virus:
     input:
-      query = rules.parse_blastn_virus.output.unmapped
+      query = rules.parse_blastn_virus.output.unmapped,
+      db = config["virus_nr"]
     output:
       out = "blast/{sample}_blastx_virus_{n}.tsv"
     params:
-      db = config["virus_nr"],
       word_size = 6,
       evalue = config["blastx_virus"]["evalue"],
       db_soft_mask = config["blastx_virus"]["db_soft_mask"],
@@ -148,11 +148,11 @@ rule refbac_unmapped_masked:
 ## MegaBlast against NT to remove host sequences
 rule megablast_nt:
     input:
-      query = rules.refbac_unmapped_masked.output
+      query = rules.refbac_unmapped_masked.output,
+      db = config["nt"]
     output:
       out = "blast/{sample}_megablast_nt_{n,\d+}.tsv"
     params:
-      db = config["nt"],
       task = "megablast",
       evalue = config["megablast_nt"]["evalue"],
       word_size = config["megablast_nt"]["word_size"],
@@ -180,11 +180,11 @@ rule parse_megablast_nt:
 ## Blastn against NT database
 rule blastn_nt:
     input:
-      query = rules.parse_megablast_nt.output.unmapped
+      query = rules.parse_megablast_nt.output.unmapped,
+      db = config["nt"]
     output:
       out = "blast/{sample}_blastn_nt_{n,\d+}.tsv"
     params:
-      db = config["nt"],
       task = "blastn",
       evalue = config["blastn_nt"]["evalue"],
       max_hsps = config["blastn_nt"]["max_hsps"],
@@ -211,11 +211,11 @@ rule parse_blastn_nt:
 ## Blastx unmapped sequences against NR virus database
 rule blastx_nr:
     input:
-      query = rules.parse_blastn_nt.output.unmapped
+      query = rules.parse_blastn_nt.output.unmapped,
+      db = config["nr"]
     output:
       out = "blast/{sample}_blastx_nr_{n,\d+}.tsv"
     params:
-      db = config["nr"],
       word_size = 6,
       evalue = config["blastx_nr"]["evalue"],
       max_hsps = config["blastx_nr"]["max_hsps"],
