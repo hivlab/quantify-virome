@@ -108,7 +108,7 @@ rule bwa_map_refbac:
       config["ref_bacteria"],
       [rules.unmasked_viral.output]
     output:
-      "blast/{sample}_bac_mapped_{n}.sam"
+      temp("blast/{sample}_bac_mapped_{n}.sam")
     log:
       "logs/{sample}_bwa_map_refbac_{n}.log"
     threads: 8
@@ -121,8 +121,8 @@ rule bwa_map_refbac:
 rule refbac_unmapped:
     input: rules.bwa_map_refbac.output
     output:
-      bam = "blast/{sample}_bac_unmapped_{n}.bam",
-      fq = "blast/{sample}_bac_unmapped_{n}.fq",
+      bam = temp("blast/{sample}_bac_unmapped_{n}.bam"),
+      fq = temp("blast/{sample}_bac_unmapped_{n}.fq"),
       fa = "blast/{sample}_bac_unmapped_{n}.fa"
     conda:
       "../envs/bwa-sam-bed.yaml"
@@ -139,7 +139,7 @@ rule refbac_unmapped_masked:
       rules.refbac_unmapped.output.fa,
       rules.repeatmasker_good.output.masked_filt
     output:
-      "blast/{sample}_bac_unmapped_{n}_masked.fa"
+      temp("blast/{sample}_bac_unmapped_{n}_masked.fa")
     conda:
       "../envs/biopython.yaml"
     script:

@@ -3,7 +3,7 @@
 rule tantan:
   input: rules.cd_hit.output.repres
   output:
-    "mask/{sample}_tantan.fasta"
+    temp("mask/{sample}_tantan.fasta")
   conda:
       "../envs/tantan.yaml"
   shell:
@@ -18,7 +18,7 @@ rule tantan_good:
   input:
     masked = rules.tantan.output
   output:
-    masked_filt = "mask/{sample}_tantangood.fasta"
+    masked_filt = temp("mask/{sample}_tantangood.fasta")
   params:
     min_length = 50,
     por_n = 40
@@ -32,7 +32,7 @@ rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    expand("mask/{{sample}}_repeatmasker_{n}.fa", n = N)
+    temp(expand("mask/{{sample}}_repeatmasker_{n}.fa", n = N))
   params:
     config["split_fasta"]["n_files"]
   conda:
@@ -50,8 +50,8 @@ rule repeatmasker:
   input:
     fa = "mask/{sample}_repeatmasker_{n}.fa"
   output:
-    masked = "mask/{sample}_repeatmasker_{n}.fa.masked",
-    out = "mask/{sample}_repeatmasker_{n}.fa.out",
+    masked = temp("mask/{sample}_repeatmasker_{n}.fa.masked"),
+    out = temp("mask/{sample}_repeatmasker_{n}.fa.out"),
     tbl = "mask/{sample}_repeatmasker_{n}.fa.tbl"
   params:
     outdir = "mask"

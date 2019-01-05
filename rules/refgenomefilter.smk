@@ -5,8 +5,8 @@ rule refgenome_unmapped:
         config["ref_genome"],
         [rules.repeatmasker_good.output.original_filt]
     output:
-      bam = "refgenomefilter/{sample}_refgenome_unmapped_{n}.bam",
-      fq = "refgenomefilter/{sample}_refgenome_unmapped_{n}.fq",
+      bam = temp("refgenomefilter/{sample}_refgenome_unmapped_{n}.bam"),
+      fq = temp("refgenomefilter/{sample}_refgenome_unmapped_{n}.fq"),
       fa = "refgenomefilter/{sample}_refgenome_unmapped_{n}.fa"
     log:
         "logs/{sample}_bwa_map_refgenome_{n}.log"
@@ -24,7 +24,7 @@ rule refgenome_unmapped:
 rule refgenome_unmapped_masked:
     input: rules.refgenome_unmapped.output.fa, rules.repeatmasker_good.output.masked_filt
     output:
-      "refgenomefilter/{sample}_refgenome_unmapped_{n}_masked.fa"
+      temp("refgenomefilter/{sample}_refgenome_unmapped_{n}_masked.fa")
     conda:
       "../envs/biopython.yaml"
     script:
@@ -56,7 +56,7 @@ rule parse_megablast:
       query = rules.refgenome_unmapped_masked.output
     output:
       mapped = "refgenomefilter/{sample}_refgenome_filtered_{n}_known-host.tsv",
-      unmapped = "refgenomefilter/{sample}_refgenome_filtered_{n}_unmapped.fa"
+      unmapped = temp("refgenomefilter/{sample}_refgenome_filtered_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
