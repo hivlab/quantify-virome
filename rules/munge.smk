@@ -11,8 +11,7 @@ def get_frac(wildcards):
     frac = SAMPLES.loc[wildcards.sample, ['frac']][0]
     return frac
 
-# Imports local or remote fastq(.gz) files
-# Downsamples runs based on user-provided fractions in samples.tsv file
+# Imports local or remote fastq(.gz) files. Downsamples runs based on user-provided fractions in samples.tsv file.
 rule sample:
   input:
     lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq
@@ -25,8 +24,7 @@ rule sample:
   wrapper:
     config["wrappers"]["sample"]
 
-# Adapter trimming
-# Quality filtering
+# Adapter trimming and quality filtering.
 rule fastp:
   input:
     rules.sample.output
@@ -42,7 +40,7 @@ rule fastp:
   wrapper:
     config["wrappers"]["fastp"]
 
-# Stitch paired reads
+# Stitch paired reads.
 rule fastq_join:
   input:
     rules.fastp.output
