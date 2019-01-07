@@ -1,5 +1,5 @@
 
-## Tantan mask of low complexity DNA sequences [6]
+# Tantan mask of low complexity DNA sequences
 rule tantan:
   input: rules.cd_hit.output.repres
   output:
@@ -11,7 +11,7 @@ rule tantan:
     tantan -x N {input} > {output}
     """
 
-## Filter tantan output [7]
+# Filter tantan output
 # 1) Sequences > 50 nt of consecutive sequence without N
 # 2) Sequences with >= 40% of total length of being masked
 rule tantan_good:
@@ -25,7 +25,7 @@ rule tantan_good:
   wrapper:
     "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
 
-## Split reads to smaller chunks for Repeatmasker [8]
+# Split reads to smaller chunks for Repeatmasker
 rule split_fasta:
   input:
     rules.tantan_good.output
@@ -33,14 +33,12 @@ rule split_fasta:
     temp(expand("mask/{{sample}}_repeatmasker_{n}.fa", n = N))
   params:
     config["split_fasta"]["n_files"]
-  conda:
-    "../envs/biopython.yaml"
-  script:
-    "../scripts/split_fasta.py"
+  wrapper:
+    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/split-fasta"
 
 os.environ['REPEATMASKER_REPBASE_FILE']=config["repbase_file"]
 
-## Repeatmasker [9]
+# Repeatmasker
 # Outputs are generated from input file names by RepeatMasker
 # must have file extension '.masked'
 # If no repetitive sequences were detected syamlink output to input file
@@ -63,7 +61,7 @@ rule repeatmasker:
     fi
     """
 
-## Filter repeatmasker output [10]
+# Filter repeatmasker output
 # 1) Sequences > 50 nt of consecutive sequence without N
 # 2) Sequences with >= 40% of total length of being masked
 # input, output, and params names must match function arguments
