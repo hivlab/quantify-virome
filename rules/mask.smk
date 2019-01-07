@@ -22,10 +22,8 @@ rule tantan_good:
   params:
     min_length = 50,
     por_n = 40
-  conda:
-      "../envs/biopython.yaml"
-  script:
-      "../scripts/filter_masked.py"
+  wrapper:
+    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
 
 ## Split reads to smaller chunks for Repeatmasker [8]
 rule split_fasta:
@@ -79,7 +77,5 @@ rule repeatmasker_good:
   params:
     min_length = 50,
     por_n = 40
-  conda:
-    "../envs/biopython.yaml"
-  script:
-    "../scripts/filter_masked.py"
+  wrapper:
+    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
