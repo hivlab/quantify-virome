@@ -23,7 +23,7 @@ rule sample:
     frac = get_frac,
     seed = config["seed"]
   wrapper:
-    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/seqtk"
+    config["wrappers"]["sample"]
 
 # Adapter trimming
 # Quality filtering
@@ -40,7 +40,7 @@ rule fastp:
   threads: 8
   log: "logs/{sample}_fastp.log"
   wrapper:
-   "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/fastp"
+    config["wrappers"]["fastp"]
 
 # Stitch paired reads
 rule fastq_join:
@@ -54,4 +54,5 @@ rule fastq_join:
     options = "-p 5 -m 10"
   log: "logs/{sample}_fastq_join.log"
   wrapper:
-    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/fastq-join"
+    config["wrappers"]["fastq_join"]
+
