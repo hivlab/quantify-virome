@@ -25,57 +25,33 @@ rule sample:
   wrapper:
     "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/seqtk"
 
-
 # Adapter trimming
 # Quality filtering
 rule fastp:
   input:
-    lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq
+    rules.sample.output
   output:
-    pair1 = "munge/{sample}_pair1_trimmed.fq.gz",
-    pair2 = "munge/{sample}_pair2_trimmed.fq.gz",
-    html = "munge/{sample}_fastp_report.html",
-    json = "munge/{sample}_fastp_report.json",
-    sub1 = temp("munge/{sample}_sub1.fq.gz"),
-    sub2 = temp("munge/{sample}_sub2.fq.gz")
+    temp("munge/{sample}_read1_trimmed.fq.gz"),
+    temp("munge/{sample}_read2_trimmed.fq.gz")
   params:
-    frac = get_frac,
-    seed = config["seed"],
-    fastp = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8"
+    options = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8",
+    html = "munge/{sample}_fastp_report.html",
+    json = "munge/{sample}_fastp_report.json"
   threads: 8
   log: "logs/{sample}_fastp.log"
-  conda:
-      "../envs/fastp.yaml"
-  shell:
-    """
-    if (( $(echo "{params.frac} > 0" | bc) )) && (( $(echo "{params.frac} < 1" | bc) )); then
-      seqtk sample -s{params.seed} {input[0]} {params.frac} > {output.sub1}
-      seqtk sample -s{params.seed} {input[1]} {params.frac} > {output.sub2}
-    else
-      ln -sr {input[0]} {output.sub1}
-      ln -sr {input[1]} {output.sub2}
-    fi
-    fastp -i {output.sub1} -I {output.sub2} -o {output.pair1} -O {output.pair2} {params.fastp} -h {output.html} -j {output.json} -w {threads} > {log} 2>&1
-    """
+  wrapper:
+   "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/fastp"
 
-## Stitch paired reads
+# Stitch paired reads
 rule fastq_join:
   input:
-    rules.fastp.output.pair1,
-    rules.fastp.output.pair2
+    rules.fastp.output
   output:
     temp("munge/{sample}_un1.fq.gz"),
     temp("munge/{sample}_un2.fq.gz"),
     temp("munge/{sample}_join.fq.gz")
   params:
-    diff = config["fastq-join"]["maximum_difference"],
-    overlap = config["fastq-join"]["minimum_overlap"],
-    template = "munge/{sample}_%.fq.gz"
-  conda:
-    "../envs/fastq-join.yaml"
-  log:
-    "logs/{sample}_fastq_join.log"
-  shell:
-    """
-    fastq-join -p {params.diff} -m {params.overlap} {input} -o {params.template} > {log} 2>&1
-    """
+    options = "-p 5 -m 10"
+  log: "logs/{sample}_fastq_join.log"
+  wrapper:
+    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/fastq-join"
