@@ -161,6 +161,12 @@ properties:
       - evalue
       - max_hsps
   wrappers:
+    sample:
+      type: string
+    fastp:
+      type: string
+    fastq_join:
+      type: string
     blast:
       type: string
     parse_blast:
@@ -168,6 +174,9 @@ properties:
     upload:
       type: string
     required:
+      - fastq_join
+      - fastp
+      - sample
       - blast
       - parse_blast
       - upload
