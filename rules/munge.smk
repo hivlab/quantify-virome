@@ -2,19 +2,30 @@
 FTP = FTPRemoteProvider(username = config["username"], password = config["password"])
 
 def get_fastq(wildcards):
-    """Get fraction read file paths from samples.tsv
-    """
+    """Get fraction read file paths from samples.tsv"""
     urls = SAMPLES.loc[wildcards.sample, ['fq1', 'fq2']]
     return list(urls)
 
 def get_frac(wildcards):
-    """Get fraction of reads to be sampled from samples.tsv
-    """
-    SAMPLES.loc[wildcards.sample, ['frac']][0]
+    """Get fraction of reads to be sampled from samples.tsv"""
+    frac = SAMPLES.loc[wildcards.sample, ['frac']][0]
+    return frac
 
-## Preprocessing for fastq files
 # Imports local or remote fastq(.gz) files
 # Downsamples runs based on user-provided fractions in samples.tsv file
+rule sample:
+  input:
+    lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq
+  output:
+    temp("munge/{sample}_read1.fq.gz"),
+    temp("munge/{sample}_read2.fq.gz")
+  params:
+    frac = get_frac,
+    seed = config["seed"]
+  wrapper:
+    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/seqtk"
+
+
 # Adapter trimming
 # Quality filtering
 rule fastp:
