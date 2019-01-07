@@ -1,7 +1,5 @@
 
-## Run cd-hit to find and munge duplicate reads
-## cd-hit-est input format is fasta, therefore
-## we concatenate stitched fastq reads and convert to fasta
+# Run cd-hit to find and munge duplicate reads. We concatenate stitched fastq reads and convert to fasta.
 rule cd_hit:
   input:
     rules.fastq_join.output
