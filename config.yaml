@@ -49,13 +49,6 @@ nt: /gpfs/software/VirusSeeker/databases/nt/nt
 nr: /gpfs/software/VirusSeeker/databases/nr/nr
 
 # Rule parameters ---------------------
-# Modify these settings only when you know what you are doing
-#
-# fastq-join
-fastq-join:
-    maximum_difference: 5
-    minimum_overlap: 10
-
 # Filter repeatmasker and tantan output
 filter_ns:
     min_length: 50

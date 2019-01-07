@@ -66,16 +66,6 @@ properties:
   nr:
     type: string
     description: path to nr blast database
-  fastq_join:
-    maximum_difference:
-      type: integer
-      default: 5
-    minimum_overlap:
-      type: integer
-      default: 10
-    required:
-      - maximum_difference
-      - minimum_overlap
   filter_ns:
     min_length:
       type: integer

@@ -55,4 +55,3 @@ rule fastq_join:
   log: "logs/{sample}_fastq_join.log"
   wrapper:
     config["wrappers"]["fastq_join"]
-
