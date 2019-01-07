@@ -1,5 +1,8 @@
 name: repeatmasker
 channels:
   - bioconda
+  - defaults
+  - anaconda
 dependencies:
   - repeatmasker
+  - rmblast
