@@ -97,4 +97,5 @@ wrappers:
     fastq_join: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/fastq-join
     blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast/query
     parse_blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast/parse
+    blast_taxonomy: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast/taxonomy
     upload: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/zenodo/upload

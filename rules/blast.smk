@@ -236,10 +236,8 @@ rule classify_phages:
   params:
     taxdb = config["vhunter"],
     division_id = 3
-  conda:
-    "../envs/tidyverse.yaml"
-  script:
-    "../scripts/filter_viruses.R"
+  wrapper:
+    config["wrappers"]["blast_taxonomy"]
 
 rule classify_phages_viruses:
   input:
@@ -251,10 +249,8 @@ rule classify_phages_viruses:
   params:
     taxdb = config["vhunter"],
     division_id = [3, 9] # pool phages and viruses
-  conda:
-    "../envs/tidyverse.yaml"
-  script:
-    "../scripts/filter_viruses.R"
+  wrapper:
+    config["wrappers"]["blast_taxonomy"]
 
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
