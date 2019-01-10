@@ -95,6 +95,6 @@ wrappers:
     sample: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/seqtk
     fastp: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/fastp
     fastq_join: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/fastq-join
-    blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast
-    parse_blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/parse-blast
+    blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast/query
+    parse_blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast/parse
     upload: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/zenodo/upload
