@@ -258,7 +258,7 @@ rule classify_phages_viruses:
 if config["zenodo"]["deposition_id"]:
     rule upload:
         input:
-          expand("results/{{sample}}_{{result}}_{n,\d+}.{{ext}}", n = N)
+          expand("results/{{sample}}_{{result}}_{n}.{{ext}}", n = N)
         output:
           "results/{sample}_{result}.{ext}.tar.gz"
         params:
