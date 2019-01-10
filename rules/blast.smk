@@ -250,7 +250,7 @@ rule classify_phages_viruses:
     other = "results/{sample}_non_viral_{n}.csv"
   params:
     taxdb = config["vhunter"],
-    division_id = [3, 9] # filter phages and viruses
+    division_id = [3, 9] # pool phages and viruses
   conda:
     "../envs/tidyverse.yaml"
   script:
