@@ -57,14 +57,13 @@ empty_blast_tsv_tab <- function() {
 #' Parse blast output safely, in case of error output empty blast_tabular dataframe
 parse_blast_tsv_safe <- purrr::safely(parse_blast_tsv, otherwise = empty_blast_tsv_tab())
 
-gi2taxid <- function(tab, taxdb, api_key) {
+gi2taxid <- function(tab, taxdb) {
   UseMethod("gi2taxid", tab)
 }
 
 #' @param tab data_frame with parsed blast results of class blast_tabular.
 #' @param taxdb sqlite database with gi_taxid_nucl and gi_taxid_prot tables.
-#' @param api_key ncbi API key, a character string, defaults to NULL.
-gi2taxid.blast_tabular <- function(tab, taxdb, api_key) {
+gi2taxid.blast_tabular <- function(tab, taxdb) {
 
   mapped_gis <- tab$gi
 
@@ -121,7 +120,7 @@ filter_division.blast_results_taxids <- function(tab, nodes, division_id, div, n
   # Just in case, ensure that we have division_ids as integers
   div_id <- as.integer(unlist(division_id))
 
-  # Filter hits by division_id
+  # Filter hits by division_id if all hits of a query belong to taxonomic division(s) of interest.
   is_division <- mapped_tab %>%
     dplyr::group_by(query) %>%
     dplyr::filter(all(division_id %in% div_id))
@@ -141,7 +140,7 @@ filter_division.blast_results_taxids <- function(tab, nodes, division_id, div, n
 #' @param division_id division id of interest, integer vector. Defaults to 3, phages.
 #' @param api_key ncbi API key, a character string, defaults to NULL.
 #'
-blast_taxonomy <- function(..., taxdb, nodes, division, other, division_id = 3, api_key = NULL) {
+blast_taxonomy <- function(..., taxdb, nodes, division, other, division_id = 3) {
 
   message("Parse blast results\n")
   dots <- c(...)
@@ -153,7 +152,7 @@ blast_taxonomy <- function(..., taxdb, nodes, division, other, division_id = 3, 
   if (!is.null(tab$error) && !stringr::str_detect(tab$error$message, "object 'qseqid' not found")) stop(tab$error)
 
   message("Map tax_ids to gis\n")
-  tab <- gi2taxid(tab$result, taxdb, api_key)
+  tab <- gi2taxid(tab$result, taxdb)
 
   message("Filter phages (division_id == 3) and save results to csv files\n")
   filter_division(tab = tab, nodes = nodes, division_id = division_id, div = division, not_div = other)
