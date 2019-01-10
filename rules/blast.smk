@@ -74,6 +74,22 @@ rule parse_blastx_virus:
     wrapper:
       config["wrappers"]["parse_blast"]
 
+# Filter sequences by division id.
+# Saves hits with division id
+rule classify_phages:
+  input:
+    [rules.parse_blastn_virus.output.mapped,
+    rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
+    nodes = "taxonomy/nodes.csv"
+  output:
+    division = "results/{sample}_phages_{n}.csv",
+    other = "blast/{sample}_candidate_viruses_{n}.csv"
+  params:
+    taxdb = config["vhunter"],
+    division_id = 3
+  wrapper:
+    config["wrappers"]["blast_taxonomy"]
+
 # Filter unmasked candidate virus reads.
 rule unmasked_other:
     input:
@@ -225,20 +241,6 @@ rule parse_blastx_nr:
 
 # Filter sequences by division id.
 # Saves hits with division id
-rule classify_phages:
-  input:
-    [rules.parse_blastn_virus.output.mapped,
-    rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
-    nodes = "taxonomy/nodes.csv"
-  output:
-    division = "results/{sample}_phages_{n}.csv",
-    other = "blast/{sample}_candidate_viruses_{n}.csv"
-  params:
-    taxdb = config["vhunter"],
-    division_id = 3
-  wrapper:
-    config["wrappers"]["blast_taxonomy"]
-
 rule classify_phages_viruses:
   input:
     [rules.parse_megablast_nt.output.mapped, rules.parse_blastn_nt.output.mapped, rules.parse_blastx_nr.output.mapped] if config["run_blastx"] else [rules.parse_megablast_nt.output.mapped, rules.parse_blastn_nt.output.mapped],
