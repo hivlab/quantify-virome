@@ -1,5 +1,5 @@
 
-## Prepare names and nodes tables for taxonomy annotation
+# Prepare taxonomy annotation tables.
 rule prepare_taxonomy_data:
   input: config["names"], config["nodes"], config["division"]
   output:
@@ -9,9 +9,8 @@ rule prepare_taxonomy_data:
   script:
     "../scripts/prepare_taxonomy_data.R"
 
-## Blast input, output, and params keys must match commandline blast option names https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a
-
-## Blast against NT virus database
+# Blastn, megablast and blastx input, output, and params keys must match commandline blast option names. Please see https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a for all available options.
+# Blast against nt virus database.
 rule blastn_virus:
     input:
       query = rules.parse_megablast.output.unmapped
@@ -29,7 +28,7 @@ rule blastn_virus:
     wrapper:
       config["wrappers"]["blast"]
 
-## Filter blastn records for the cutoff value
+# Filter blastn hits for the cutoff value.
 rule parse_blastn_virus:
     input:
       query = rules.parse_megablast.output.unmapped,
@@ -43,7 +42,7 @@ rule parse_blastn_virus:
     wrapper:
       config["wrappers"]["parse_blast"]
 
-## Blastx unmapped sequences against NR virus database
+# Blastx unmapped reads against nr virus database.
 rule blastx_virus:
     input:
       query = rules.parse_blastn_virus.output.unmapped
@@ -61,7 +60,7 @@ rule blastx_virus:
     wrapper:
       config["wrappers"]["blast"]
 
-## Filter blastn records for the cutoff value
+# Filter blastn hits for the cutoff value.
 rule parse_blastx_virus:
     input:
       query = rules.blastx_virus.input.query,
@@ -75,22 +74,7 @@ rule parse_blastx_virus:
     wrapper:
       config["wrappers"]["parse_blast"]
 
-## Filter out phage sequences
-rule filter_viruses:
-  input:
-    [rules.parse_blastn_virus.output.mapped,
-    rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
-    taxdb = config["vhunter"],
-    nodes = "taxonomy/nodes.csv"
-  output:
-    phages = "results/{sample}_phages_{n}.csv",
-    viruses = "blast/{sample}_candidate_viruses_{n}.csv"
-  conda:
-    "../envs/tidyverse.yaml"
-  script:
-    "../scripts/filter_viruses.R"
-
-## Get unmasked candidate viral sequences
+# Filter unmasked candidate virus reads.
 rule unmasked_viral:
     input:
       rules.filter_viruses.output.viruses,
@@ -102,7 +86,7 @@ rule unmasked_viral:
     script:
       "../scripts/unmasked_viral.py"
 
-## Map against bacterial genomes
+# Map reads against bacterial genomes.
 rule bwa_map_refbac:
     input:
       config["ref_bacteria"],
@@ -117,7 +101,7 @@ rule bwa_map_refbac:
     shell:
       "bwa mem -k 15 -t {threads} {input} > {output} 2> {log}"
 
-## Extract unmapped reads
+# Extract unmapped reads.
 rule refbac_unmapped:
     input: rules.bwa_map_refbac.output
     output:
@@ -133,7 +117,7 @@ rule refbac_unmapped:
       cat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
       """
 
-## Subset repeatmasker masked reads using unmapped ids
+# Subset repeatmasker masked reads using unmapped reads.
 rule refbac_unmapped_masked:
     input:
       rules.refbac_unmapped.output.fa,
@@ -145,7 +129,7 @@ rule refbac_unmapped_masked:
     script:
       "../scripts/unmapped_masked_ids.py"
 
-## MegaBlast against NT to remove host sequences
+# Megablast against nt database.
 rule megablast_nt:
     input:
       query = rules.refbac_unmapped_masked.output
@@ -163,7 +147,7 @@ rule megablast_nt:
     wrapper:
       config["wrappers"]["blast"]
 
-## Filter megablast records for the cutoff value
+# Filter megablast hits for the cutoff value.
 rule parse_megablast_nt:
     input:
       query = rules.refbac_unmapped_masked.output,
@@ -177,7 +161,7 @@ rule parse_megablast_nt:
     wrapper:
       config["wrappers"]["parse_blast"]
 
-## Blastn against NT database
+# Blastn against nt database.
 rule blastn_nt:
     input:
       query = rules.parse_megablast_nt.output.unmapped
@@ -194,7 +178,7 @@ rule blastn_nt:
     wrapper:
       config["wrappers"]["blast"]
 
-## Filter blastn records for the cutoff value
+# Filter blastn records for the cutoff value.
 rule parse_blastn_nt:
     input:
       query = rules.blastn_nt.input.query,
@@ -208,7 +192,7 @@ rule parse_blastn_nt:
     wrapper:
       config["wrappers"]["parse_blast"]
 
-## Blastx unmapped sequences against NR virus database
+# Blastx unmapped sequences against nr database.
 rule blastx_nr:
     input:
       query = rules.parse_blastn_nt.output.unmapped
@@ -225,7 +209,7 @@ rule blastx_nr:
     wrapper:
       config["wrappers"]["blast"]
 
-## Filter blastn records for the cutoff value
+# Filter blastx records for the cutoff value.
 rule parse_blastx_nr:
     input:
       query = rules.blastx_nr.input.query,
@@ -239,8 +223,25 @@ rule parse_blastx_nr:
     wrapper:
       config["wrappers"]["parse_blast"]
 
-## Filter out virus and phage sequences
-rule filter_blasted_viruses:
+# Filter sequences by division id.
+# Saves hits with division id
+rule filter_viruses:
+  input:
+    [rules.parse_blastn_virus.output.mapped,
+    rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
+    taxdb = config["vhunter"],
+    nodes = "taxonomy/nodes.csv"
+  output:
+    phages = "results/{sample}_phages_{n}.csv",
+    viruses = "blast/{sample}_candidate_viruses_{n}.csv"
+  params:
+    division_id = 3
+  conda:
+    "../envs/tidyverse.yaml"
+  script:
+    "../scripts/filter_viruses.R"
+
+rule filter_viruses_blasted:
   input:
     [rules.parse_blastn_nt.output.mapped, rules.parse_blastx_nr.output.mapped] if config["run_blastx"] else rules.parse_blastn_nt.output.mapped,
     taxdb = config["vhunter"],
@@ -248,12 +249,14 @@ rule filter_blasted_viruses:
   output:
     phages = "results/{sample}_phages_blasted_{n}.csv",
     viruses = "results/{sample}_viruses_blasted_{n}.csv"
+  params:
+    division_id = [3, 9] # filter phages and viruses
   conda:
     "../envs/tidyverse.yaml"
   script:
     "../scripts/filter_viruses.R"
 
-## Upload results to Zenodo
+# Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
     rule upload:
         input:
