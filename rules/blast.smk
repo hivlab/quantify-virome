@@ -229,12 +229,12 @@ rule filter_viruses:
   input:
     [rules.parse_blastn_virus.output.mapped,
     rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
-    taxdb = config["vhunter"],
     nodes = "taxonomy/nodes.csv"
   output:
-    phages = "results/{sample}_phages_{n}.csv",
-    viruses = "blast/{sample}_candidate_viruses_{n}.csv"
+    division = "results/{sample}_phages_{n}.csv",
+    other = "blast/{sample}_candidate_viruses_{n}.csv"
   params:
+    taxdb = config["vhunter"],
     division_id = 3
   conda:
     "../envs/tidyverse.yaml"
@@ -243,13 +243,13 @@ rule filter_viruses:
 
 rule filter_viruses_blasted:
   input:
-    [rules.parse_blastn_nt.output.mapped, rules.parse_blastx_nr.output.mapped] if config["run_blastx"] else rules.parse_blastn_nt.output.mapped,
-    taxdb = config["vhunter"],
+    [rules.parse_megablast_nt.output.mapped, rules.parse_blastn_nt.output.mapped, rules.parse_blastx_nr.output.mapped] if config["run_blastx"] else [rules.parse_megablast_nt.output.mapped, rules.parse_blastn_nt.output.mapped],
     nodes = "taxonomy/nodes.csv"
   output:
-    phages = "results/{sample}_phages_blasted_{n}.csv",
-    viruses = "results/{sample}_viruses_blasted_{n}.csv"
+    division = "results/{sample}_phages_blasted_{n}.csv",
+    other = "results/{sample}_viruses_blasted_{n}.csv"
   params:
+    taxdb = config["vhunter"],
     division_id = [3, 9] # filter phages and viruses
   conda:
     "../envs/tidyverse.yaml"

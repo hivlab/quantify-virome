@@ -11,7 +11,6 @@ query_taxid <- function(gi) {
 }
 
 #' @param gids GenInfo Identifier (GI), a character (or integer) vector.
-#' @param api_key ncbi api key, a character string. Set to NULL for no key.
 get_taxid <- function(gids) {
   if (Sys.getenv("NCBI_API_KEY") == "") {
     warning("NCBI_API_KEY environment variable not set.\nPosting more than 3 requests per second to the NCBI E-utilities without an API key will receive an error message. API key can be obtained from the Settings page of their NCBI account (to create an account, visit http://www.ncbi.nlm.nih.gov/account/).\n")
@@ -27,12 +26,12 @@ get_taxid <- function(gids) {
     unlist()
 }
 
-#' Import and parse BLAST+ tabular output to data_frame
-#' @param ... path to BLAST+ tabular output, a character vector.
+#' Import and parse tabular BLAST+ output (outfmt 6) to tibble
+#' @param ... path(s) to tabular BLAST+ output(s), a character vector.
 parse_blast_tsv <- function(...) {
 
   message("Importing BLAST+ tabular output")
-  blast_results <- dplyr::data_frame(path = c(...)) %>%
+  blast_results <- dplyr::tibble(path = c(...)) %>%
     dplyr::mutate(tsv = purrr::map(path, readr::read_tsv)) %>%
     tidyr::unnest()
 
@@ -47,7 +46,7 @@ parse_blast_tsv <- function(...) {
 
 #' Create empty data_frame of class blast_tabular with path and all std outfmt 6 columns
 empty_blast_tsv_tab <- function() {
-  tab <- dplyr::data_frame(path = character(0), query = character(0), gi = character(0), pident = numeric(0),
+  tab <- dplyr::tibble(path = character(0), query = character(0), gi = character(0), pident = numeric(0),
                            length = integer(0), mismatch = integer(0), gapopen = integer(0), qstart = integer(0),
                            qend = integer(0), sstart = integer(0), send = integer(0),
                            evalue = numeric(0), bitscore = numeric(0))
@@ -101,17 +100,17 @@ gi2taxid.blast_tabular <- function(tab, taxdb, api_key) {
   return(blast_results_taxids)
 }
 
-filter_division <- function(tab, nodes, div_id, div, not_div) {
+filter_division <- function(tab, nodes, division_id, div, not_div) {
   UseMethod("filter_division", tab)
 }
 
 #' Filter BLAST hits belonging to div_id
 #' @param tab blast results tab with tax_ids, a data_frame of class blast_results_taxids.
 #' @param nodes path to nodes.csv file, a character string.
-#' @param div_id taxonomic division id, an integer.
+#' @param division_id taxonomic division id, an integer vector.
 #' @param div path ot output.csv file for records belonging to div_id, a character string.
 #' @param not_div path ot output.csv file for records NOT belongigng to div_id, a character string.
-filter_division.blast_results_taxids <- function(tab, nodes, div_id, div, not_div) {
+filter_division.blast_results_taxids <- function(tab, nodes, division_id, div, not_div) {
 
   message("Import gi tax_id table and taxonomy nodes table")
   nodes <- readr::read_csv(nodes)
@@ -119,23 +118,30 @@ filter_division.blast_results_taxids <- function(tab, nodes, div_id, div, not_di
   message("Merge names by tax_id to known sequences")
   mapped_tab <- dplyr::left_join(tab, nodes)
 
-  division <- dplyr::filter(mapped_tab, division_id == div_id)
-  not_division <- dplyr::filter(mapped_tab, division_id != div_id)
+  # Just in case, ensure that we have division_ids as integers
+  div_id <- as.integer(unlist(division_id))
 
-  readr::write_csv(division, div)
+  # Filter hits by division_id
+  is_division <- mapped_tab %>%
+    dplyr::group_by(query) %>%
+    dplyr::filter(all(division_id %in% div_id))
+  not_division <- dplyr::anti_join(mapped_tab, is_division)
+
+  # Write results to files
+  readr::write_csv(is_division, div)
   readr::write_csv(not_division, not_div)
 }
 
 #' Parse and add taxonomy to blast+ results
-#' @param ... paths(s) to blast results xml- or tsv file, a chracter string.
-#' @param div_id division id of interest, integer. Defaults to 3, viruses.
+#' @param ... paths(s) to tabular blast results file (outfmt 6), a chracter string.
 #' @param taxdb path to taxonomy database, sqlite database, a character string.
 #' @param nodes path to taxonomy nodes.csv file, a chracter string.
-#' @param phages path to output file for phage hits, a character string.
-#' @param viruses path to output file for virus hits, character string
-#' @div_id taxonomy divition id, integer.
+#' @param division path to output file for hits assigned to division(s) of interest, a character string.
+#' @param other path to output file for other hits not belonging to division(s) of interest, character string
+#' @param division_id division id of interest, integer vector. Defaults to 3, phages.
+#' @param api_key ncbi API key, a character string, defaults to NULL.
 #'
-blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3, api_key = NULL) {
+blast_taxonomy <- function(..., taxdb, nodes, division, other, division_id = 3, api_key = NULL) {
 
   message("Parse blast results\n")
   dots <- c(...)
@@ -150,7 +156,7 @@ blast_taxonomy <- function(..., taxdb, nodes, phages, viruses, div_id = 3, api_k
   tab <- gi2taxid(tab$result, taxdb, api_key)
 
   message("Filter phages (division_id == 3) and save results to csv files\n")
-  filter_division(tab = tab, nodes = nodes, div = phages, not_div = viruses, div_id = div_id)
+  filter_division(tab = tab, nodes = nodes, division_id = division_id, div = division, not_div = other)
 }
 
 do.call(blast_taxonomy, c(snakemake@input, snakemake@output, snakemake@params))
