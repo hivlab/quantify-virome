@@ -75,9 +75,9 @@ rule parse_blastx_virus:
       config["wrappers"]["parse_blast"]
 
 # Filter unmasked candidate virus reads.
-rule unmasked_viral:
+rule unmasked_other:
     input:
-      rules.filter_viruses.output.viruses,
+      rules.classify_phages.output.other,
       rules.refgenome_unmapped.output.fa
     output:
       "blast/{sample}_candidate_viruses_{n}_unmasked.fa"
@@ -90,7 +90,7 @@ rule unmasked_viral:
 rule bwa_map_refbac:
     input:
       config["ref_bacteria"],
-      [rules.unmasked_viral.output]
+      [rules.unmasked_other.output]
     output:
       temp("blast/{sample}_bac_mapped_{n}.sam")
     log:
@@ -225,7 +225,7 @@ rule parse_blastx_nr:
 
 # Filter sequences by division id.
 # Saves hits with division id
-rule filter_viruses:
+rule classify_phages:
   input:
     [rules.parse_blastn_virus.output.mapped,
     rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
@@ -241,13 +241,13 @@ rule filter_viruses:
   script:
     "../scripts/filter_viruses.R"
 
-rule filter_viruses_blasted:
+rule classify_phages_viruses:
   input:
     [rules.parse_megablast_nt.output.mapped, rules.parse_blastn_nt.output.mapped, rules.parse_blastx_nr.output.mapped] if config["run_blastx"] else [rules.parse_megablast_nt.output.mapped, rules.parse_blastn_nt.output.mapped],
     nodes = "taxonomy/nodes.csv"
   output:
-    division = "results/{sample}_phages_blasted_{n}.csv",
-    other = "results/{sample}_viruses_blasted_{n}.csv"
+    division = "results/{sample}_phages_viruses_{n}.csv",
+    other = "results/{sample}_non_viral_{n}.csv"
   params:
     taxdb = config["vhunter"],
     division_id = [3, 9] # filter phages and viruses
@@ -260,7 +260,7 @@ rule filter_viruses_blasted:
 if config["zenodo"]["deposition_id"]:
     rule upload:
         input:
-          expand("results/{{sample}}_{{result}}_{n}.{{ext}}", n = N)
+          expand("results/{{sample}}_{{result}}_{n,\d+}.{{ext}}", n = N)
         output:
           "results/{sample}_{result}.{ext}.tar.gz"
         params:
