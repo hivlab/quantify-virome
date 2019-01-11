@@ -66,16 +66,6 @@ properties:
   nr:
     type: string
     description: path to nr blast database
-  fastq_join:
-    maximum_difference:
-      type: integer
-      default: 5
-    minimum_overlap:
-      type: integer
-      default: 10
-    required:
-      - maximum_difference
-      - minimum_overlap
   filter_ns:
     min_length:
       type: integer
@@ -171,6 +161,12 @@ properties:
       - evalue
       - max_hsps
   wrappers:
+    sample:
+      type: string
+    fastp:
+      type: string
+    fastq_join:
+      type: string
     blast:
       type: string
     parse_blast:
@@ -178,6 +174,9 @@ properties:
     upload:
       type: string
     required:
+      - fastq_join
+      - fastp
+      - sample
       - blast
       - parse_blast
       - upload

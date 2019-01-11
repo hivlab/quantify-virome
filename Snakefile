@@ -27,7 +27,7 @@ if not os.path.exists("logs/slurm"):
     os.makedirs("logs/slurm")
 
 ## Main output files and target rules
-RESULTS = ["phages", "phages_blasted", "viruses_blasted"]
+RESULTS = ["phages", "phages_viruses", "non_viral"]
 OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa", sample = SAMPLE_IDS, n = N) + expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
 
 rule all:

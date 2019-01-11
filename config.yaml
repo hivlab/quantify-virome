@@ -49,13 +49,6 @@ nt: /gpfs/software/VirusSeeker/databases/nt/nt
 nr: /gpfs/software/VirusSeeker/databases/nr/nr
 
 # Rule parameters ---------------------
-# Modify these settings only when you know what you are doing
-#
-# fastq-join
-fastq-join:
-    maximum_difference: 5
-    minimum_overlap: 10
-
 # Filter repeatmasker and tantan output
 filter_ns:
     min_length: 50
@@ -99,6 +92,10 @@ blastx_nr:
 
 # Wrapper urls
 wrappers:
-    blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast
-    parse_blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/parse-blast
+    sample: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/seqtk
+    fastp: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/fastp
+    fastq_join: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/fastq-join
+    blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast/query
+    parse_blast: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast/parse
+    blast_taxonomy: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/blast/taxonomy
     upload: https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/zenodo/upload
