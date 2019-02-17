@@ -260,7 +260,7 @@ if config["zenodo"]["deposition_id"]:
         input:
           expand("results/{{sample}}_{{result}}_{n}.{{ext}}", n = N)
         output:
-          "results/{sample}_{result}.{ext}.tar.gz"
+          "results/{sample, [^_]+}_{result}.{ext}.tar.gz"
         params:
           config["zenodo"]["deposition_id"]
         wrapper:
