@@ -4,4 +4,4 @@ channels:
   - conda-forge
   - defaults
 dependencies:
-  - repeatmasker
+  - repeatmasker=4.0.7
