@@ -28,7 +28,9 @@ if not os.path.exists("logs/slurm"):
 
 ## Main output files and target rules
 RESULTS = ["phages", "phages_viruses", "non_viral"]
-OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa", sample = SAMPLE_IDS, n = N) + expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
+TAXONOMY = expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
+STATS = expand("results/{sample}_stats.json", sample = SAMPLE_IDS)
+OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa", sample = SAMPLE_IDS, n = N) + TAXONOMY + STATS
 
 rule all:
     input:
@@ -40,3 +42,4 @@ include: "rules/cd-hit.smk"
 include: "rules/mask.smk"
 include: "rules/refgenomefilter.smk"
 include: "rules/blast.smk"
+include: "rules/stats.smk"
