@@ -1,3 +1,5 @@
+from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
+ZEN = ZENRemoteProvider()
 
 rule collect_stats:
    input:
@@ -11,3 +13,9 @@ rule collect_stats:
       outfile = "results/{sample}_stats.json" 
    script:
       "../scripts/collect_stats.py"
+
+if config["zenodo"]["deposition_id"]:
+   rule upload_stats:
+      input: outputs.collect_stats.output
+      output: ZEN.remote(expand("{deposition_id}/files/{{sample}}_stats.json", deposition_id = config["zenodo"]["deposition_id"]))
+      shell: "cp {input} {output}"
