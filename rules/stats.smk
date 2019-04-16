@@ -13,6 +13,7 @@ rule collect_stats:
       "../scripts/collect_stats.py"
 
 if config["zenodo"]["deposition_id"]:
+   localrules: all, upload_stats
    rule upload_stats:
       input: rules.collect_stats.output
       output: ZEN.remote(expand("{deposition_id}/files/{{sample}}_stats.json", deposition_id = config["zenodo"]["deposition_id"]))
