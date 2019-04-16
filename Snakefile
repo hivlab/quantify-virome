@@ -30,10 +30,7 @@ if not os.path.exists("logs/slurm"):
 RESULTS = ["phages", "phages_viruses", "non_viral"]
 TAXONOMY = expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
 STATS = expand("results/{sample}_stats.json", sample = SAMPLE_IDS)
-OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + 
-    expand("results/{sample}_unassigned_{n}.fa", sample = SAMPLE_IDS, n = N) + 
-    TAXONOMY + 
-    STATS
+OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa", sample = SAMPLE_IDS, n = N) + TAXONOMY + STATS
 
 rule all:
     input:
