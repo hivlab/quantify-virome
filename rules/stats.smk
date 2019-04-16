@@ -1,5 +1,3 @@
-from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
-ZEN = ZENRemoteProvider()
 
 rule collect_stats:
    input:

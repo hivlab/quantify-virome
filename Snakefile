@@ -26,6 +26,11 @@ N = list(range(1, N_FILES + 1, 1))
 if not os.path.exists("logs/slurm"):
     os.makedirs("logs/slurm")
 
+## Setup Zenodo RemoteProvider
+if config["zenodo"]["deposition_id"]:
+   from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
+   ZEN = ZENRemoteProvider()
+
 ## Main output files and target rules
 RESULTS = ["phages", "phages_viruses", "non_viral"]
 TAXONOMY = expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
