@@ -14,6 +14,6 @@ rule collect_stats:
 
 if config["zenodo"]["deposition_id"]:
    rule upload_stats:
-      input: outputs.collect_stats.output
+      input: rules.collect_stats.output
       output: ZEN.remote(expand("{deposition_id}/files/{{sample}}_stats.json", deposition_id = config["zenodo"]["deposition_id"]))
       shell: "cp {input} {output}"
