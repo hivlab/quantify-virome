@@ -1,8 +1,7 @@
 
 [![Travis-CI Build Status](https://travis-ci.org/<USERNAME>/<REPO>.svg?branch=master)](https://travis-ci.org/<USERNAME>/<REPO>)
 
-The goal of this repo was to more reproducibly recreate [VirusSeeker Virome workflow](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5326578/). Original perl code is available on github.com/guoyanzhao.
-
+Snakemake implementation of [VirusSeeker Virome workflow](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5326578/). 
 
 ## Setup environment and install prerequisites
 

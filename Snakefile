@@ -26,13 +26,24 @@ N = list(range(1, N_FILES + 1, 1))
 if not os.path.exists("logs/slurm"):
     os.makedirs("logs/slurm")
 
+## Setup Zenodo RemoteProvider
+if config["zenodo"]["deposition_id"]:
+   from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
+   ZEN = ZENRemoteProvider()
+
 ## Main output files and target rules
 RESULTS = ["phages", "phages_viruses", "non_viral"]
-OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa", sample = SAMPLE_IDS, n = N) + expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
+TAXONOMY = expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
+STATS = expand("results/{sample}_stats.json", sample = SAMPLE_IDS)
+OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa", sample = SAMPLE_IDS, n = N) + TAXONOMY + STATS
 
 rule all:
     input:
-        OUTPUTS, expand("results/{sample}_{result}.csv.tar.gz", sample = SAMPLE_IDS, result = RESULTS), expand("results/{sample}_unassigned.fa.tar.gz", sample = SAMPLE_IDS) if config["zenodo"]["deposition_id"] else OUTPUTS
+        OUTPUTS, 
+        expand("results/{sample}_{result}.csv.tar.gz", sample = SAMPLE_IDS, result = RESULTS), 
+        expand("results/{sample}_unassigned.fa.tar.gz", sample = SAMPLE_IDS), 
+        ZEN.remote(expand("{deposition_id}/files/{sample}_stats.json", deposition_id = config["zenodo"]["deposition_id"], sample = SAMPLE_IDS)) 
+        if config["zenodo"]["deposition_id"] else OUTPUTS
 
 ## Modules
 include: "rules/munge.smk"
@@ -40,3 +51,4 @@ include: "rules/cd-hit.smk"
 include: "rules/mask.smk"
 include: "rules/refgenomefilter.smk"
 include: "rules/blast.smk"
+include: "rules/stats.smk"
