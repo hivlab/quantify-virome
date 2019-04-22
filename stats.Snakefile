@@ -22,6 +22,8 @@ SAMPLE_IDS = SAMPLES.index.values.tolist()
 N_FILES = config["split_fasta"]["n_files"]
 N = list(range(1, N_FILES + 1, 1))
 
+localrules: all, upload_stats
+
 rule all:
    input: ZEN.remote(expand("1488086/files/{sample}_stats.json", sample = SAMPLE_IDS))
 
