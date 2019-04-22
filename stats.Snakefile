@@ -22,7 +22,7 @@ N = list(range(1, N_FILES + 1, 1))
 
 rule all:
    input: ZEN.remote(expand("{deposition_id}/files/{sample}_stats.json", 
-   deposition_id = config["zenodo"]["deposition_id"],
+   deposition_id = "1488086",
    sample = SAMPLE_IDS))
 
 rule collect_stats:
@@ -41,5 +41,5 @@ rule collect_stats:
 if config["zenodo"]["deposition_id"]:
    rule upload_stats:
       input: rules.collect_stats.output
-      output: ZEN.remote(expand("{deposition_id}/files/{{sample}}_stats.json", deposition_id = config["zenodo"]["deposition_id"]))
+      output: ZEN.remote(expand("{deposition_id}/files/{{sample}}_stats.json", deposition_id = "1488086"))
       shell: "cp {input} {output}"
