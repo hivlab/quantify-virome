@@ -256,12 +256,10 @@ rule classify_phages_viruses:
 
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
-    rule upload:
-        input:
-          expand("results/{{sample}}_{{result}}_{n}.{{ext}}", n = N)
-        output:
-          "results/{sample, [^_]+}_{result}.{ext}.tar.gz"
-        params:
-          config["zenodo"]["deposition_id"]
-        wrapper:
-          config["wrappers"]["upload"]
+  rule upload:
+    input: 
+      expand("results/{{sample}}_{{result}}_{n}.{{ext}}", n = N)
+    output: 
+      ZEN.remote(expand("{deposition_id}/files/results/{{sample, [^_]+}}_{{result}}.{{ext}}.tar.gz", deposition_id = config["zenodo"]["deposition_id"]))
+    shell: 
+      "tar -czvf {output} {input}"
