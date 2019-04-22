@@ -8,8 +8,10 @@ import os
 import json
 import glob
 import pandas as pd
-from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
+from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
 from snakemake.utils import validate
+
+ZEN = ZENRemoteProvider()
 
 ## Load configuration file with sample and path info
 configfile: "config.yaml"
