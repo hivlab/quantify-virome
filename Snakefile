@@ -28,8 +28,8 @@ if not os.path.exists("logs/slurm"):
 
 ## Setup Zenodo RemoteProvider
 if config["zenodo"]["deposition_id"]:
-   from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
-   ZEN = ZENRemoteProvider()
+    from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
+    ZEN = ZENRemoteProvider()
 
 ## Main output files and target rules
 RESULTS = ["phages", "phages_viruses", "non_viral"]
