@@ -94,7 +94,7 @@ rule classify_phages:
 rule unmasked_other:
     input:
       rules.classify_phages.output.other,
-      rules.refgenome_unmapped.output.fa
+      rules.refgenome_unmapped.output
     output:
       "blast/{sample}_candidate_viruses_{n}_unmasked.fa"
     conda:
@@ -263,3 +263,18 @@ if config["zenodo"]["deposition_id"]:
       ZEN.remote(expand("{deposition_id}/files/results/{{sample, [^_]+}}_{{result}}.{{ext}}.tar.gz", deposition_id = config["zenodo"]["deposition_id"]))
     shell:
       "tar -czvf {output} {input}"
+
+# Collect stats
+rule blast_stats:
+  input:
+    expand(["blast/{{sample}}_blastn_virus_{n}_unmapped.fa",
+    "blast/{{sample}}_blastx_virus_{n}_unmapped.fa",
+    "blast/{{sample}}_candidate_viruses_{n}_unmasked.fa",
+    "blast/{{sample}}_megablast_nt_{n}_unmapped.fa",
+    "blast/{{sample}}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{{sample}}_unassigned_{n}.fa"], n = N)
+  output:
+    "stats/{sample}_blast.tsv"
+  conda:
+    "../envs/seqkit.yaml"
+  shell:
+    "seqkit stats {input} -T > {output}"

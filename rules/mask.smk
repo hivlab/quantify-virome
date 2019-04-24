@@ -78,3 +78,16 @@ rule repeatmasker_good:
     por_n = 40
   wrapper:
     "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
+
+# Collect stats
+rule mask_stats:
+  input:
+    rules.cd_hit.output.repres, rules.tantan.output, rules.tantan_good.output, expand(["mask/{{sample}}_repmaskedgood_{n}.fa", "mask/{{sample}}_unmaskedgood_{n}.fa"], n = N)
+  output:
+    "stats/{sample}_mask.tsv"
+  conda:
+    "../envs/seqkit.yaml"
+  shell:
+    "seqkit stats {input} -T > {output}"
+
+

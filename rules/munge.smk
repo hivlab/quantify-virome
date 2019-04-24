@@ -54,3 +54,14 @@ rule fastq_join:
     "logs/{sample}_fastq_join.log"
   wrapper:
     config["wrappers"]["fastq_join"]
+
+# Collect fastq stats
+rule munge_stats:
+  input:
+    rules.sample.output, rules.fastp.output, rules.fastq_join.output
+  output:
+    "stats/{sample}_munge.tsv"
+  conda:
+    "../envs/seqkit.yaml"
+  shell:
+    "seqkit stats {input} -T > {output}"

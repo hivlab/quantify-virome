@@ -10,13 +10,14 @@ import json
 import glob
 import pandas as pd
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
+from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
 from snakemake.utils import validate
 shell.executable("bash")
 
 ## Load configuration file with sample and path info
 configfile: "config.yaml"
 validate(config, "schemas/config.schema.yaml")
-SAMPLES = pd.read_table(config["samples"], sep = "\s+").set_index("sample", drop=False)
+SAMPLES = pd.read_csv(config["samples"], sep = "\s+").set_index("sample", drop=False)
 validate(SAMPLES, "schemas/samples.schema.yaml")
 SAMPLE_IDS = SAMPLES.index.values.tolist()
 N_FILES = config["split_fasta"]["n_files"]
@@ -27,23 +28,22 @@ if not os.path.exists("logs/slurm"):
     os.makedirs("logs/slurm")
 
 ## Setup Zenodo RemoteProvider
-if config["zenodo"]["deposition_id"]:
-    from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
-    ZEN = ZENRemoteProvider()
+ZEN = ZENRemoteProvider()
 
-## Main output files and target rules
+# Main output files and target rules
 RESULTS = ["phages", "phages_viruses", "non_viral"]
 TAXONOMY = expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
-STATS = expand("results/{sample}_stats.json", sample = SAMPLE_IDS)
+STATS = expand(["stats/{sample}_munge.tsv", "stats/{sample}_mask.tsv", "stats/{sample}_refgenome.tsv", "stats/{sample}_blast.tsv"], sample = SAMPLE_IDS) + expand("stats/{sample}_refgenome_stats_{n}.txt", sample = SAMPLE_IDS, n = N)
 OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa", sample = SAMPLE_IDS, n = N) + TAXONOMY + STATS
+
+# Remote outputs
+if config["zenodo"]["deposition_id"]:
+    ZENOUTPUTS = [ZEN.remote(expand("{deposition_id}/files/results/{sample}_{result}.csv.tar.gz", deposition_id = config["zenodo"]["deposition_id"], sample = SAMPLE_IDS, result = RESULTS)),
+    ZEN.remote(expand("{deposition_id}/files/results/{sample}_unassigned.fa.tar.gz", deposition_id = config["zenodo"]["deposition_id"], sample = SAMPLE_IDS))]
 
 rule all:
     input:
-        OUTPUTS, 
-        expand("results/{sample}_{result}.csv.tar.gz", sample = SAMPLE_IDS, result = RESULTS), 
-        expand("results/{sample}_unassigned.fa.tar.gz", sample = SAMPLE_IDS), 
-        ZEN.remote(expand("{deposition_id}/files/{sample}_stats.json", deposition_id = config["zenodo"]["deposition_id"], sample = SAMPLE_IDS)) 
-        if config["zenodo"]["deposition_id"] else OUTPUTS
+        OUTPUTS, ZENOUTPUTS if config["zenodo"]["deposition_id"] else OUTPUTS
 
 ## Modules
 include: "rules/munge.smk"
@@ -51,4 +51,3 @@ include: "rules/cd-hit.smk"
 include: "rules/mask.smk"
 include: "rules/refgenomefilter.smk"
 include: "rules/blast.smk"
-include: "rules/stats.smk"

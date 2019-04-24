@@ -1,28 +1,55 @@
 
-## Align sequences to reference genome and extract unmapped reads
-rule refgenome_unmapped:
+rule bwa_mem_refgenome:
+  input:
+    reads = [rules.repeatmasker_good.output.original_filt]
+  output:
+    temp("refgenomefilter/{sample}_refgenome_unmapped_{n}.bam")
+  params:
+    index = config["ref_genome"],
+    extra = "-L 100,100 -k 15",
+    sort = "none"
+  log:
+    "logs/{sample}_bwa_map_refgenome_{n}.log"
+  threads: 2
+  wrapper:
+    "0.32.0/bio/bwa/mem"
+
+# Extract unmapped reads and convert bam file to fastq file.
+rule refgenome_unmapped_fastq:
     input:
-        config["ref_genome"],
-        [rules.repeatmasker_good.output.original_filt]
+      rules.bwa_mem_refgenome.output
     output:
-      bam = temp("refgenomefilter/{sample}_refgenome_unmapped_{n}.bam"),
-      fq = temp("refgenomefilter/{sample}_refgenome_unmapped_{n}.fq"),
-      fa = "refgenomefilter/{sample}_refgenome_unmapped_{n}.fa"
-    log:
-        "logs/{sample}_bwa_map_refgenome_{n}.log"
+      temp("refgenomefilter/{sample}_refgenome_unmapped_{n}.fq")
+    params:
+      "-n -f 4"
     threads: 2
-    conda:
-      "../envs/bwa-sam-bed.yaml"
-    shell:
-      """
-        (bwa mem -L 100,100 -k 15 -t {threads} {input} | samtools view -b -S -f 4 - > {output.bam}) 2> {log}
-        bedtools bamtofastq -i {output.bam} -fq {output.fq}
-        cat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
-      """
+    wrapper:
+      "0.32.0/bio/samtools/bam2fq/interleaved"
+
+# Convert fastq file to fasta file.
+rule refgenome_unmapped:
+  input:
+    rules.refgenome_unmapped_fastq.output
+  output:
+    temp("refgenomefilter/{sample}_refgenome_unmapped_{n}.fa")
+  shell:
+    "cat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}"
+
+# Calculate bam file stats
+rule refgenome_bam_stats:
+    input:
+      rules.bwa_mem_refgenome.output
+    output:
+      "stats/{sample}_refgenome_stats_{n}.txt"
+    params:
+      extra = "-f 4",
+      region = ""
+    wrapper:
+        "0.32.0/bio/samtools/stats"
 
 ## Subset repeatmasker masked reads using unmapped ids
 rule refgenome_unmapped_masked:
-    input: rules.refgenome_unmapped.output.fa, rules.repeatmasker_good.output.masked_filt
+    input: rules.refgenome_unmapped.output, rules.repeatmasker_good.output.masked_filt
     output:
       temp("refgenomefilter/{sample}_refgenome_unmapped_{n}_masked.fa")
     conda:
@@ -62,3 +89,14 @@ rule parse_megablast:
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
       config["wrappers"]["parse_blast"]
+
+# Collect stats
+rule refgenome_unmapped_stats:
+  input:
+    expand(["refgenomefilter/{{sample}}_refgenome_unmapped_{n}_masked.fa", "refgenomefilter/{{sample}}_refgenome_filtered_{n}_unmapped.fa"], n = N)
+  output:
+    "stats/{sample}_refgenome.tsv"
+  conda:
+    "../envs/seqkit.yaml"
+  shell:
+    "seqkit stats {input} -T > {output}"
