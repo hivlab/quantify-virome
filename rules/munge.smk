@@ -33,12 +33,12 @@ rule fastp:
     temp("munge/{sample}_read2_trimmed.fq.gz")
   params:
     options = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8",
-    html = "munge/{sample}_fastp_report.html",
-    json = "munge/{sample}_fastp_report.json"
+    json = "stats/{sample}_fastp.json"
   threads: 2
-  log: "logs/{sample}_fastp.log"
+  log:
+    "logs/{sample}_fastp.log"
   wrapper:
-    config["wrappers"]["fastp"]
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/15b5773119322bfebdde7a60c51cc602cb349235/bio/fastp"
 
 # Stitch paired reads.
 rule fastq_join:
@@ -50,6 +50,7 @@ rule fastq_join:
     temp("munge/{sample}_join.fq.gz")
   params:
     options = "-p 5 -m 10"
-  log: "logs/{sample}_fastq_join.log"
+  log:
+    "logs/{sample}_fastq_join.log"
   wrapper:
     config["wrappers"]["fastq_join"]
