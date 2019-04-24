@@ -51,7 +51,7 @@ rule repeatmasker:
     tbl = "mask/{sample}_repeatmasker_{n}.fa.tbl"
   params:
     outdir = "mask"
-  threads: 8
+  threads: 2
   conda: "../envs/repeatmasker.yaml"
   shell:
     """

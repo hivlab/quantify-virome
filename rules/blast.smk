@@ -111,7 +111,7 @@ rule bwa_map_refbac:
       temp("blast/{sample}_bac_mapped_{n}.sam")
     log:
       "logs/{sample}_bwa_map_refbac_{n}.log"
-    threads: 8
+    threads: 2
     conda:
       "../envs/bwa-sam-bed.yaml"
     shell:
@@ -257,9 +257,9 @@ rule classify_phages_viruses:
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
   rule upload:
-    input: 
+    input:
       expand("results/{{sample}}_{{result}}_{n}.{{ext}}", n = N)
-    output: 
+    output:
       ZEN.remote(expand("{deposition_id}/files/results/{{sample, [^_]+}}_{{result}}.{{ext}}.tar.gz", deposition_id = config["zenodo"]["deposition_id"]))
-    shell: 
+    shell:
       "tar -czvf {output} {input}"

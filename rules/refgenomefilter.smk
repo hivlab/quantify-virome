@@ -10,7 +10,7 @@ rule refgenome_unmapped:
       fa = "refgenomefilter/{sample}_refgenome_unmapped_{n}.fa"
     log:
         "logs/{sample}_bwa_map_refgenome_{n}.log"
-    threads: 8
+    threads: 2
     conda:
       "../envs/bwa-sam-bed.yaml"
     shell:
@@ -44,7 +44,7 @@ rule megablast_refgenome:
       word_size = config["megablast_ref_genome"]["word_size"],
       max_hsps = config["blastn_virus"]["max_hsps"],
       show_gis = True,
-      num_threads = 8,
+      num_threads = 2,
       outfmt = "'6 qseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
     wrapper:
       config["wrappers"]["blast"]
