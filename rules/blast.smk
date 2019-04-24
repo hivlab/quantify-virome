@@ -34,8 +34,8 @@ rule parse_blastn_virus:
       query = rules.parse_megablast.output.unmapped,
       blast_result = rules.blastn_virus.output.out
     output:
-      mapped = "blast/{sample}_blastn_virus_{n,\d+}_known-viral.tsv",
-      unmapped = "blast/{sample}_blastn_virus_{n,\d+}_unmapped.fa"
+      mapped = temp("blast/{sample}_blastn_virus_{n,\d+}_known-viral.tsv"),
+      unmapped = temp("blast/{sample}_blastn_virus_{n,\d+}_unmapped.fa")
     params:
       e_cutoff = 1e-5,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -47,7 +47,7 @@ rule blastx_virus:
     input:
       query = rules.parse_blastn_virus.output.unmapped
     output:
-      out = "blast/{sample}_blastx_virus_{n}.tsv"
+      out = temp("blast/{sample}_blastx_virus_{n}.tsv")
     params:
       db = config["virus_nr"],
       word_size = 6,
@@ -66,8 +66,8 @@ rule parse_blastx_virus:
       query = rules.blastx_virus.input.query,
       blast_result = rules.blastx_virus.output.out
     output:
-      mapped = "blast/{sample}_blastx_virus_{n}_known-viral.tsv",
-      unmapped = "blast/{sample}_blastx_virus_{n}_unmapped.fa"
+      mapped = temp("blast/{sample}_blastx_virus_{n}_known-viral.tsv"),
+      unmapped = temp("blast/{sample}_blastx_virus_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-3,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -83,7 +83,7 @@ rule classify_phages:
     nodes = "taxonomy/nodes.csv"
   output:
     division = "results/{sample}_phages_{n}.csv",
-    other = "blast/{sample}_candidate_viruses_{n}.csv"
+    other = temp("blast/{sample}_candidate_viruses_{n}.csv")
   params:
     taxdb = config["vhunter"],
     division_id = 3
@@ -96,7 +96,7 @@ rule unmasked_other:
       rules.classify_phages.output.other,
       rules.refgenome_unmapped.output
     output:
-      "blast/{sample}_candidate_viruses_{n}_unmasked.fa"
+      temp("blast/{sample}_candidate_viruses_{n}_unmasked.fa")
     conda:
       "../envs/biopython.yaml"
     script:
@@ -123,7 +123,7 @@ rule refbac_unmapped:
     output:
       bam = temp("blast/{sample}_bac_unmapped_{n}.bam"),
       fq = temp("blast/{sample}_bac_unmapped_{n}.fq"),
-      fa = "blast/{sample}_bac_unmapped_{n}.fa"
+      fa = temp("blast/{sample}_bac_unmapped_{n}.fa")
     conda:
       "../envs/bwa-sam-bed.yaml"
     shell:
@@ -150,7 +150,7 @@ rule megablast_nt:
     input:
       query = rules.refbac_unmapped_masked.output
     output:
-      out = "blast/{sample}_megablast_nt_{n,\d+}.tsv"
+      out = temp("blast/{sample}_megablast_nt_{n,\d+}.tsv")
     params:
       db = config["nt"],
       task = "megablast",
@@ -169,8 +169,8 @@ rule parse_megablast_nt:
       query = rules.refbac_unmapped_masked.output,
       blast_result = rules.megablast_nt.output.out
     output:
-      mapped = "blast/{sample}_megablast_nt_{n,\d+}_mapped.tsv",
-      unmapped = "blast/{sample}_megablast_nt_{n,\d+}_unmapped.fa"
+      mapped = temp("blast/{sample}_megablast_nt_{n,\d+}_mapped.tsv"),
+      unmapped = temp("blast/{sample}_megablast_nt_{n,\d+}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -182,7 +182,7 @@ rule blastn_nt:
     input:
       query = rules.parse_megablast_nt.output.unmapped
     output:
-      out = "blast/{sample}_blastn_nt_{n,\d+}.tsv"
+      out = temp("blast/{sample}_blastn_nt_{n,\d+}.tsv")
     params:
       db = config["nt"],
       task = "blastn",
@@ -200,8 +200,8 @@ rule parse_blastn_nt:
       query = rules.blastn_nt.input.query,
       blast_result = rules.blastn_nt.output.out
     output:
-      mapped = "blast/{sample}_blastn_nt_{n,\d+}_mapped.tsv",
-      unmapped = "blast/{sample}_blastn_nt_{n,\d+}_unmapped.fa" if config["run_blastx"] else "results/{sample}_unassigned_{n,\d+}.fa"
+      mapped = temp("blast/{sample}_blastn_nt_{n,\d+}_mapped.tsv"),
+      unmapped = temp("blast/{sample}_blastn_nt_{n,\d+}_unmapped.fa") if config["run_blastx"] else temp("results/{sample}_unassigned_{n,\d+}.fa")
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -213,7 +213,7 @@ rule blastx_nr:
     input:
       query = rules.parse_blastn_nt.output.unmapped
     output:
-      out = "blast/{sample}_blastx_nr_{n,\d+}.tsv"
+      out = temp("blast/{sample}_blastx_nr_{n,\d+}.tsv")
     params:
       db = config["nr"],
       word_size = 6,
@@ -231,7 +231,7 @@ rule parse_blastx_nr:
       query = rules.blastx_nr.input.query,
       blast_result = rules.blastx_nr.output.out
     output:
-      mapped = "blast/{sample}_blastx_nr_{n,\d+}_mapped.tsv",
+      mapped = temp("blast/{sample}_blastx_nr_{n,\d+}_mapped.tsv"),
       unmapped = "results/{sample}_unassigned_{n,\d+}.fa" if config["run_blastx"] else "{sample}_None_{n}"
     params:
       e_cutoff = 1e-3,

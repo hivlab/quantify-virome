@@ -62,7 +62,7 @@ rule megablast_refgenome:
     input:
       query = rules.refgenome_unmapped_masked.output
     output:
-      out = "refgenomefilter/{sample}_megablast_{n}.tsv"
+      out = temp("refgenomefilter/{sample}_megablast_{n}.tsv")
     params:
       db = config["ref_genome"],
       task = "megablast",
@@ -82,7 +82,7 @@ rule parse_megablast:
       blast_result = rules.megablast_refgenome.output.out,
       query = rules.refgenome_unmapped_masked.output
     output:
-      mapped = "refgenomefilter/{sample}_refgenome_filtered_{n}_known-host.tsv",
+      mapped = temp("refgenomefilter/{sample}_refgenome_filtered_{n}_known-host.tsv"),
       unmapped = temp("refgenomefilter/{sample}_refgenome_filtered_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10,

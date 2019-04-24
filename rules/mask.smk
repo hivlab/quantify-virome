@@ -71,8 +71,8 @@ rule repeatmasker_good:
     masked = rules.repeatmasker.output.masked,
     original = rules.repeatmasker.input.fa
   output:
-    masked_filt = "mask/{sample}_repmaskedgood_{n}.fa",
-    original_filt = "mask/{sample}_unmaskedgood_{n}.fa"
+    masked_filt = temp("mask/{sample}_repmaskedgood_{n}.fa"),
+    original_filt = temp("mask/{sample}_unmaskedgood_{n}.fa")
   params:
     min_length = 50,
     por_n = 40
@@ -89,5 +89,3 @@ rule mask_stats:
     "../envs/seqkit.yaml"
   shell:
     "seqkit stats {input} -T > {output}"
-
-
