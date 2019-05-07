@@ -103,40 +103,58 @@ rule unmasked_other:
       "../scripts/unmasked_viral.py"
 
 # Map reads against bacterial genomes.
-rule bwa_map_refbac:
+rule bwa_mem_refbac:
     input:
-      config["ref_bacteria"],
       [rules.unmasked_other.output]
     output:
-      temp("blast/{sample}_bac_mapped_{n}.sam")
+      temp("blast/{sample}_bac_mapped_{n}.bam")
+    params:
+      index = config["ref_bacteria"],
+      extra = "-k 15",
+      sort = "none"
     log:
       "logs/{sample}_bwa_map_refbac_{n}.log"
     threads: 2
-    conda:
-      "../envs/bwa-sam-bed.yaml"
-    shell:
-      "bwa mem -k 15 -t {threads} {input} > {output} 2> {log}"
+    wrapper:
+      "0.32.0/bio/bwa/mem"
 
-# Extract unmapped reads.
-rule refbac_unmapped:
-    input: rules.bwa_map_refbac.output
+# Extract unmapped reads and convert bam file to fastq file.
+rule refbac_unmapped_fastq:
+    input:
+      rules.bwa_mem_refbac.output
     output:
-      bam = temp("blast/{sample}_bac_unmapped_{n}.bam"),
-      fq = temp("blast/{sample}_bac_unmapped_{n}.fq"),
-      fa = temp("blast/{sample}_bac_unmapped_{n}.fa")
-    conda:
-      "../envs/bwa-sam-bed.yaml"
+      temp("blast/{sample}_refbac_unmapped_{n}.fq")
+    params:
+      "-n -f 4"
+    threads: 2
+    wrapper:
+      "0.32.0/bio/samtools/bam2fq/interleaved"
+
+# Convert fastq file to fasta file.
+rule refbac_unmapped:
+    input:
+      rules.refbac_unmapped_fastq.output
+    output:
+      temp("blast/{sample}_refbac_unmapped_{n}.fa")
     shell:
-      """
-      samtools view -b -S -f 4 {input} > {output.bam}
-      bedtools bamtofastq -i {output.bam} -fq {output.fq}
-      cat {output.fq} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
-      """
+      "cat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}"
+
+# Calculate bam file stats
+rule refbac_bam_stats:
+    input:
+      rules.bwa_mem_refbac.output
+    output:
+      "stats/{sample}_refbac_stats_{n}.txt"
+    params:
+      extra = "-f 4",
+      region = ""
+    wrapper:
+        "0.32.0/bio/samtools/stats"
 
 # Subset repeatmasker masked reads using unmapped reads.
 rule refbac_unmapped_masked:
     input:
-      rules.refbac_unmapped.output.fa,
+      rules.refbac_unmapped.output,
       rules.repeatmasker_good.output.masked_filt
     output:
       temp("blast/{sample}_bac_unmapped_{n}_masked.fa")
