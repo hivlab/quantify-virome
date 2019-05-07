@@ -274,7 +274,7 @@ rule blast_stats:
     "blast/{{sample}}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{{sample}}_unassigned_{n}.fa"], n = N)
   output:
     "stats/{sample}_blast.tsv"
-  conda:
-    "../envs/seqkit.yaml"
-  shell:
-    "seqkit stats {input} -T > {output}"
+  params:
+    extra = "-T"
+  wrapper:
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/dfff20d4f55ed7b9e52afa34f57a4556e295680f/bio/seqkit/stats"

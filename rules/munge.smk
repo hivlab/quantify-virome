@@ -38,7 +38,7 @@ rule fastp:
   log:
     "logs/{sample}_fastp.log"
   wrapper:
-    "https://bitbucket.org/tpall/snakemake-wrappers/raw/15b5773119322bfebdde7a60c51cc602cb349235/bio/fastp"
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/c27e7d713115cec135cf0123601f4b9e7799ce20/bio/fastp/wrapper.py"
 
 # Stitch paired reads.
 rule fastq_join:
@@ -61,7 +61,7 @@ rule munge_stats:
     rules.sample.output, rules.fastp.output, rules.fastq_join.output
   output:
     "stats/{sample}_munge.tsv"
-  conda:
-    "../envs/seqkit.yaml"
-  shell:
-    "seqkit stats {input} -T > {output}"
+  params:
+    extra = "-T"
+  wrapper:
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/dfff20d4f55ed7b9e52afa34f57a4556e295680f/bio/seqkit/stats"

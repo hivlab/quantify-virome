@@ -36,12 +36,10 @@ rule split_fasta:
   wrapper:
     "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/split-fasta"
 
-os.environ['REPEATMASKER_REPBASE_FILE']=config["repbase_file"]
-
 # Repeatmasker
 # Outputs are generated from input file names by RepeatMasker
 # must have file extension '.masked'
-# If no repetitive sequences were detected syamlink output to input file
+# If no repetitive sequences were detected symlink output to input file
 rule repeatmasker:
   input:
     fa = "mask/{sample}_repeatmasker_{n}.fa"
@@ -52,10 +50,11 @@ rule repeatmasker:
   params:
     outdir = "mask"
   threads: 2
-  conda: "../envs/repeatmasker.yaml"
+  singularity:
+    "https://zenodo.org/api/files/79059513-8d40-417f-bf83-dc84926d3f30/repeatmasker409.simg"
   shell:
     """
-    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
+    /usr/local/bin/RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
     if head -n 1 {output.out} | grep -q "There were no repetitive sequences detected"
       then ln -sr {input.fa} {output.masked} \
            && touch {output.tbl}
@@ -85,7 +84,7 @@ rule mask_stats:
     rules.cd_hit.output.repres, rules.tantan.output, rules.tantan_good.output, expand(["mask/{{sample}}_repmaskedgood_{n}.fa", "mask/{{sample}}_unmaskedgood_{n}.fa"], n = N)
   output:
     "stats/{sample}_mask.tsv"
-  conda:
-    "../envs/seqkit.yaml"
-  shell:
-    "seqkit stats {input} -T > {output}"
+  params:
+    extra = "-T"
+  wrapper:
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/dfff20d4f55ed7b9e52afa34f57a4556e295680f/bio/seqkit/stats"

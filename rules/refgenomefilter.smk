@@ -96,7 +96,7 @@ rule refgenome_unmapped_stats:
     expand(["refgenomefilter/{{sample}}_refgenome_unmapped_{n}_masked.fa", "refgenomefilter/{{sample}}_refgenome_filtered_{n}_unmapped.fa"], n = N)
   output:
     "stats/{sample}_refgenome.tsv"
-  conda:
-    "../envs/seqkit.yaml"
-  shell:
-    "seqkit stats {input} -T > {output}"
+  params:
+    extra = "-T"
+  wrapper:
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/dfff20d4f55ed7b9e52afa34f57a4556e295680f/bio/seqkit/stats"
