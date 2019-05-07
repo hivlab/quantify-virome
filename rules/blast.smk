@@ -262,7 +262,7 @@ if config["zenodo"]["deposition_id"]:
     output:
       ZEN.remote(expand("{deposition_id}/files/results/{{sample, [^_]+}}_{{result}}.{{ext}}.tar.gz", deposition_id = config["zenodo"]["deposition_id"]))
     shell:
-      "tar -czvf {output} {input}"
+      "tar zcvf {output} {input}"
 
 # Collect stats
 rule blast_stats:
