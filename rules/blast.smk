@@ -78,8 +78,7 @@ rule parse_blastx_virus:
 # Saves hits with division id
 rule classify_phages:
   input:
-    [rules.parse_blastn_virus.output.mapped,
-    rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
+    [rules.parse_blastn_virus.output.mapped, rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
     nodes = "taxonomy/nodes.csv"
   output:
     division = "results/{sample}_phages_{n}.csv",
@@ -300,7 +299,7 @@ rule blast_stats:
     "blast/{{sample}}_blastx_virus_{n}_unmapped.fa",
     "blast/{{sample}}_candidate_viruses_{n}_unmasked.fa",
     "blast/{{sample}}_megablast_nt_{n}_unmapped.fa",
-    "blast/{{sample}}_blastn_nt_{n}_unmapped.fa" if config["run_blastx"] else "results/{{sample}}_unassigned_{n}.fa"], n = N)
+    "blast/{{sample}}_blastn_nt_{n}_unmapped.fa"], n = N) if config["run_blastx"] else expand("results/{{sample}}_unassigned_{n}.fa", n = N)
   output:
     "stats/{sample}_blast.tsv"
   params:
