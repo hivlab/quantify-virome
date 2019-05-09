@@ -1,15 +1,12 @@
 
 # Tantan mask of low complexity DNA sequences
 rule tantan:
-  input: rules.cd_hit.output.repres
+  input:
+    rules.cd_hit.output.repres
   output:
     temp("mask/{sample}_tantan.fasta")
-  conda:
-      "../envs/tantan.yaml"
-  shell:
-    """
-    tantan -x N {input} > {output}
-    """
+  wrapper:
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/4db2c879cc9ea87b9793af3b33b7347868222605/bio/tantan"
 
 # Filter tantan output
 # 1) Sequences > 50 nt of consecutive sequence without N
