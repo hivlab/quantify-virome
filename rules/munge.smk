@@ -27,23 +27,22 @@ rule sample:
 # Adapter trimming and quality filtering.
 rule fastp:
   input:
-    rules.sample.output
+    sample = rules.sample.output
   output:
-    temp("munge/{sample}_read1_trimmed.fq.gz"),
-    temp("munge/{sample}_read2_trimmed.fq.gz")
-  params:
-    options = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8",
+    trimmed = [temp("munge/{sample}_read1_trimmed.fq.gz"), temp("munge/{sample}_read2_trimmed.fq.gz")]
     json = "stats/{sample}_fastp.json"
+  params:
+    extra = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8"
   threads: 2
   log:
     "logs/{sample}_fastp.log"
   wrapper:
-    "https://bitbucket.org/tpall/snakemake-wrappers/raw/c27e7d713115cec135cf0123601f4b9e7799ce20/bio/fastp/wrapper.py"
+    "0.34.0/bio/fastp"
 
 # Stitch paired reads.
 rule fastq_join:
   input:
-    rules.fastp.output
+    rules.fastp.output.trimmed
   output:
     temp("munge/{sample}_un1.fq.gz"),
     temp("munge/{sample}_un2.fq.gz"),
