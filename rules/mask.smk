@@ -51,7 +51,7 @@ rule repeatmasker:
     outdir = "mask"
   threads: 2
   singularity:
-    "https://zenodo.org/api/files/79059513-8d40-417f-bf83-dc84926d3f30/repeatmasker409.simg"
+    "shub://tpall/repeatmasker-singularity"
   shell:
     """
     /usr/local/bin/RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
