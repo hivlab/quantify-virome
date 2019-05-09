@@ -23,7 +23,7 @@ rule blastn_virus:
       db_soft_mask = config["blastn_virus"]["db_soft_mask"],
       max_hsps = config["blastn_virus"]["max_hsps"],
       show_gis = True,
-      num_threads = 8,
+      num_threads = 2,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
       config["wrappers"]["blast"]
@@ -176,7 +176,7 @@ rule megablast_nt:
       word_size = config["megablast_nt"]["word_size"],
       max_hsps = config["megablast_nt"]["max_hsps"],
       show_gis = True,
-      num_threads = 8,
+      num_threads = 2,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
       config["wrappers"]["blast"]
@@ -218,7 +218,7 @@ rule blastn_nt:
       evalue = config["blastn_nt"]["evalue"],
       max_hsps = config["blastn_nt"]["max_hsps"],
       show_gis = True,
-      num_threads = 8,
+      num_threads = 2,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
       config["wrappers"]["blast"]
@@ -249,7 +249,7 @@ rule blastx_nr:
       evalue = config["blastx_nr"]["evalue"],
       max_hsps = config["blastx_nr"]["max_hsps"],
       show_gis = True,
-      num_threads = 8,
+      num_threads = 2,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
       config["wrappers"]["blast"]
