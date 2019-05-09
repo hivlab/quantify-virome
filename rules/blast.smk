@@ -55,7 +55,7 @@ rule blastx_virus:
       db_soft_mask = config["blastx_virus"]["db_soft_mask"],
       max_hsps = config["blastx_virus"]["max_hsps"],
       show_gis = True,
-      num_threads = 8,
+      num_threads = 2,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
       config["wrappers"]["blast"]
@@ -194,6 +194,17 @@ rule parse_megablast_nt:
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
       config["wrappers"]["parse_blast"]
+
+# Collect stats
+rule refbac_unmapped_stats:
+  input:
+    expand(["blast/{{sample}}_bac_unmapped_{n}_masked.fa", "blast/{{sample}}_megablast_nt_{n}_unmapped.fa"], n = N)
+  output:
+    "stats/{sample}_refbac.tsv"
+  params:
+    extra = "-T"
+  wrapper:
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/dfff20d4f55ed7b9e52afa34f57a4556e295680f/bio/seqkit/stats"
 
 # Blastn against nt database.
 rule blastn_nt:
