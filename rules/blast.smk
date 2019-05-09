@@ -104,7 +104,7 @@ rule unmasked_other:
 # Map reads against bacterial genomes.
 rule bwa_mem_refbac:
     input:
-      [rules.unmasked_other.output]
+      reads = [rules.unmasked_other.output]
     output:
       temp("blast/{sample}_bac_mapped_{n}.bam")
     params:
