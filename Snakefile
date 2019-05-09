@@ -32,9 +32,18 @@ ZEN = ZENRemoteProvider()
 
 # Main output files and target rules
 RESULTS = ["phages", "phages_viruses", "non_viral"]
-TAXONOMY = expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
-STATS = expand(["stats/{sample}_munge.tsv", "stats/{sample}_mask.tsv", "stats/{sample}_refgenome.tsv", "stats/{sample}_blast.tsv"], sample = SAMPLE_IDS) + expand("stats/{sample}_refgenome_stats_{n}.txt", sample = SAMPLE_IDS, n = N)
-OUTPUTS = expand("results/{sample}_{result}_{n}.csv", sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa", sample = SAMPLE_IDS, n = N) + TAXONOMY + STATS
+TAXONOMY = expand("taxonomy/{file}.csv",
+                file = ["names", "nodes", "division"])
+STATS = expand(["stats/{sample}_munge.tsv",
+                "stats/{sample}_mask.tsv",
+                "stats/{sample}_refgenome.tsv",
+                "stats/{sample}_blast.tsv"],
+                sample = SAMPLE_IDS) + expand("stats/{sample}_{ref}_stats_{n}.txt",
+                ref = ["refgenome", "refbac"],
+                sample = SAMPLE_IDS, n = N)
+OUTPUTS = expand("results/{sample}_{result}_{n}.csv",
+                sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa",
+                sample = SAMPLE_IDS, n = N) + TAXONOMY + STATS
 
 # Remote outputs
 if config["zenodo"]["deposition_id"]:
