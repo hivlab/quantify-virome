@@ -30,7 +30,7 @@ rule fastp:
     sample = rules.sample.output
   output:
     trimmed = [temp("munge/{sample}_read1_trimmed.fq.gz"), temp("munge/{sample}_read2_trimmed.fq.gz")],
-    json = "stats/{sample}_fastp.json"
+    json = "stats/{sample}_fastp.json",
     html = "stats/{sample}_fastp.html"
   params:
     extra = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8"
