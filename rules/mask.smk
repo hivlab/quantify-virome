@@ -84,4 +84,4 @@ rule mask_stats:
   params:
     extra = "-T"
   wrapper:
-    "https://bitbucket.org/tpall/snakemake-wrappers/raw/dfff20d4f55ed7b9e52afa34f57a4556e295680f/bio/seqkit/stats"
+    config["wrappers"]["stats"]
