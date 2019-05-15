@@ -173,13 +173,6 @@ properties:
       type: string
     upload:
       type: string
-    required:
-      - fastq_join
-      - fastp
-      - sample
-      - blast
-      - parse_blast
-      - upload
 
 required:
   - samples

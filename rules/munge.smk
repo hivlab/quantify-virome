@@ -27,29 +27,41 @@ rule sample:
 # Adapter trimming and quality filtering.
 rule fastp:
   input:
-    rules.sample.output
+    sample = rules.sample.output
   output:
-    temp("munge/{sample}_read1_trimmed.fq.gz"),
-    temp("munge/{sample}_read2_trimmed.fq.gz")
+    trimmed = [temp("munge/{sample}_read1_trimmed.fq.gz"), temp("munge/{sample}_read2_trimmed.fq.gz")],
+    json = "stats/{sample}_fastp.json",
+    html = "stats/{sample}_fastp.html"
   params:
-    options = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8",
-    html = "munge/{sample}_fastp_report.html",
-    json = "munge/{sample}_fastp_report.json"
-  threads: 8
-  log: "logs/{sample}_fastp.log"
+    extra = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8"
+  threads: 2
+  log:
+    "logs/{sample}_fastp.log"
   wrapper:
-    config["wrappers"]["fastp"]
+    "0.34.0/bio/fastp"
 
 # Stitch paired reads.
 rule fastq_join:
   input:
-    rules.fastp.output
+    rules.fastp.output.trimmed
   output:
     temp("munge/{sample}_un1.fq.gz"),
     temp("munge/{sample}_un2.fq.gz"),
     temp("munge/{sample}_join.fq.gz")
   params:
     options = "-p 5 -m 10"
-  log: "logs/{sample}_fastq_join.log"
+  log:
+    "logs/{sample}_fastq_join.log"
   wrapper:
     config["wrappers"]["fastq_join"]
+
+# Collect fastq stats
+rule munge_stats:
+  input:
+    rules.sample.output, rules.fastp.output, rules.fastq_join.output
+  output:
+    "stats/{sample}_munge.tsv"
+  params:
+    extra = "-T"
+  wrapper:
+    config["wrappers"]["stats"]
