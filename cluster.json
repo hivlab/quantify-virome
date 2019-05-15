@@ -1,7 +1,7 @@
 {
     "__default__" :
     {
-        "name" : "{rule}",
+        "name" : "virquanto",
         "time" : 10,
         "partition" : "main",
         "cpus-per-task" : 1,
