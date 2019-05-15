@@ -16,8 +16,8 @@ rule sample:
   input:
     lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
   output:
-    temp("munge/{sample}_read1.fq.gz"),
-    temp("munge/{sample}_read2.fq.gz")
+    temp("munge/{sample}_read1.fq"),
+    temp("munge/{sample}_read2.fq")
   params:
     frac = get_frac,
     seed = config["seed"]
@@ -29,7 +29,7 @@ rule fastp:
   input:
     sample = rules.sample.output
   output:
-    trimmed = [temp("munge/{sample}_read1_trimmed.fq.gz"), temp("munge/{sample}_read2_trimmed.fq.gz")],
+    trimmed = [temp("munge/{sample}_read1_trimmed.fq"), temp("munge/{sample}_read2_trimmed.fq")],
     json = "stats/{sample}_fastp.json",
     html = "stats/{sample}_fastp.html"
   params:
@@ -45,9 +45,9 @@ rule fastq_join:
   input:
     rules.fastp.output.trimmed
   output:
-    temp("munge/{sample}_un1.fq.gz"),
-    temp("munge/{sample}_un2.fq.gz"),
-    temp("munge/{sample}_join.fq.gz")
+    temp("munge/{sample}_un1.fq"),
+    temp("munge/{sample}_un2.fq"),
+    temp("munge/{sample}_join.fq")
   params:
     options = "-p 5 -m 10"
   log:
