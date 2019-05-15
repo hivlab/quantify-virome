@@ -1,15 +1,12 @@
 
 # Tantan mask of low complexity DNA sequences
 rule tantan:
-  input: rules.cd_hit.output.repres
+  input:
+    rules.cd_hit.output.repres
   output:
     temp("mask/{sample}_tantan.fasta")
-  conda:
-      "../envs/tantan.yaml"
-  shell:
-    """
-    tantan -x N {input} > {output}
-    """
+  wrapper:
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/4db2c879cc9ea87b9793af3b33b7347868222605/bio/tantan"
 
 # Filter tantan output
 # 1) Sequences > 50 nt of consecutive sequence without N
@@ -36,12 +33,10 @@ rule split_fasta:
   wrapper:
     "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/split-fasta"
 
-os.environ['REPEATMASKER_REPBASE_FILE']=config["repbase_file"]
-
 # Repeatmasker
 # Outputs are generated from input file names by RepeatMasker
 # must have file extension '.masked'
-# If no repetitive sequences were detected syamlink output to input file
+# If no repetitive sequences were detected symlink output to input file
 rule repeatmasker:
   input:
     fa = "mask/{sample}_repeatmasker_{n}.fa"
@@ -51,8 +46,9 @@ rule repeatmasker:
     tbl = "mask/{sample}_repeatmasker_{n}.fa.tbl"
   params:
     outdir = "mask"
-  threads: 8
-  conda: "../envs/repeatmasker.yaml"
+  threads: 2
+  singularity:
+    "shub://tpall/repeatmasker-singularity"
   shell:
     """
     RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
@@ -71,10 +67,21 @@ rule repeatmasker_good:
     masked = rules.repeatmasker.output.masked,
     original = rules.repeatmasker.input.fa
   output:
-    masked_filt = "mask/{sample}_repmaskedgood_{n}.fa",
-    original_filt = "mask/{sample}_unmaskedgood_{n}.fa"
+    masked_filt = temp("mask/{sample}_repmaskedgood_{n}.fa"),
+    original_filt = temp("mask/{sample}_unmaskedgood_{n}.fa")
   params:
     min_length = 50,
     por_n = 40
   wrapper:
     "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
+
+# Collect stats
+rule mask_stats:
+  input:
+    rules.cd_hit.output.repres, rules.tantan.output, rules.tantan_good.output, expand(["mask/{{sample}}_repmaskedgood_{n}.fa", "mask/{{sample}}_unmaskedgood_{n}.fa"], n = N)
+  output:
+    "stats/{sample}_mask.tsv"
+  params:
+    extra = "-T"
+  wrapper:
+    config["wrappers"]["stats"]
