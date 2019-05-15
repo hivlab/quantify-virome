@@ -49,7 +49,7 @@ rule fastq_join:
     temp("munge/{sample}_un2.fq"),
     temp("munge/{sample}_join.fq")
   params:
-    options = "-p 5 -m 10"
+    options = "-p 5 -m 10 -r stats/{sample}_stitchlength.report"
   log:
     "logs/{sample}_fastq_join.log"
   wrapper:
