@@ -5,6 +5,8 @@ rule tantan:
     rules.cd_hit.output.repres
   output:
     temp("mask/{sample}_tantan.fasta")
+  params:
+    extra = "-x N" # mask low complexity using N
   wrapper:
     "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/tantan"
 
