@@ -8,7 +8,7 @@ rule cd_hit:
     repres = temp("cdhit/{sample}_cdhit.fa"),
     clstr = temp("cdhit/{sample}_cdhit.fa.clstr")
   params:
-    "-c 0.984 -G 0 -n 10 -d 0 -aS 0.984 -g 1 -r 1 -M 0"
+    "-c 0.984 -G 0 -n 10 -d 0 -aS 0.984 -r 1 -M 0"
   threads: 2
   log:
     "logs/{sample}_cdhit.log"
