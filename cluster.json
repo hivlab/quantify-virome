@@ -6,13 +6,8 @@
         "partition" : "main",
         "cpus-per-task" : 1,
         "mem" : 2000,
-        "output" : "logs/slurm/slurm_%j.log"
+        "output" : "logs/slurm/slurm_%j.out"
     },
-    "fastp" :
-    {
-        "cpus-per-task" : "{threads}"
-    }
-    ,
     "repeatmasker" :
     {
         "time": 750,
@@ -21,8 +16,7 @@
     },
     "megablast_refgenome" :
     {
-        "time": 30,
-        "cpus-per-task" : "{threads}"
+        "time": 30
     },
     "megablast_nt" :
     {
@@ -47,9 +41,7 @@
     "cd_hit" :
     {
         "mem" : 8000,
-        "time": 480,
-        "cpus-per-task" : "{threads}",
-        "partition" : "main"
+        "time": 480
     },
     "blastn_virus" :
     {

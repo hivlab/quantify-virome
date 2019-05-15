@@ -6,7 +6,7 @@ rule tantan:
   output:
     temp("mask/{sample}_tantan.fasta")
   wrapper:
-    "https://bitbucket.org/tpall/snakemake-wrappers/raw/4db2c879cc9ea87b9793af3b33b7347868222605/bio/tantan"
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/tantan"
 
 # Filter tantan output
 # 1) Sequences > 50 nt of consecutive sequence without N
@@ -31,7 +31,7 @@ rule split_fasta:
   params:
     config["split_fasta"]["n_files"]
   wrapper:
-    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/split-fasta"
+    "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/split-fasta"
 
 # Repeatmasker
 # Outputs are generated from input file names by RepeatMasker

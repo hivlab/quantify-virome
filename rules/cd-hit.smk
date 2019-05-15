@@ -1,10 +1,18 @@
 
-# Run cd-hit to find and munge duplicate reads. We concatenate stitched fastq reads and convert to fasta.
-rule cd_hit:
+# Convert fastq file to fasta file.
+rule mergedfq2fa:
   input:
     rules.fastq_join.output
   output:
-    fa = temp("munge/{sample}_merge_reads.fa"),
+    temp("munge/{sample}_merge_reads.fa")
+  shell:
+    "zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}"
+
+# Run cd-hit to find and munge duplicate reads.
+rule cd_hit:
+  input:
+    rules.mergedfq2fa.output
+  output:
     repres = temp("cdhit/{sample}_cdhit.fa"),
     clstr = temp("cdhit/{sample}_cdhit.fa.clstr")
   params:
@@ -16,6 +24,5 @@ rule cd_hit:
     "../envs/cd-hit.yaml"
   shell:
     """
-    zcat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output.fa}
-    cd-hit-est -i {output.fa} -o {output.repres} -T {threads} {params} > {log}
+    cd-hit-est -i {input} -o {output.repres} -T {threads} {params} > {log}
     """
