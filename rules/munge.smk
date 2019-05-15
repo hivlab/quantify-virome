@@ -14,7 +14,7 @@ def get_frac(wildcards):
 # Imports local or remote fastq(.gz) files. Downsamples runs based on user-provided fractions in samples.tsv file.
 rule sample:
   input:
-    lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq
+    lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
   output:
     temp("munge/{sample}_read1.fq.gz"),
     temp("munge/{sample}_read2.fq.gz")
