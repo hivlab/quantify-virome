@@ -93,7 +93,7 @@ rule classify_phages:
 rule unmasked_other:
     input:
       rules.classify_phages.output.other,
-      rules.refgenome_unmapped.output
+      rules.repeatmasker_good.output.original_filt
     output:
       temp("blast/{sample}_candidate_viruses_{n}_unmasked.fa")
     conda:
@@ -101,7 +101,7 @@ rule unmasked_other:
     script:
       "../scripts/unmasked_viral.py"
 
-# Map reads against bacterial genomes.
+# Map reads to bacterial genomes.
 rule bwa_mem_refbac:
     input:
       reads = [rules.unmasked_other.output]

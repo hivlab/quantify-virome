@@ -11,25 +11,12 @@ def get_frac(wildcards):
     frac = SAMPLES.loc[wildcards.sample, ['frac']][0]
     return frac
 
-# Imports local or remote fastq(.gz) files. Downsamples runs based on user-provided fractions in samples.tsv file.
-rule sample:
-  input:
-    lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
-  output:
-    temp("munge/{sample}_read1.fq"),
-    temp("munge/{sample}_read2.fq")
-  params:
-    frac = get_frac,
-    seed = config["seed"]
-  wrapper:
-    config["wrappers"]["sample"]
-
 # Adapter trimming and quality filtering.
 rule fastp:
   input:
-    sample = rules.sample.output
+    sample = lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
   output:
-    trimmed = [temp("munge/{sample}_read1_trimmed.fq"), temp("munge/{sample}_read2_trimmed.fq")],
+    trimmed = [temp("munge/{sample}_trimmed1.fq"), temp("munge/{sample}_trimmed2.fq")],
     json = "stats/{sample}_fastp.json",
     html = "stats/{sample}_fastp.html"
   params:
@@ -40,10 +27,54 @@ rule fastp:
   wrapper:
     "0.34.0/bio/fastp"
 
+# Refgenome contaminant removal
+rule bwa_mem_refgenome:
+  input:
+    reads = [rules.fastp.output.trimmed]
+  output:
+    temp("mapped/{sample}_refgenome.bam")
+  params:
+    index = config["ref_genome"],
+    extra = "-L 100,100 -k 15",
+    sort = "none"
+  log:
+    "logs/{sample}_bwa_map_refgenome.log"
+  threads: 2
+  wrapper:
+    "0.32.0/bio/bwa/mem"
+
+# Extract unmapped reads and convert bam file to fastq file.
+rule refgenome_unmapped_fastq:
+  input:
+    rules.bwa_mem_refgenome.output
+  output:
+    temp("munge/{sample}_unmapped1.fq"),
+    temp("munge/{sample}_unmapped2.fq")
+  params:
+    sort = "",
+    bam2fq = "-f 4"
+  threads: 2
+  wrapper:
+    "0.32.0/bio/samtools/bam2fq/separate"
+
+# Subsample much bigger runs
+# based on precalculated fractions in samples.tsv.
+rule sample:
+  input:
+    rules.refgenome_unmapped_fastq.output
+  output:
+    temp("munge/{sample}_subsample1.fq"),
+    temp("munge/{sample}_subsample2.fq")
+  params:
+    frac = get_frac,
+    seed = config["seed"]
+  wrapper:
+    config["wrappers"]["sample"]
+
 # Stitch paired reads.
 rule fastq_join:
   input:
-    rules.fastp.output.trimmed
+    rules.sample.output
   output:
     temp("munge/{sample}_un1.fq"),
     temp("munge/{sample}_un2.fq"),
@@ -55,10 +86,22 @@ rule fastq_join:
   wrapper:
     config["wrappers"]["fastq_join"]
 
-# Collect fastq stats
+# Calculate bam file stats.
+rule refgenome_bam_stats:
+    input:
+      rules.bwa_mem_refgenome.output
+    output:
+      "stats/{sample}_refgenome_mapping.txt"
+    params:
+      extra = "-f 4",
+      region = ""
+    wrapper:
+        "0.32.0/bio/samtools/stats"
+
+# Collect fastq stats.
 rule munge_stats:
   input:
-    rules.sample.output, rules.fastp.output, rules.fastq_join.output
+    rules.fastp.output.trimmed, rules.refgenome_unmapped_fastq.output, rules.sample.output, rules.fastq_join.output
   output:
     "stats/{sample}_munge.tsv"
   params:
