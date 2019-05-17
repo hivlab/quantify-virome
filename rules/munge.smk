@@ -61,35 +61,6 @@ rule refgenome_unmapped_fastq:
   wrapper:
     "0.32.0/bio/samtools/bam2fq/interleaved"
 
-# Subsample much bigger runs
-# based on precalculated fractions in samples.tsv.
-rule sample:
-  input:
-    rules.refgenome_unmapped_fastq.output
-  output:
-    temp("munge/{sample}_subsample1.fq"),
-    temp("munge/{sample}_subsample2.fq")
-  params:
-    frac = get_frac,
-    seed = config["seed"]
-  wrapper:
-    config["wrappers"]["sample"]
-
-# Stitch paired reads.
-rule fastq_join:
-  input:
-    rules.sample.output
-  output:
-    temp("munge/{sample}_un1.fq"),
-    temp("munge/{sample}_un2.fq"),
-    temp("munge/{sample}_join.fq")
-  params:
-    options = "-p 5 -m 10 -r stats/{sample}_stitchlength.report"
-  log:
-    "logs/{sample}_fastq_join.log"
-  wrapper:
-    config["wrappers"]["fastq_join"]
-
 # Calculate bam file stats.
 rule refgenome_bam_stats:
     input:
