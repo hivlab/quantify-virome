@@ -49,17 +49,20 @@ rule bwa_mem_refgenome:
   wrapper:
     "0.32.0/bio/bwa/mem"
 
-# Extract unmapped reads and convert bam file to fastq file.
-rule refgenome_unmapped_fastq:
+# Concatenate merged reads and convert to fasta.
+rule unmapped_fasta:
   input:
     rules.bwa_mem_refgenome.output
   output:
-    temp("munge/{sample}_unmapped.fq")
-  params:
-      "-n -f 4"
-  threads: 2
-  wrapper:
-    "0.32.0/bio/samtools/bam2fq/interleaved"
+    fastq = temp("munge/{sample}_unmapped.fq"),
+    fasta = temp("munge/{sample}_unmapped.fa")
+  conda:
+    "../envs/bbtools.yaml"
+  shell:
+    """
+    reformat.sh in={input} out={output.fastq} unmappedonly primaryonly
+    reformat.sh in={output.fastq} out={output.fasta} uniquenames
+    """
 
 # Calculate bam file stats.
 rule refgenome_bam_stats:
@@ -76,7 +79,7 @@ rule refgenome_bam_stats:
 # Collect fastq stats.
 rule munge_stats:
   input:
-    rules.preprocess.output.trimmed, rules.refgenome_unmapped_fastq.output, rules.sample.output, rules.fastq_join.output
+    rules.preprocess.output.trimmed, rules.unmapped_fasta.output
   output:
     "stats/{sample}_munge.tsv"
   params:
