@@ -11,26 +11,32 @@ def get_frac(wildcards):
     frac = SAMPLES.loc[wildcards.sample, ['frac']][0]
     return frac
 
-# Adapter trimming and quality filtering.
-rule fastp:
+rule preprocess:
   input:
     sample = lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
   output:
-    trimmed = [temp("munge/{sample}_trimmed1.fq"), temp("munge/{sample}_trimmed2.fq")],
-    json = "stats/{sample}_fastp.json",
-    html = "stats/{sample}_fastp.html"
+    adapters = temp("munge/{sample}_adapters.fa"),
+    merged = temp("munge/{sample}_merged.fq"),
+    unmerged = temp("munge/{sample}_unmerged.fq"),
+    reads = temp("munge/{sample}_reads.fq"),
+    trimmed = temp("munge/{sample}_trimmed.fq")
   params:
-    extra = "--trim_front1 5 --trim_tail1 5 --length_required 50 --low_complexity_filter --complexity_threshold 8"
+    bbduk = "ktrim=r k=23 mink=11 hdist=1 qtrim=r trimq=10 maq=10 minlen=100"
   threads: 2
-  log:
-    "logs/{sample}_fastp.log"
-  wrapper:
-    "0.34.0/bio/fastp"
+  conda:
+    "../envs/bbtools.yaml"
+  shell:
+    """
+    bbmerge.sh in1={input[0]} in2={input[1]} outa={output.adapters}
+    bbmerge.sh in1={input[0]} in2={input[1]} out={output.merged} outu={output.unmerged} adapters={output.adapters}
+    cat {output.merged} {output.unmerged} > {output.reads}
+    bbduk.sh in={output.reads} out={output.trimmed} ref={output.adapters} {params.bbduk}
+    """
 
 # Refgenome contaminant removal
 rule bwa_mem_refgenome:
   input:
-    reads = [rules.fastp.output.trimmed]
+    reads = [rules.preprocess.output.trimmed]
   output:
     temp("mapped/{sample}_refgenome.bam")
   params:
@@ -48,14 +54,12 @@ rule refgenome_unmapped_fastq:
   input:
     rules.bwa_mem_refgenome.output
   output:
-    temp("munge/{sample}_unmapped1.fq"),
-    temp("munge/{sample}_unmapped2.fq")
+    temp("munge/{sample}_unmapped.fq")
   params:
-    sort = "",
-    bam2fq = "-f 4"
+      "-n -f 4"
   threads: 2
   wrapper:
-    "0.32.0/bio/samtools/bam2fq/separate"
+    "0.32.0/bio/samtools/bam2fq/interleaved"
 
 # Subsample much bigger runs
 # based on precalculated fractions in samples.tsv.
@@ -101,7 +105,7 @@ rule refgenome_bam_stats:
 # Collect fastq stats.
 rule munge_stats:
   input:
-    rules.fastp.output.trimmed, rules.refgenome_unmapped_fastq.output, rules.sample.output, rules.fastq_join.output
+    rules.preprocess.output.trimmed, rules.refgenome_unmapped_fastq.output, rules.sample.output, rules.fastq_join.output
   output:
     "stats/{sample}_munge.tsv"
   params:
