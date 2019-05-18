@@ -69,7 +69,7 @@ rule refgenome_bam_stats:
     input:
       rules.bwa_mem_refgenome.output
     output:
-      "stats/{sample}_refgenome_mapping.txt"
+      "stats/{sample}_refgenome_stats.txt"
     params:
       extra = "-f 4",
       region = ""
