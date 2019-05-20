@@ -1,7 +1,0 @@
-name: bbtools
-channels:
-  - agbiome
-  - conda-forge
-  - defaults
-dependencies:
-  - bbtools

@@ -15,11 +15,11 @@ rule preprocess:
   input:
     sample = lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
   output:
-    adapters = temp("munge/{sample}_adapters.fa"),
-    merged = temp("munge/{sample}_merged.fq"),
-    unmerged = temp("munge/{sample}_unmerged.fq"),
-    reads = temp("munge/{sample}_reads.fq"),
-    trimmed = temp("munge/{sample}_trimmed.fq")
+    adapters = temp("preprocess/{sample}_adapters.fa"),
+    merged = temp("preprocess/{sample}_merged.fq"),
+    unmerged = temp("preprocess/{sample}_unmerged.fq"),
+    reads = temp("preprocess/{sample}_reads.fq"),
+    trimmed = temp("preprocess/{sample}_trimmed.fq")
   params:
     bbduk = "ktrim=r k=23 mink=11 hdist=1 qtrim=r trimq=10 maq=10 minlen=100"
   threads: 2
@@ -54,8 +54,8 @@ rule unmapped_fasta:
   input:
     rules.bwa_mem_refgenome.output
   output:
-    fastq = temp("munge/{sample}_unmapped.fq"),
-    fasta = temp("munge/{sample}_unmapped.fa")
+    fastq = temp("preprocess/{sample}_unmapped.fq"),
+    fasta = temp("preprocess/{sample}_unmapped.fa")
   singularity:
     "docker://bryce911/bbtools"
   shell:
@@ -166,7 +166,7 @@ rule megablast_refgenome:
     input:
       query = rules.repeatmasker_good.output.masked_filt
     output:
-      out = temp("refgenomefilter/{sample}_megablast_{n}.tsv")
+      out = temp("blast/{sample}_megablast_{n}.tsv")
     params:
       db = config["ref_genome"],
       task = "megablast",
@@ -186,8 +186,8 @@ rule parse_megablast:
       blast_result = rules.megablast_refgenome.output.out,
       query = rules.repeatmasker_good.output.masked_filt
     output:
-      mapped = temp("refgenomefilter/{sample}_refgenome_megablast_{n}_known-host.tsv"),
-      unmapped = temp("refgenomefilter/{sample}_refgenome_megablast_{n}_unmapped.fa")
+      mapped = temp("blast/{sample}_refgenome_megablast_{n}_known-host.tsv"),
+      unmapped = temp("blast/{sample}_refgenome_megablast_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -199,7 +199,7 @@ rule preprocess_stats:
   input:
     rules.preprocess.output.trimmed,
     rules.unmapped_fasta.output,
-    expand("refgenomefilter/{{sample}}_refgenome_megablast_{n}_unmapped.fa", n = N),
+    expand("blast/{{sample}}_refgenome_megablast_{n}_unmapped.fa", n = N),
     rules.cd_hit.output.repres,
     rules.tantan.output,
     rules.tantan_good.output,

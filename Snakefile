@@ -34,11 +34,9 @@ ZEN = ZENRemoteProvider()
 RESULTS = ["phages", "phages_viruses", "non_viral"]
 TAXONOMY = expand("taxonomy/{file}.csv",
                 file = ["names", "nodes", "division"])
-STATS = expand(["stats/{sample}_munge.tsv",
-                "stats/{sample}_mask.tsv",
-                "stats/{sample}_refgenomeblast.tsv",
+STATS = expand(["stats/{sample}_preprocess.tsv",
                 "stats/{sample}_blast.tsv",
-                "stats/{sample}_refgenome_mapping.txt"],
+                "stats/{sample}_refgenome_stats.txt"],
                 sample = SAMPLE_IDS) + expand("stats/{sample}_refbac_stats_{n}.txt",
                 sample = SAMPLE_IDS, n = N)
 OUTPUTS = expand("results/{sample}_{result}_{n}.csv",

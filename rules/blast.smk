@@ -194,16 +194,6 @@ rule parse_megablast_nt:
     wrapper:
       config["wrappers"]["parse_blast"]
 
-# Collect stats
-rule refbac_unmapped_stats:
-  input:
-    expand(["blast/{{sample}}_bac_unmapped_{n}_masked.fa", "blast/{{sample}}_megablast_nt_{n}_unmapped.fa"], n = N)
-  output:
-    "stats/{sample}_refbac.tsv"
-  params:
-    extra = "-T"
-  wrapper:
-    "https://bitbucket.org/tpall/snakemake-wrappers/raw/dfff20d4f55ed7b9e52afa34f57a4556e295680f/bio/seqkit/stats"
 
 # Blastn against nt database.
 rule blastn_nt:
@@ -298,6 +288,7 @@ rule blast_stats:
     expand(["blast/{{sample}}_blastn_virus_{n}_unmapped.fa",
     "blast/{{sample}}_blastx_virus_{n}_unmapped.fa",
     "blast/{{sample}}_candidate_viruses_{n}_unmasked.fa",
+    "blast/{{sample}}_bac_unmapped_{n}_masked.fa",
     "blast/{{sample}}_megablast_nt_{n}_unmapped.fa",
     "blast/{{sample}}_blastn_nt_{n}_unmapped.fa"], n = N) if config["run_blastx"] else expand("results/{{sample}}_unassigned_{n}.fa", n = N)
   output:
