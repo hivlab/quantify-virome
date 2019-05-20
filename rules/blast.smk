@@ -124,8 +124,8 @@ rule unmapped_refbac:
   output:
     fastq = temp("blast/{sample}_unmapped_{n}.fq"),
     fasta = temp("blast/{sample}_unmapped_{n}.fa")
-  singularity:
-    "shub://connor-lab/singularity-recipes:bbtools"
+  conda:
+    "../envs/bbtools.yaml"
   shell:
     """
     reformat.sh in={input} out={output.fastq} unmappedonly primaryonly

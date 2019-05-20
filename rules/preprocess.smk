@@ -23,8 +23,8 @@ rule preprocess:
   params:
     bbduk = "ktrim=r k=23 mink=11 hdist=1 qtrim=r trimq=10 maq=10 minlen=100"
   threads: 2
-  singularity:
-    "shub://connor-lab/singularity-recipes:bbtools"
+  conda:
+    "../envs/bbtools.yaml"
   shell:
     """
     bbmerge.sh in1={input[0]} in2={input[1]} outa={output.adapters}
@@ -56,8 +56,8 @@ rule unmapped_refgenome:
   output:
     fastq = temp("preprocess/{sample}_unmapped.fq"),
     fasta = temp("preprocess/{sample}_unmapped.fa")
-  singularity:
-    "shub://connor-lab/singularity-recipes:bbtools"
+  conda:
+    "../envs/bbtools.yaml"
   shell:
     """
     reformat.sh in={input} out={output.fastq} unmappedonly primaryonly
@@ -76,8 +76,8 @@ rule cd_hit:
   threads: 2
   log:
     "logs/{sample}_cdhit.log"
-  singularity:
-    "docker://quay.io/biocontainers/cd-hit:4.8.1--hdbcaa40_2"
+  conda:
+    "../envs/cd-hit.yaml"
   shell:
     """
     cd-hit-est -i {input} -o {output.repres} -T {threads} {params} > {log}

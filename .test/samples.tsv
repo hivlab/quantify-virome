@@ -1,2 +1,2 @@
-sample	read_count	fq1	fq2	frac
-SRR5557999	3196662	ftp.sra.ebi.ac.uk/vol1/fastq/SRR555/009/SRR5557999/SRR5557999_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/SRR555/009/SRR5557999/SRR5557999_2.fastq.gz	0.01
+sample	fq1	fq2	frac
+SRR5580016sub2	reads/SRR5580016sub2_1.fq	reads/SRR5580016sub2_2.fq	1
