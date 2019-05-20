@@ -117,26 +117,20 @@ rule bwa_mem_refbac:
     wrapper:
       "0.32.0/bio/bwa/mem"
 
-# Extract unmapped reads and convert bam file to fastq file.
-rule refbac_unmapped_fastq:
-    input:
-      rules.bwa_mem_refbac.output
-    output:
-      temp("blast/{sample}_refbac_unmapped_{n}.fq")
-    params:
-      "-n -f 4"
-    threads: 2
-    wrapper:
-      "0.32.0/bio/samtools/bam2fq/interleaved"
-
-# Convert fastq file to fasta file.
-rule refbac_unmapped:
-    input:
-      rules.refbac_unmapped_fastq.output
-    output:
-      temp("blast/{sample}_refbac_unmapped_{n}.fa")
-    shell:
-      "cat {input} | sed -n '1~4s/^@/>/p;2~4p' > {output}"
+# Extract unmapped reads and convert to fasta.
+rule unmapped_refbac:
+  input:
+    rules.bwa_mem_refbac.output
+  output:
+    fastq = temp("blast/{sample}_unmapped_{n}.fq"),
+    fasta = temp("blast/{sample}_unmapped_{n}.fa")
+  singularity:
+    "shub://connor-lab/singularity-recipes:bbtools"
+  shell:
+    """
+    reformat.sh in={input} out={output.fastq} unmappedonly primaryonly
+    reformat.sh in={output.fastq} out={output.fasta}
+    """
 
 # Calculate bam file stats
 rule refbac_bam_stats:
@@ -153,10 +147,10 @@ rule refbac_bam_stats:
 # Subset repeatmasker masked reads using unmapped reads.
 rule refbac_unmapped_masked:
     input:
-      rules.refbac_unmapped.output,
+      rules.unmapped_refbac.output.fasta,
       rules.repeatmasker_good.output.masked_filt
     output:
-      temp("blast/{sample}_bac_unmapped_{n}_masked.fa")
+      temp("blast/{sample}_unmapped_{n}_masked.fa")
     conda:
       "../envs/biopython.yaml"
     script:

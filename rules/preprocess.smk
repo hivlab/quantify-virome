@@ -24,7 +24,7 @@ rule preprocess:
     bbduk = "ktrim=r k=23 mink=11 hdist=1 qtrim=r trimq=10 maq=10 minlen=100"
   threads: 2
   singularity:
-    "docker://bryce911/bbtools"
+    "shub://connor-lab/singularity-recipes:bbtools"
   shell:
     """
     bbmerge.sh in1={input[0]} in2={input[1]} outa={output.adapters}
@@ -33,7 +33,7 @@ rule preprocess:
     bbduk.sh in={output.reads} out={output.trimmed} ref={output.adapters} {params.bbduk}
     """
 
-# Refgenome contaminant removal
+# Map reads to Refgenome.
 rule bwa_mem_refgenome:
   input:
     reads = [rules.preprocess.output.trimmed]
@@ -49,15 +49,15 @@ rule bwa_mem_refgenome:
   wrapper:
     "0.32.0/bio/bwa/mem"
 
-# Concatenate merged reads and convert to fasta.
-rule unmapped_fasta:
+# Extract unmapped reads and convert to fasta.
+rule unmapped_refgenome:
   input:
     rules.bwa_mem_refgenome.output
   output:
     fastq = temp("preprocess/{sample}_unmapped.fq"),
     fasta = temp("preprocess/{sample}_unmapped.fa")
   singularity:
-    "docker://bryce911/bbtools"
+    "shub://connor-lab/singularity-recipes:bbtools"
   shell:
     """
     reformat.sh in={input} out={output.fastq} unmappedonly primaryonly
@@ -67,7 +67,7 @@ rule unmapped_fasta:
 # Run cd-hit to find and cluster duplicate reads.
 rule cd_hit:
   input:
-    rules.unmapped_fasta.output.fasta
+    rules.unmapped_refgenome.output.fasta
   output:
     repres = temp("cdhit/{sample}_cdhit.fa"),
     clstr = temp("cdhit/{sample}_cdhit.fa.clstr")
@@ -198,7 +198,7 @@ rule parse_megablast:
 rule preprocess_stats:
   input:
     rules.preprocess.output.trimmed,
-    rules.unmapped_fasta.output,
+    rules.unmapped_refgenome.output,
     expand("blast/{{sample}}_refgenome_megablast_{n}_unmapped.fa", n = N),
     rules.cd_hit.output.repres,
     rules.tantan.output,
