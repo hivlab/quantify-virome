@@ -55,8 +55,5 @@ rule all:
         OUTPUTS, ZENOUTPUTS if config["zenodo"]["deposition_id"] else OUTPUTS
 
 ## Modules
-include: "rules/munge.smk"
-include: "rules/cd-hit.smk"
-include: "rules/mask.smk"
-include: "rules/refgenomefilter.smk"
+include: "rules/preprocess.smk"
 include: "rules/blast.smk"
