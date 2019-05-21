@@ -129,6 +129,7 @@ rule repeatmasker:
   output:
     masked = temp("mask/{sample}_repeatmasker_{n}.fa.masked"),
     out = temp("mask/{sample}_repeatmasker_{n}.fa.out"),
+    cat = temp("mask/{sample}_repeatmasker_{n}.fa.cat"),
     tbl = "mask/{sample}_repeatmasker_{n}.fa.tbl"
   params:
     outdir = "mask"
