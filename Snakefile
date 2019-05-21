@@ -4,7 +4,7 @@ __copyright__ = "Copyright 2018, Avilab"
 __email__ = "taavi.pall@ut.ee"
 __license__ = "MIT"
 
-## Load libraries
+# Load libraries
 import os
 import json
 import glob
@@ -14,7 +14,7 @@ from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
 from snakemake.utils import validate
 shell.executable("bash")
 
-## Load configuration file with sample and path info
+# Load configuration file with sample and path info
 configfile: "config.yaml"
 validate(config, "schemas/config.schema.yaml")
 SAMPLES = pd.read_csv(config["samples"], sep = "\s+").set_index("sample", drop=False)
@@ -23,11 +23,11 @@ SAMPLE_IDS = SAMPLES.index.values.tolist()
 N_FILES = config["split_fasta"]["n_files"]
 N = list(range(1, N_FILES + 1, 1))
 
-## Create slurm logs dir
+# Create slurm logs dir
 if not os.path.exists("logs/slurm"):
     os.makedirs("logs/slurm")
 
-## Setup Zenodo RemoteProvider
+# Setup Zenodo RemoteProvider
 ZEN = ZENRemoteProvider()
 
 # Main output files and target rules
@@ -52,6 +52,6 @@ rule all:
     input:
         OUTPUTS, ZENOUTPUTS if config["zenodo"]["deposition_id"] else OUTPUTS
 
-## Modules
+# Modules
 include: "rules/preprocess.smk"
 include: "rules/blast.smk"

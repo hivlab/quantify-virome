@@ -1,7 +1,15 @@
 
 from Bio import SeqIO
-from common.helpers import get_ids
-from common.helpers import subset_records
+
+# https://www.biostars.org/p/10162/
+def get_ids(source):
+    ids = map(lambda x: x.id, source)
+    return set(ids)
+
+def subset_records(source, ids):
+    for record in source:
+        if record.id in ids:
+            yield record
 
 # Ref genome unmapped reads
 unmapped = SeqIO.parse(snakemake.input[0], "fasta")

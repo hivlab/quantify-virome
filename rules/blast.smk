@@ -4,10 +4,8 @@ rule prepare_taxonomy_data:
   input: config["names"], config["nodes"], config["division"]
   output:
       expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
-  conda:
-    "../envs/tidyverse.yaml"
-  script:
-    "../scripts/prepare_taxonomy_data.R"
+  wrapper:
+    "file:../scripts/prepare_taxonomy_data/wrapper.R"
 
 # Blastn, megablast and blastx input, output, and params keys must match commandline blast option names. Please see https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a for all available options.
 # Blast against nt virus database.
@@ -96,10 +94,8 @@ rule unmasked_other:
       rules.repeatmasker_good.output.original_filt
     output:
       temp("blast/{sample}_candidate_viruses_{n}_unmasked.fa")
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/unmasked_viral.py"
+    wrapper:
+      "file:../scripts/unmasked_viral/wrapper.py"
 
 # Map reads to bacterial genomes.
 rule bwa_mem_refbac:
@@ -124,13 +120,8 @@ rule unmapped_refbac:
   output:
     fastq = temp("blast/{sample}_unmapped_{n}.fq"),
     fasta = temp("blast/{sample}_unmapped_{n}.fa")
-  conda:
-    "../envs/bbtools.yaml"
-  shell:
-    """
-    reformat.sh in={input} out={output.fastq} unmappedonly primaryonly
-    reformat.sh in={output.fastq} out={output.fasta}
-    """
+  wrapper:
+    "file:../scripts/unmapped/wrapper.py"
 
 # Calculate bam file stats
 rule refbac_bam_stats:
@@ -151,10 +142,8 @@ rule refbac_unmapped_masked:
       rules.repeatmasker_good.output.masked_filt
     output:
       temp("blast/{sample}_unmapped_{n}_masked.fa")
-    conda:
-      "../envs/biopython.yaml"
-    script:
-      "../scripts/unmapped_masked_ids.py"
+    wrapper:
+      "file:../scripts/unmapped_masked_ids/wrapper.py"
 
 # Megablast against nt database.
 rule megablast_nt:

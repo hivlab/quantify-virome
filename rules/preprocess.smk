@@ -19,24 +19,20 @@ rule preprocess:
     merged = temp("preprocess/{sample}_merged.fq"),
     unmerged = temp("preprocess/{sample}_unmerged.fq"),
     reads = temp("preprocess/{sample}_reads.fq"),
-    trimmed = temp("preprocess/{sample}_trimmed.fq")
+    trimmed = temp("preprocess/{sample}_trimmed.fq"),
+    sampled = temp("preprocess/{sample}_sample.fq")
   params:
-    bbduk = "ktrim=r k=23 mink=11 hdist=1 qtrim=r trimq=10 maq=10 minlen=100"
+    bbduk = "qtrim=r trimq=10 maq=10 minlen=100",
+    frac = lambda wildcards: get_frac(wildcards),
+    seed = config["seed"]
   threads: 2
-  conda:
-    "../envs/bbtools.yaml"
-  shell:
-    """
-    bbmerge.sh in1={input[0]} in2={input[1]} outa={output.adapters}
-    bbmerge.sh in1={input[0]} in2={input[1]} out={output.merged} outu={output.unmerged} adapters={output.adapters}
-    cat {output.merged} {output.unmerged} > {output.reads}
-    bbduk.sh in={output.reads} out={output.trimmed} ref={output.adapters} {params.bbduk}
-    """
+  wrapper:
+    "file:../scripts/preprocess/wrapper.py"
 
 # Map reads to Refgenome.
 rule bwa_mem_refgenome:
   input:
-    reads = [rules.preprocess.output.trimmed]
+    reads = [rules.preprocess.output.sampled]
   output:
     temp("mapped/{sample}_refgenome.bam")
   params:
@@ -56,13 +52,10 @@ rule unmapped_refgenome:
   output:
     fastq = temp("preprocess/{sample}_unmapped.fq"),
     fasta = temp("preprocess/{sample}_unmapped.fa")
-  conda:
-    "../envs/bbtools.yaml"
-  shell:
-    """
-    reformat.sh in={input} out={output.fastq} unmappedonly primaryonly
-    reformat.sh in={output.fastq} out={output.fasta} uniquenames
-    """
+  params:
+    reformat_fasta_extra = "uniquenames"
+  wrapper:
+    "file:../scripts/unmapped/wrapper.py"
 
 # Run cd-hit to find and cluster duplicate reads.
 rule cd_hit:
@@ -72,16 +65,12 @@ rule cd_hit:
     repres = temp("cdhit/{sample}_cdhit.fa"),
     clstr = temp("cdhit/{sample}_cdhit.fa.clstr")
   params:
-    "-c 0.984 -G 0 -n 10 -d 0 -aS 0.984 -r 1 -M 0"
+    extra = "-c 0.984 -G 0 -n 10 -d 0 -aS 0.984 -r 1 -M 0"
   threads: 2
   log:
     "logs/{sample}_cdhit.log"
-  conda:
-    "../envs/cd-hit.yaml"
-  shell:
-    """
-    cd-hit-est -i {input} -o {output.repres} -T {threads} {params} > {log}
-    """
+  wrapper:
+    "file:../scripts/cdhit/wrapper.py"
 
 # Tantan mask of low complexity DNA sequences
 rule tantan:
