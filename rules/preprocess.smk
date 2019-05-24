@@ -26,10 +26,8 @@ rule preprocess:
     frac = lambda wildcards: get_frac(wildcards),
     seed = config["seed"]
   threads: 2
-  singularity:
-    "shub://connor-lab/singularity-recipes:bbtools"
-  script:
-    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/preprocess/wrapper.py"
+  wrapper:
+    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/preprocess"
 
 # Map reads to Refgenome.
 rule bwa_mem_refgenome:
@@ -56,10 +54,8 @@ rule unmapped_refgenome:
     fasta = temp("preprocess/{sample}_unmapped.fa")
   params:
     reformat_fasta_extra = "uniquenames"
-  singularity:
-    "shub://connor-lab/singularity-recipes:bbtools"
-  script:
-    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped/wrapper.py"
+  wrapper:
+    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped"
 
 # Run cd-hit to find and cluster duplicate reads.
 rule cd_hit:
