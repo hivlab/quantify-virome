@@ -120,8 +120,10 @@ rule unmapped_refbac:
   output:
     fastq = temp("blast/{sample}_unmapped_{n}.fq"),
     fasta = temp("blast/{sample}_unmapped_{n}.fa")
+  singularity:
+    "shub://connor-lab/singularity-recipes:bbtools"
   wrapper:
-    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped"
+    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped/wrapper.py"
 
 # Calculate bam file stats
 rule refbac_bam_stats:
