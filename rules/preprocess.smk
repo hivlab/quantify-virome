@@ -27,7 +27,7 @@ rule preprocess:
     seed = config["seed"]
   threads: 2
   wrapper:
-    "file:../scripts/preprocess/wrapper.py"
+    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/preprocess"
 
 # Map reads to Refgenome.
 rule bwa_mem_refgenome:
@@ -55,7 +55,7 @@ rule unmapped_refgenome:
   params:
     reformat_fasta_extra = "uniquenames"
   wrapper:
-    "file:../scripts/unmapped/wrapper.py"
+    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped"
 
 # Run cd-hit to find and cluster duplicate reads.
 rule cd_hit:
@@ -70,7 +70,7 @@ rule cd_hit:
   log:
     "logs/{sample}_cdhit.log"
   wrapper:
-    "file:../scripts/cdhit/wrapper.py"
+    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/cdhit"
 
 # Tantan mask of low complexity DNA sequences
 rule tantan:

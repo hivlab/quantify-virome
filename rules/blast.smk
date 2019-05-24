@@ -95,7 +95,7 @@ rule unmasked_other:
     output:
       temp("blast/{sample}_candidate_viruses_{n}_unmasked.fa")
     wrapper:
-      "file:../scripts/unmasked_viral/wrapper.py"
+      "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmasked_viral"
 
 # Map reads to bacterial genomes.
 rule bwa_mem_refbac:
@@ -121,7 +121,7 @@ rule unmapped_refbac:
     fastq = temp("blast/{sample}_unmapped_{n}.fq"),
     fasta = temp("blast/{sample}_unmapped_{n}.fa")
   wrapper:
-    "file:../scripts/unmapped/wrapper.py"
+    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped"
 
 # Calculate bam file stats
 rule refbac_bam_stats:
@@ -143,7 +143,7 @@ rule refbac_unmapped_masked:
     output:
       temp("blast/{sample}_unmapped_{n}_masked.fa")
     wrapper:
-      "file:../scripts/unmapped_masked_ids/wrapper.py"
+      "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped_masked_ids"
 
 # Megablast against nt database.
 rule megablast_nt:
