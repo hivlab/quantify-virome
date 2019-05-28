@@ -17,9 +17,9 @@ shell.executable("bash")
 # Load configuration file with sample and path info
 configfile: "config.yaml"
 validate(config, "schemas/config.schema.yaml")
-SAMPLES = pd.read_csv(config["samples"], sep = "\s+").set_index("sample", drop=False)
-validate(SAMPLES, "schemas/samples.schema.yaml")
-SAMPLE_IDS = SAMPLES.index.values.tolist()
+RUNS = pd.read_csv(config["samples"], sep = "\s+").set_index("run", drop = False)
+validate(RUNS, "schemas/samples.schema.yaml")
+RUN_IDS = RUNS.index.values.tolist()
 N_FILES = config["split_fasta"]["n_files"]
 N = list(range(1, N_FILES + 1, 1))
 
@@ -34,19 +34,19 @@ ZEN = ZENRemoteProvider()
 RESULTS = ["phages", "phages_viruses", "non_viral"]
 TAXONOMY = expand("taxonomy/{file}.csv",
                 file = ["names", "nodes", "division"])
-STATS = expand(["stats/{sample}_preprocess.tsv",
-                "stats/{sample}_blast.tsv",
-                "stats/{sample}_refgenome_stats.txt"],
-                sample = SAMPLE_IDS) + expand("stats/{sample}_refbac_stats_{n}.txt",
-                sample = SAMPLE_IDS, n = N)
-OUTPUTS = expand("results/{sample}_{result}_{n}.csv",
-                sample = SAMPLE_IDS, n = N, result = RESULTS) + expand("results/{sample}_unassigned_{n}.fa",
-                sample = SAMPLE_IDS, n = N) + TAXONOMY + STATS
+STATS = expand(["stats/{run}_preprocess.tsv",
+                "stats/{run}_blast.tsv",
+                "stats/{run}_refgenome_stats.txt"],
+                sample = RUN_IDS) + expand("stats/{run}_refbac_stats_{n}.txt",
+                sample = RUN_IDS, n = N)
+OUTPUTS = expand("results/{run}_{result}_{n}.csv",
+                sample = RUN_IDS, n = N, result = RESULTS) + expand("results/{run}_unassigned_{n}.fa",
+                sample = RUN_IDS, n = N) + TAXONOMY + STATS
 
 # Remote outputs
 if config["zenodo"]["deposition_id"]:
-    ZENOUTPUTS = [ZEN.remote(expand("{deposition_id}/files/results/{sample}_{result}.csv.tar.gz", deposition_id = config["zenodo"]["deposition_id"], sample = SAMPLE_IDS, result = RESULTS)),
-    ZEN.remote(expand("{deposition_id}/files/results/{sample}_unassigned.fa.tar.gz", deposition_id = config["zenodo"]["deposition_id"], sample = SAMPLE_IDS))]
+    ZENOUTPUTS = [ZEN.remote(expand("{deposition_id}/files/results/{run}_{result}.csv.tar.gz", deposition_id = config["zenodo"]["deposition_id"], sample = RUN_IDS, result = RESULTS)),
+    ZEN.remote(expand("{deposition_id}/files/results/{run}_unassigned.fa.tar.gz", deposition_id = config["zenodo"]["deposition_id"], sample = RUN_IDS))]
 
 rule all:
     input:

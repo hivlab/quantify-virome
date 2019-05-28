@@ -3,24 +3,24 @@ FTP = FTPRemoteProvider(username = config["username"], password = config["passwo
 
 def get_fastq(wildcards):
     """Get fraction read file paths from samples.tsv"""
-    urls = SAMPLES.loc[wildcards.sample, ['fq1', 'fq2']]
+    urls = RUNS.loc[wildcards.run, ['fq1', 'fq2']]
     return list(urls)
 
 def get_frac(wildcards):
     """Get fraction of reads to be sampled from samples.tsv"""
-    frac = SAMPLES.loc[wildcards.sample, ['frac']][0]
+    frac = RUNS.loc[wildcards.run, ['frac']][0]
     return frac
 
 rule preprocess:
   input:
     sample = lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
   output:
-    adapters = temp("preprocess/{sample}_adapters.fa"),
-    merged = temp("preprocess/{sample}_merged.fq"),
-    unmerged = temp("preprocess/{sample}_unmerged.fq"),
-    reads = temp("preprocess/{sample}_reads.fq"),
-    trimmed = temp("preprocess/{sample}_trimmed.fq"),
-    sampled = temp("preprocess/{sample}_sample.fq")
+    adapters = temp("preprocess/{run}_adapters.fa"),
+    merged = temp("preprocess/{run}_merged.fq"),
+    unmerged = temp("preprocess/{run}_unmerged.fq"),
+    reads = temp("preprocess/{run}_reads.fq"),
+    trimmed = temp("preprocess/{run}_trimmed.fq"),
+    sampled = temp("preprocess/{run}_sample.fq")
   params:
     bbduk = "qtrim=r trimq=10 maq=10 minlen=100",
     frac = lambda wildcards: get_frac(wildcards),
@@ -34,13 +34,13 @@ rule bwa_mem_refgenome:
   input:
     reads = [rules.preprocess.output.sampled]
   output:
-    temp("mapped/{sample}_refgenome.bam")
+    temp("mapped/{run}_refgenome.bam")
   params:
     index = config["ref_genome"],
     extra = "-L 100,100 -k 15",
     sort = "none"
   log:
-    "logs/{sample}_bwa_map_refgenome.log"
+    "logs/{run}_bwa_map_refgenome.log"
   threads: 2
   wrapper:
     "0.32.0/bio/bwa/mem"
@@ -50,8 +50,8 @@ rule unmapped_refgenome:
   input:
     rules.bwa_mem_refgenome.output
   output:
-    fastq = temp("preprocess/{sample}_unmapped.fq"),
-    fasta = temp("preprocess/{sample}_unmapped.fa")
+    fastq = temp("preprocess/{run}_unmapped.fq"),
+    fasta = temp("preprocess/{run}_unmapped.fa")
   params:
     reformat_fasta_extra = "uniquenames"
   wrapper:
@@ -62,13 +62,13 @@ rule cd_hit:
   input:
     rules.unmapped_refgenome.output.fasta
   output:
-    repres = temp("cdhit/{sample}_cdhit.fa"),
-    clstr = temp("cdhit/{sample}_cdhit.fa.clstr")
+    repres = temp("cdhit/{run}_cdhit.fa"),
+    clstr = temp("cdhit/{run}_cdhit.fa.clstr")
   params:
     extra = "-c 0.984 -G 0 -n 10 -d 0 -aS 0.984 -r 1 -M 0"
   threads: 2
   log:
-    "logs/{sample}_cdhit.log"
+    "logs/{run}_cdhit.log"
   wrapper:
     "https://raw.githubusercontent.com/avilab/vs-wrappers/master/cdhit"
 
@@ -77,7 +77,7 @@ rule tantan:
   input:
     rules.cd_hit.output.repres
   output:
-    temp("mask/{sample}_tantan.fasta")
+    temp("mask/{run}_tantan.fasta")
   params:
     extra = "-x N" # mask low complexity using N
   wrapper:
@@ -90,7 +90,7 @@ rule tantan_good:
   input:
     masked = rules.tantan.output
   output:
-    masked_filt = temp("mask/{sample}_tantangood.fasta")
+    masked_filt = temp("mask/{run}_tantangood.fasta")
   params:
     min_length = 50,
     por_n = 40
@@ -102,7 +102,7 @@ rule split_fasta:
   input:
     rules.tantan_good.output
   output:
-    temp(expand("mask/{{sample}}_repeatmasker_{n}.fa", n = N))
+    temp(expand("mask/{{run}}_repeatmasker_{n}.fa", n = N))
   params:
     config["split_fasta"]["n_files"]
   wrapper:
@@ -114,12 +114,12 @@ rule split_fasta:
 # If no repetitive sequences were detected symlink output to input file
 rule repeatmasker:
   input:
-    fa = "mask/{sample}_repeatmasker_{n}.fa"
+    fa = "mask/{run}_repeatmasker_{n}.fa"
   output:
-    masked = temp("mask/{sample}_repeatmasker_{n}.fa.masked"),
-    out = temp("mask/{sample}_repeatmasker_{n}.fa.out"),
-    cat = temp("mask/{sample}_repeatmasker_{n}.fa.cat"),
-    tbl = "mask/{sample}_repeatmasker_{n}.fa.tbl"
+    masked = temp("mask/{run}_repeatmasker_{n}.fa.masked"),
+    out = temp("mask/{run}_repeatmasker_{n}.fa.out"),
+    cat = temp("mask/{run}_repeatmasker_{n}.fa.cat"),
+    tbl = "mask/{run}_repeatmasker_{n}.fa.tbl"
   params:
     outdir = "mask"
   threads: 2
@@ -143,8 +143,8 @@ rule repeatmasker_good:
     masked = rules.repeatmasker.output.masked,
     original = rules.repeatmasker.input.fa
   output:
-    masked_filt = temp("mask/{sample}_repmaskedgood_{n}.fa"),
-    original_filt = temp("mask/{sample}_unmaskedgood_{n}.fa")
+    masked_filt = temp("mask/{run}_repmaskedgood_{n}.fa"),
+    original_filt = temp("mask/{run}_unmaskedgood_{n}.fa")
   params:
     min_length = 50,
     por_n = 40
@@ -156,7 +156,7 @@ rule megablast_refgenome:
     input:
       query = rules.repeatmasker_good.output.masked_filt
     output:
-      out = temp("blast/{sample}_megablast_{n}.tsv")
+      out = temp("blast/{run}_megablast_{n}.tsv")
     params:
       db = config["ref_genome"],
       task = "megablast",
@@ -176,8 +176,8 @@ rule parse_megablast:
       blast_result = rules.megablast_refgenome.output.out,
       query = rules.repeatmasker_good.output.masked_filt
     output:
-      mapped = temp("blast/{sample}_refgenome_megablast_{n}_known-host.tsv"),
-      unmapped = temp("blast/{sample}_refgenome_megablast_{n}_unmapped.fa")
+      mapped = temp("blast/{run}_refgenome_megablast_{n}_known-host.tsv"),
+      unmapped = temp("blast/{run}_refgenome_megablast_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -189,13 +189,13 @@ rule preprocess_stats:
   input:
     rules.preprocess.output.trimmed,
     rules.unmapped_refgenome.output,
-    expand("blast/{{sample}}_refgenome_megablast_{n}_unmapped.fa", n = N),
+    expand("blast/{{run}}_refgenome_megablast_{n}_unmapped.fa", n = N),
     rules.cd_hit.output.repres,
     rules.tantan.output,
     rules.tantan_good.output,
-    expand(["mask/{{sample}}_repmaskedgood_{n}.fa", "mask/{{sample}}_unmaskedgood_{n}.fa"], n = N)
+    expand(["mask/{{run}}_repmaskedgood_{n}.fa", "mask/{{run}}_unmaskedgood_{n}.fa"], n = N)
   output:
-    "stats/{sample}_preprocess.tsv"
+    "stats/{run}_preprocess.tsv"
   params:
     extra = "-T"
   wrapper:
@@ -206,7 +206,7 @@ rule refgenome_bam_stats:
     input:
       rules.bwa_mem_refgenome.output
     output:
-      "stats/{sample}_refgenome_stats.txt"
+      "stats/{run}_refgenome_stats.txt"
     params:
       extra = "-f 4",
       region = ""
