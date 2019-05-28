@@ -13,7 +13,7 @@ def get_frac(wildcards):
 
 rule preprocess:
   input:
-    sample = lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
+    lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
   output:
     adapters = temp("preprocess/{run}_adapters.fa"),
     merged = temp("preprocess/{run}_merged.fq"),

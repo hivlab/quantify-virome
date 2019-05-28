@@ -37,16 +37,16 @@ TAXONOMY = expand("taxonomy/{file}.csv",
 STATS = expand(["stats/{run}_preprocess.tsv",
                 "stats/{run}_blast.tsv",
                 "stats/{run}_refgenome_stats.txt"],
-                sample = RUN_IDS) + expand("stats/{run}_refbac_stats_{n}.txt",
-                sample = RUN_IDS, n = N)
+                run = RUN_IDS) + expand("stats/{run}_refbac_stats_{n}.txt",
+                run = RUN_IDS, n = N)
 OUTPUTS = expand("results/{run}_{result}_{n}.csv",
-                sample = RUN_IDS, n = N, result = RESULTS) + expand("results/{run}_unassigned_{n}.fa",
-                sample = RUN_IDS, n = N) + TAXONOMY + STATS
+                run = RUN_IDS, n = N, result = RESULTS) + expand("results/{run}_unassigned_{n}.fa",
+                run = RUN_IDS, n = N) + TAXONOMY + STATS
 
 # Remote outputs
 if config["zenodo"]["deposition_id"]:
-    ZENOUTPUTS = [ZEN.remote(expand("{deposition_id}/files/results/{run}_{result}.csv.tar.gz", deposition_id = config["zenodo"]["deposition_id"], sample = RUN_IDS, result = RESULTS)),
-    ZEN.remote(expand("{deposition_id}/files/results/{run}_unassigned.fa.tar.gz", deposition_id = config["zenodo"]["deposition_id"], sample = RUN_IDS))]
+    ZENOUTPUTS = [ZEN.remote(expand("{deposition_id}/files/results/{run}_{result}.csv.tar.gz", deposition_id = config["zenodo"]["deposition_id"], run = RUN_IDS, result = RESULTS)),
+    ZEN.remote(expand("{deposition_id}/files/results/{run}_unassigned.fa.tar.gz", deposition_id = config["zenodo"]["deposition_id"], run = RUN_IDS))]
 
 rule all:
     input:
