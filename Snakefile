@@ -17,9 +17,11 @@ shell.executable("bash")
 # Load configuration file with sample and path info
 configfile: "config.yaml"
 validate(config, "schemas/config.schema.yaml")
-RUNS = pd.read_csv(config["samples"], sep = "\s+").set_index("run", drop = False)
+RUNS = pd.read_csv(config["samples"], sep = "\s+")
+index = pd.MultiIndex.from_frame(RUNS[["group", "run"]])
+RUNS = RUNS.set_index(index)
 validate(RUNS, "schemas/samples.schema.yaml")
-RUN_IDS = RUNS.index.values.tolist()
+GROUP_IDS,RUN_IDS = list(zip(*RUNS.index.to_list()))
 N_FILES = config["split_fasta"]["n_files"]
 N = list(range(1, N_FILES + 1, 1))
 
