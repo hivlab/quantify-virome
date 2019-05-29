@@ -202,7 +202,7 @@ rule parse_blastn_nt:
       blast_result = rules.blastn_nt.output.out
     output:
       mapped = temp("blast/{run}_blastn_nt_{n,\d+}_mapped.tsv"),
-      unmapped = temp("blast/{run}_blastn_nt_{n,\d+}_unmapped.fa") if config["run_blastx"] else temp("results/{run}_unassigned_{n,\d+}.fa")
+      unmapped = temp("blast/{run}_blastn_nt_{n,\d+}_unmapped.fa") if config["run_blastx"] else "results/{run}_unassigned_{n,\d+}.fa"
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -273,7 +273,8 @@ rule blast_stats:
     "blast/{{run}}_candidate_viruses_{n}_unmasked.fa",
     "blast/{{run}}_bac_unmapped_{n}_masked.fa",
     "blast/{{run}}_megablast_nt_{n}_unmapped.fa",
-    "blast/{{run}}_blastn_nt_{n}_unmapped.fa"], n = N) if config["run_blastx"] else expand("results/{{run}}_unassigned_{n}.fa", n = N)
+    "blast/{{run}}_blastn_nt_{n}_unmapped.fa",
+    "results/{{run}}_unassigned_{n}.fa"], n = N)
   output:
     "stats/{run}_blast.tsv"
   params:
