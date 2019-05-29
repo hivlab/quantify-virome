@@ -271,7 +271,7 @@ rule blast_stats:
     expand(["blast/{{run}}_blastn_virus_{n}_unmapped.fa",
     "blast/{{run}}_blastx_virus_{n}_unmapped.fa",
     "blast/{{run}}_candidate_viruses_{n}_unmasked.fa",
-    "blast/{{run}}_bac_unmapped_{n}_masked.fa",
+    "blast/{{run}}_unmapped_{n}_masked.fa",
     "blast/{{run}}_megablast_nt_{n}_unmapped.fa",
     "blast/{{run}}_blastn_nt_{n}_unmapped.fa",
     "results/{{run}}_unassigned_{n}.fa"], n = N)
