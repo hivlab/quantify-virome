@@ -17,11 +17,11 @@ shell.executable("bash")
 # Load configuration file with sample and path info
 configfile: "config.yaml"
 validate(config, "schemas/config.schema.yaml")
-RUNS = pd.read_csv(config["samples"], sep = "\s+")
-index = pd.MultiIndex.from_frame(RUNS[["group", "run"]])
-RUNS = RUNS.set_index(index)
+
+# Load runs and groups
+RUNS = pd.read_csv(config["samples"], sep = "\s+").set_index("run", drop = False)
 validate(RUNS, "schemas/samples.schema.yaml")
-GROUP_IDS,RUN_IDS = list(zip(*RUNS.index.to_list()))
+RUN_IDS = RUNS.index.to_list()
 N_FILES = config["split_fasta"]["n_files"]
 N = list(range(1, N_FILES + 1, 1))
 
@@ -41,7 +41,7 @@ STATS = expand(["stats/{run}_preprocess.tsv",
                 "stats/{run}_refgenome_stats.txt"],
                 run = RUN_IDS) + expand("stats/{run}_refbac_stats_{n}.txt",
                 run = RUN_IDS, n = N)
-OUTPUTS = expand("results/{run}_{result}_{n}.csv",
+OUTPUTS = expand("results/{run}_taxon_counts.csv", run = RUN_IDS) + expand("results/{run}_{result}_{n}.csv",
                 run = RUN_IDS, n = N, result = RESULTS) + expand("results/{run}_unassigned_{n}.fa",
                 run = RUN_IDS, n = N) + TAXONOMY + STATS
 
