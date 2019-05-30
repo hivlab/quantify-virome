@@ -3,12 +3,14 @@ FTP = FTPRemoteProvider(username = config["username"], password = config["passwo
 
 def get_fastq(wildcards):
     """Get fraction read file paths from samples.tsv"""
-    urls = RUNS.loc[wildcards.run, ['fq1', 'fq2']]
+    runsonly = RUNS.reset_index(level = 'group', drop = True)
+    urls = runsonly.loc[wildcards.run, ['fq1', 'fq2']]
     return list(urls)
 
 def get_frac(wildcards):
     """Get fraction of reads to be sampled from samples.tsv"""
-    frac = RUNS.loc[wildcards.run, ['frac']][0]
+    runsonly = RUNS.reset_index(level = 'group', drop = True)
+    frac = runsonly.loc[wildcards.run, ['frac']][0]
     return frac
 
 rule preprocess:
