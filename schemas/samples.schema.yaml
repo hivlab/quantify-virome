@@ -5,9 +5,6 @@ properties:
   run:
     type: string
     description: sequencing run name/identifier
-  group:
-    type: string
-    description: sequencing run group e.g. multiple runs from one sample, will be used in taxon parsing
   fq1:
     type: string
     description: path to fastq(.gz) pair 1 file
@@ -21,6 +18,5 @@ properties:
 
 required:
   - run
-  - group
   - fq1
   - fq2
