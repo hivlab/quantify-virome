@@ -255,6 +255,15 @@ rule classify_phages_viruses:
   wrapper:
     config["wrappers"]["blast_taxonomy"]
 
+# Assign unique taxons to blast queries
+rule taxon_counts:
+  input:
+    expand("results/{{run}}_{result}_{n}.csv", result = RESULTS, n = N)
+  output:
+    "results/{run}_taxon_counts.csv"
+  wrapper:
+    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unique_taxons"
+
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
   rule upload:
@@ -271,7 +280,7 @@ rule blast_stats:
     expand(["blast/{{run}}_blastn_virus_{n}_unmapped.fa",
     "blast/{{run}}_blastx_virus_{n}_unmapped.fa",
     "blast/{{run}}_candidate_viruses_{n}_unmasked.fa",
-    "blast/{{run}}_bac_unmapped_{n}_masked.fa",
+    "blast/{{run}}_unmapped_{n}_masked.fa",
     "blast/{{run}}_megablast_nt_{n}_unmapped.fa",
     "blast/{{run}}_blastn_nt_{n}_unmapped.fa",
     "results/{{run}}_unassigned_{n}.fa"], n = N)
