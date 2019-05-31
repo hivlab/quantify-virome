@@ -41,7 +41,7 @@ STATS = expand(["stats/{run}_preprocess.tsv",
                 "stats/{run}_refgenome_stats.txt"],
                 run = RUN_IDS) + expand("stats/{run}_refbac_stats_{n}.txt",
                 run = RUN_IDS, n = N)
-OUTPUTS = expand("results/{run}_taxon_counts.csv", run = RUN_IDS) + expand("results/{run}_{result}_{n}.csv",
+OUTPUTS = expand("results/{run}_query_taxid.csv", run = RUN_IDS) + expand("results/{run}_{result}_{n}.csv",
                 run = RUN_IDS, n = N, result = RESULTS) + expand("results/{run}_unassigned_{n}.fa",
                 run = RUN_IDS, n = N) + TAXONOMY + STATS
 
