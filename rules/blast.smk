@@ -256,11 +256,11 @@ rule classify_phages_viruses:
     config["wrappers"]["blast_taxonomy"]
 
 # Assign unique taxons to blast queries
-rule taxon_counts:
+rule query_taxid:
   input:
     expand("results/{{run}}_{result}_{n}.csv", result = RESULTS, n = N)
   output:
-    "results/{run}_taxon_counts.csv"
+    "results/{run}_query_taxid.csv"
   wrapper:
     "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unique_taxons"
 
