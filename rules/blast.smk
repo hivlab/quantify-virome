@@ -266,11 +266,21 @@ rule query_taxid:
 
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
+  rule upload_parsed:
+    input:
+      rules.query_taxid.output
+    output:
+      ZEN.remote(expand("{deposition_id}/files/results/{run}_query_taxid.csv", deposition_id = config["zenodo"]["deposition_id"]))
+    group: "upload"
+    shell:
+      "cp {input} {output}"
+
   rule upload:
     input:
       expand("results/{{run}}_{{result}}_{n}.{{ext}}", n = N)
     output:
       ZEN.remote(expand("{deposition_id}/files/results/{{run, [^_]+}}_{{result}}.{{ext}}.tar.gz", deposition_id = config["zenodo"]["deposition_id"]))
+    group: "upload"
     shell:
       "tar zcvf {output} {input}"
 
