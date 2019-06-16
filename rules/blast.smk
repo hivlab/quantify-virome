@@ -270,8 +270,7 @@ if config["zenodo"]["deposition_id"]:
     input:
       rules.query_taxid.output
     output:
-      ZEN.remote(expand("{deposition_id}/files/results/{run}_query_taxid.csv", deposition_id = config["zenodo"]["deposition_id"]))
-    group: "upload"
+      ZEN.remote(expand("{deposition_id}/files/results/{{run}}_query_taxid.csv", deposition_id = config["zenodo"]["deposition_id"]))
     shell:
       "cp {input} {output}"
 
@@ -280,7 +279,6 @@ if config["zenodo"]["deposition_id"]:
       expand("results/{{run}}_{{result}}_{n}.{{ext}}", n = N)
     output:
       ZEN.remote(expand("{deposition_id}/files/results/{{run, [^_]+}}_{{result}}.{{ext}}.tar.gz", deposition_id = config["zenodo"]["deposition_id"]))
-    group: "upload"
     shell:
       "tar zcvf {output} {input}"
 
