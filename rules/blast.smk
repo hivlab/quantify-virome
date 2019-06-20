@@ -258,7 +258,7 @@ rule classify_phages_viruses:
 # Assign unique taxons to blast queries
 rule query_taxid:
   input:
-    expand("results/{{run}}_{result}_{n}.csv", result = RESULTS, n = N)
+    expand(["results/{{run}}_phages_{n}.csv", "results/{{run}}_phages_viruses_{n}.csv"], n = N)
   output:
     "results/{run}_query_taxid.csv"
   wrapper:
@@ -293,6 +293,10 @@ rule blast_stats:
     "blast/{{run}}_unmapped_{n}_masked.fa",
     "blast/{{run}}_megablast_nt_{n}_unmapped.fa",
     "blast/{{run}}_blastn_nt_{n}_unmapped.fa",
+    "results/{{run}}_unassigned_{n}.fa"], n = N) if config["run_blastx"] else expand(["blast/{{run}}_blastn_virus_{n}_unmapped.fa",
+    "blast/{{run}}_candidate_viruses_{n}_unmasked.fa",
+    "blast/{{run}}_unmapped_{n}_masked.fa",
+    "blast/{{run}}_megablast_nt_{n}_unmapped.fa",
     "results/{{run}}_unassigned_{n}.fa"], n = N)
   output:
     "stats/{run}_blast.tsv"
