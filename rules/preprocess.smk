@@ -171,13 +171,13 @@ rule megablast_refgenome:
       config["wrappers"]["blast"]
 
 # Filter megablast records for the cutoff value
-rule parse_megablast:
+rule parse_megablast_refgenome:
     input:
       blast_result = rules.megablast_refgenome.output.out,
       query = rules.repeatmasker_good.output.masked_filt
     output:
-      mapped = temp("blast/{run}_refgenome_megablast_{n}_known-host.tsv"),
-      unmapped = temp("blast/{run}_refgenome_megablast_{n}_unmapped.fa")
+      mapped = temp("blast/{run}_refgenome-megablast_{n}_known-host.tsv"),
+      unmapped = temp("blast/{run}_refgenome-megablast_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -189,7 +189,7 @@ rule preprocess_stats:
   input:
     rules.preprocess.output.trimmed,
     rules.unmapped_refgenome.output,
-    expand("blast/{{run}}_refgenome_megablast_{n}_unmapped.fa", n = N),
+    expand("blast/{{run}}_refgenome-megablast_{n}_unmapped.fa", n = N),
     rules.cd_hit.output.repres,
     rules.tantan.output,
     rules.tantan_good.output,
@@ -206,7 +206,7 @@ rule refgenome_bam_stats:
     input:
       rules.bwa_mem_refgenome.output
     output:
-      "stats/{run}_refgenome_stats.txt"
+      "stats/{run}_refgenome-stats.txt"
     params:
       extra = "-f 4",
       region = ""

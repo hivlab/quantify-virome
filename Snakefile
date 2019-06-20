@@ -10,7 +10,6 @@ import json
 import glob
 import pandas as pd
 from snakemake.remote.FTP import RemoteProvider as FTPRemoteProvider
-from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
 from snakemake.utils import validate
 shell.executable("bash")
 
@@ -29,31 +28,33 @@ N = list(range(1, N_FILES + 1, 1))
 if not os.path.exists("logs/slurm"):
     os.makedirs("logs/slurm")
 
-# Setup Zenodo RemoteProvider
-ZEN = ZENRemoteProvider()
+wildcard_constraints:
+    run = "[a-zA-Z0-9]+",
+    n = "\d+"
 
-# Main output files and target rules
-RESULTS = ["phages", "phages_viruses", "non_viral"]
-TAXONOMY = expand("taxonomy/{file}.csv",
-                file = ["names", "nodes", "division"])
-STATS = expand(["stats/{run}_preprocess.tsv",
-                "stats/{run}_blast.tsv",
-                "stats/{run}_refgenome_stats.txt"],
-                run = RUN_IDS) + expand("stats/{run}_refbac_stats_{n}.txt",
-                run = RUN_IDS, n = N)
-OUTPUTS = expand("results/{run}_query_taxid.csv", run = RUN_IDS) + expand("results/{run}_{result}_{n}.csv",
-                run = RUN_IDS, n = N, result = RESULTS) + expand("results/{run}_unassigned_{n}.fa",
-                run = RUN_IDS, n = N) + TAXONOMY + STATS
+# Main output files
+RESULTS = ["phages.csv", "phages-viruses.csv", "non-viral.csv", "query-taxid.csv", "unassigned.fa"]
+BLASTV = ["blastn-virus", "blastx-virus"] if config["run_blastx"] else ["blastn-virus"]
+BLASTNR = ["megablast-nt", "blastn-nt", "blastx-nr"] if config["run_blastx"] else ["megablast-nt", "blastn-nt"]
+BLAST = BLASTV + BLASTNR
+TAXONOMY = expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
+STATS = expand(["stats/{run}_refgenome-stats.txt", "stats/{run}_preprocess.tsv", "stats/{run}_blast.tsv"], run = RUN_IDS) + expand("stats/{run}_refbac-stats_{n}.txt", run = RUN_IDS, n = N)
+OUTPUTS = expand("results/{run}_{result}", run = RUN_IDS, result = RESULTS) + TAXONOMY + STATS
 
 # Remote outputs
 if config["zenodo"]["deposition_id"]:
-    ZENOUTPUTS = [ZEN.remote(expand("{deposition_id}/files/results/{run}_{result}.csv.tar.gz", deposition_id = config["zenodo"]["deposition_id"], run = RUN_IDS, result = RESULTS)),
-    ZEN.remote(expand("{deposition_id}/files/results/{run}_unassigned.fa.tar.gz", deposition_id = config["zenodo"]["deposition_id"], run = RUN_IDS))]
+    # Load zenodo remote provider module
+    from snakemake.remote.zenodo import RemoteProvider as ZENRemoteProvider
+    # Setup Zenodo RemoteProvider
+    ZEN = ZENRemoteProvider(deposition = config["zenodo"]["deposition_id"], access_token = os.environ["ZENODO_PAT"])
+    # Append uploads
+    ZENOUTPUTS = ZEN.remote(expand(["results/{run}_counts.tgz", "stats/{run}_stats.tgz"], run = RUN_IDS))
+    OUTPUTS = OUTPUTS + ZENOUTPUTS
 
 rule all:
     input:
-        OUTPUTS, ZENOUTPUTS if config["zenodo"]["deposition_id"] else OUTPUTS
+        OUTPUTS
 
-# Modules
+# Rules
 include: "rules/preprocess.smk"
 include: "rules/blast.smk"
