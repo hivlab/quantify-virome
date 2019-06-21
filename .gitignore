@@ -4,10 +4,10 @@
 .Ruserdata
 .snakemake
 .test
-!.test/config.yml
+!.test/config.yaml
 !.test/samples.tsv
 !.test/cluster.json
-!.test/data
+!.test/reads
 scripts/.snakemake*
 scripts/common/__pycache__
 .vscode/
