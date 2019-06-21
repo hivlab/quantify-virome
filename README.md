@@ -61,7 +61,7 @@ snakemake -n
 ### Create workflow graph
 
 ```
-snakemake --dag | dot -Tsvg > graph/dag.svg
+snakemake -d .test --dag | dot -Tsvg > graph/dag.svg
 ```
 
 ### Run workflow
@@ -85,7 +85,7 @@ You may want to use also following flags when running this workflow in cluster:
 
 All other possible [snakemake execution](https://snakemake.readthedocs.io/en/stable/executable.html) options can be printed by calling `snakemake -h`.
 
-### Exit/deactivate environment
+## Exit/deactivate environment
 
 Conda environment can be closed with the following command when work is finished:
 ```
@@ -95,10 +95,7 @@ source deactivate
 ## Workflow graph
 For technical reasons, workflow is split into two parts, virome and taxonomy, that can be run separately, but taxonomy depends on the output of virome. Virome subworkflow (virome.snakefile) munges, masks, and blasts input sequences. Taxonomy subworkflow (Snakefile) merges blast results with taxonomy data and generates report.
 
-![Virome workflow](graph/virome_dag.svg)
+![Virome workflow](graph/dag.svg)
 
-Figure 1. **Virome workflow** graph with three example samples split into two (default = 20) for parallel processing. Outputs BLAST results.
+Figure 1. **Virome workflow** graph with test sample split into two (default = 20) subfiles for parallel processing. Outputs parsed BLAST results.
 
-![Taxonomy workflow](graph/taxonomy_dag.svg)
-
-Figure 2. **Taxonomy workflow** graph with three example samples. Outputs report in html format and taxonomy table of virus hits.
