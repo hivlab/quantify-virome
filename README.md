@@ -3,28 +3,9 @@
 
 Snakemake implementation of [VirusSeeker Virome workflow](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5326578/). 
 
-## Setup environment and install prerequisites
+# Setup environment and install prerequisites
 
-### Download RepBase for RepeatMasker
-
-Obtain access to RepBase from www.girinst.org. 
-Download RepBase into separate directory e.g. "databases/repbase" under your home directory or whatever other location is good for you. 
-For downloading set environment variables for GIRUSER and GIRPASS. 
-```
-mkdir databases/repbase
-cd databases/repbase
-
-GIRUSER=<your-gir-user-name>
-GIRPASS=<your-gir-password>
-
-wget --user $GIRUSER --password $GIRPASS --no-check-certificate http://www.girinst.org/server/RepBase/protected/repeatmaskerlibraries/RepBaseRepeatMaskerEdition-20170127.tar.gz
-
-gunzip RepBaseRepeatMaskerEdition-20170127.tar.gz
-tar xvf RepBaseRepeatMaskerEdition-20170127.tar
-rm RepBaseRepeatMaskerEdition-20170127.tar
-```
-
-### Install miniconda
+## Install miniconda
 
 Download and install miniconda https://conda.io/docs/user-guide/install/index.html.
 In case of Linux, following should work:
@@ -33,18 +14,33 @@ wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
 bash Miniconda3-latest-Linux-x86_64.sh
 ```
 
-### Install environment
+## Install environment
 
-Create conda environment with preinstalled **snakemake**:
+Create conda environment with **snakemake**. 
+There are two options:
+
+1. If you want to upload your results to [Zenodo](zenodo.org), then you need snakemake Zenodo remote provider, which is currently implemented in *zenodo-simple* branch in my forked snakemake repo. 
+
+First, clone snakemake Bitbucket repo and checkout *zenodo-simple* branch:
+```
+git clone https://tpall@bitbucket.org/tpall/snakemake.git
+cd snakemake
+git checkout zenodo-simple
+```
+
+Then, create conda environment, install prerequisites and snakemake:
+```
+conda env create -f environment.yml -n snakemake
+source activate snakemake
+pip install -e .
+```
+
+2. Alternatively, if you don't want to upload your results to Zenodo, you can create conda environment and install snakemake 'normally': 
 ```
 conda create -n snakemake -c bioconda -c conda-forge snakemake
-```
-
-### Activate environment
-
-```
 source activate snakemake
 ```
+
 
 ### Clone this repo and cd to repo
 (Change URL accordingly if using HTTPS)
@@ -53,9 +49,6 @@ source activate snakemake
 git clone git@github.com:avilab/vs.git
 cd vs
 ```
-
-## 
-
 
 ## Example
 
