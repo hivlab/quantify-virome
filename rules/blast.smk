@@ -197,7 +197,6 @@ rule parse_megablast_nt:
     wrapper:
       config["wrappers"]["parse_blast"]
 
-
 # Blastn against nt database.
 rule blastn_nt:
     input:
@@ -222,7 +221,7 @@ rule parse_blastn_nt:
       blast_result = rules.blastn_nt.output.out
     output:
       mapped = temp("blast/{run}_blastn-nt_{n,\d+}_mapped.tsv"),
-      unmapped = temp("blast/{run}_blastn-nt_{n,\d+}_unmapped.fa") if config["run_blastx"] else "results/{run}_unassigned_{n,\d+}.fa"
+      unmapped = temp("blast/{run}_blastn-nt_{n,\d+}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -252,8 +251,8 @@ rule parse_blastx_nr:
       query = rules.blastx_nr.input.query,
       blast_result = rules.blastx_nr.output.out
     output:
-      mapped = temp("blast/{run}_blastx-nr_{n,\d+}_mapped.tsv"),
-      unmapped = "results/{run}_unassigned_{n,\d+}.fa" if config["run_blastx"] else "{run}_None_{n}"
+      mapped = temp("blast/{run}_blastx-nr_{n}_mapped.tsv"),
+      unmapped = temp("blast/{run}_blastx-nr_{n}_unmapped.tsv")
     params:
       e_cutoff = 1e-3,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -296,7 +295,7 @@ rule merge_non_viral_results:
 # Merge unassigned sequences
 rule merge_unassigned:
   input:
-    expand("results/{{run}}_unassigned_{n}.fa", n = N)
+    expand("blast/{{run}}_blast{type}_{n}_unmapped.tsv", type = "x-nr" if config["run_blastx"] else "n-nt", n = N)
   output:
     "results/{run}_unassigned.fa"
   shell:
@@ -317,8 +316,8 @@ rule blast_stats:
   input:
     expand(["blast/{{run}}_{blastresult}_{n}_unmapped.fa",
     "blast/{{run}}_candidate-viruses_{n}_unmasked.fa",
-    "blast/{{run}}_unmapped_{n}_masked.fa",
-    "results/{{run}}_unassigned_{n}.fa"], blastresult = BLAST, n = N)
+    "blast/{{run}}_unmapped_{n}.fa",
+    "blast/{{run}}_unmapped_{n}_masked.fa"], blastresult = BLAST, n = N)
   output:
     "stats/{run}_blast.tsv"
   params:
