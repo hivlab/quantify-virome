@@ -315,7 +315,7 @@ rule query_taxid:
 # Collect stats.
 rule blast_stats:
   input:
-    expand(["blast/{{run}}_{blastresult}_unmapped_{n}.fa",
+    expand(["blast/{{run}}_{blastresult}_{n}_unmapped.fa",
     "blast/{{run}}_candidate-viruses_{n}_unmasked.fa",
     "blast/{{run}}_unmapped_{n}_masked.fa",
     "results/{{run}}_unassigned_{n}.fa"], blastresult = BLAST, n = N)
