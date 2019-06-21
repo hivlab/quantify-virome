@@ -6,6 +6,10 @@ def safely_read_csv(path, **kwargs):
   except pd.errors.EmptyDataError:
     pass
 
+def concatenate_tables(input, output, sep = "\s+"):
+  frames = [safely_read_csv(f, sep = sep) for f in input]
+  pd.concat(frames, keys = input).to_csv(output[0], index = False)
+
 # Prepare taxonomy annotation tables.
 rule prepare_taxonomy_data:
   input: config["names"], config["nodes"], config["division"]
@@ -20,7 +24,7 @@ rule blastn_virus:
     input:
       query = rules.parse_megablast_refgenome.output.unmapped
     output:
-      out = "blast/{run}_blastn-virus_{n,\d+}.tsv"
+      out = temp("blast/{run}_blastn-virus_{n,\d+}.tsv")
     params:
       db = config["virus_nt"],
       task = "blastn",
@@ -101,8 +105,7 @@ rule merge_classify_phages_results:
   output:
     "results/{run}_phages.csv"
   run:
-    frames = [safely_read_csv(f, sep = ",") for f in input]
-    pd.concat(frames, keys = input).reset_index(level = 0).rename(columns = {"level_0": "file"}).to_csv(output[0], index = False)
+    concatenate_tables(input, output, sep = ",")
 
 # Filter unmasked candidate virus reads.
 rule unmasked_other:
@@ -257,15 +260,38 @@ rule parse_blastx_nr:
     wrapper:
       config["wrappers"]["parse_blast"]
 
-# Merge blast results for classification
-rule merge_blast_results:
+# Filter sequences by division id.
+# Saves hits with division id
+rule classify_phages_viruses:
   input:
-    expand("blast/{{run}}_{{blastresult}}_{n}_mapped.tsv", n = N)
+    expand("blast/{{run}}_{blastresult}_{{n}}_mapped.tsv", blastresult = BLASTNR),
+    nodes = "taxonomy/nodes.csv"
   output:
-    temp("blast/{run}_{blastresult}_mapped.tsv")
+    division = "results/{run}_phages-viruses_{n}.csv",
+    other = "results/{run}_non-viral_{n}.csv"
+  params:
+    taxdb = config["vhunter"],
+    division_id = [3, 9] # pool phages and viruses
+  wrapper:
+    config["wrappers"]["blast_taxonomy"]
+
+# Merge virus blast results
+rule merge_classify_phages_viruses_results:
+  input:
+    expand("results/{{run}}_phages-viruses_{n}.csv", n = N)
+  output:
+    "results/{run}_phages-viruses.csv"
   run:
-    frames = [safely_read_csv(f, sep = "\s+") for f in input]
-    pd.concat(frames, keys = input).reset_index(level = 0).rename(columns = {"level_0": "file"}).to_csv(output[0], index = False)
+    concatenate_tables(input, output, sep = ",")
+
+# Merge blast results for classification
+rule merge_non_viral_results:
+  input:
+    expand("results/{{run}}_non-viral_{n}.csv", n = N)
+  output:
+    "results/{run}_non-viral.csv"
+  run:
+    concatenate_tables(input, output, sep = ",")
 
 # Merge unassigned sequences
 rule merge_unassigned:
@@ -276,26 +302,11 @@ rule merge_unassigned:
   shell:
     "cat {input} > {output}"
 
-# Filter sequences by division id.
-# Saves hits with division id
-rule classify_phages_viruses:
-  input:
-    expand("blast/{{run}}_{blastresult}_mapped.tsv", blastresult = BLASTNR),
-    nodes = "taxonomy/nodes.csv"
-  output:
-    division = "results/{run}_phages-viruses.csv",
-    other = "results/{run}_non-viral.csv"
-  params:
-    taxdb = config["vhunter"],
-    division_id = [3, 9] # pool phages and viruses
-  wrapper:
-    config["wrappers"]["blast_taxonomy"]
-
 # Assign unique taxons to blast queries.
 rule query_taxid:
   input:
     rules.merge_classify_phages_results.output,
-    rules.classify_phages_viruses.output.division
+    rules.merge_classify_phages_viruses_results.output
   output:
     "results/{run}_query-taxid.csv"
   wrapper:
@@ -314,7 +325,6 @@ rule blast_stats:
     extra = "-T"
   wrapper:
     config["wrappers"]["stats"]
-
 
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
