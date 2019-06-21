@@ -24,7 +24,7 @@ rule blastn_virus:
     input:
       query = rules.parse_megablast_refgenome.output.unmapped
     output:
-      out = temp("blast/{run}_blastn-virus_{n,\d+}.tsv")
+      out = temp("blast/{run}_blastn-virus_{n}.tsv")
     params:
       db = config["virus_nt"],
       task = "blastn",
@@ -43,8 +43,8 @@ rule parse_blastn_virus:
       query = rules.parse_megablast_refgenome.output.unmapped,
       blast_result = rules.blastn_virus.output.out
     output:
-      mapped = temp("blast/{run}_blastn-virus_{n,\d+}_mapped.tsv"),
-      unmapped = temp("blast/{run}_blastn-virus_{n,\d+}_unmapped.fa")
+      mapped = temp("blast/{run}_blastn-virus_{n}_mapped.tsv"),
+      unmapped = temp("blast/{run}_blastn-virus_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-5,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -170,7 +170,7 @@ rule megablast_nt:
     input:
       query = rules.refbac_unmapped_masked.output
     output:
-      out = temp("blast/{run}_megablast-nt_{n,\d+}.tsv")
+      out = temp("blast/{run}_megablast-nt_{n}.tsv")
     params:
       db = config["nt"],
       task = "megablast",
@@ -189,8 +189,8 @@ rule parse_megablast_nt:
       query = rules.refbac_unmapped_masked.output,
       blast_result = rules.megablast_nt.output.out
     output:
-      mapped = temp("blast/{run}_megablast-nt_{n,\d+}_mapped.tsv"),
-      unmapped = temp("blast/{run}_megablast-nt_{n,\d+}_unmapped.fa")
+      mapped = temp("blast/{run}_megablast-nt_{n}_mapped.tsv"),
+      unmapped = temp("blast/{run}_megablast-nt_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -202,7 +202,7 @@ rule blastn_nt:
     input:
       query = rules.parse_megablast_nt.output.unmapped
     output:
-      out = temp("blast/{run}_blastn-nt_{n,\d+}.tsv")
+      out = temp("blast/{run}_blastn-nt_{n}.tsv")
     params:
       db = config["nt"],
       task = "blastn",
@@ -220,8 +220,8 @@ rule parse_blastn_nt:
       query = rules.blastn_nt.input.query,
       blast_result = rules.blastn_nt.output.out
     output:
-      mapped = temp("blast/{run}_blastn-nt_{n,\d+}_mapped.tsv"),
-      unmapped = temp("blast/{run}_blastn-nt_{n,\d+}_unmapped.fa")
+      mapped = temp("blast/{run}_blastn-nt_{n}_mapped.tsv"),
+      unmapped = temp("blast/{run}_blastn-nt_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -233,7 +233,7 @@ rule blastx_nr:
     input:
       query = rules.parse_blastn_nt.output.unmapped
     output:
-      out = temp("blast/{run}_blastx-nr_{n,\d+}.tsv")
+      out = temp("blast/{run}_blastx-nr_{n}.tsv")
     params:
       db = config["nr"],
       word_size = 6,
@@ -252,7 +252,7 @@ rule parse_blastx_nr:
       blast_result = rules.blastx_nr.output.out
     output:
       mapped = temp("blast/{run}_blastx-nr_{n}_mapped.tsv"),
-      unmapped = temp("blast/{run}_blastx-nr_{n}_unmapped.tsv")
+      unmapped = temp("blast/{run}_blastx-nr_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-3,
       outfmt = rules.megablast_refgenome.params.outfmt
@@ -295,7 +295,7 @@ rule merge_non_viral_results:
 # Merge unassigned sequences
 rule merge_unassigned:
   input:
-    expand("blast/{{run}}_blast{type}_{n}_unmapped.tsv", type = "x-nr" if config["run_blastx"] else "n-nt", n = N)
+    expand("blast/{{run}}_blast{type}_{n}_unmapped.fa", type = "x-nr" if config["run_blastx"] else "n-nt", n = N)
   output:
     "results/{run}_unassigned.fa"
   shell:
