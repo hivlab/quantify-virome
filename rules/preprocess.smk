@@ -128,9 +128,17 @@ rule repeatmasker:
   shell:
     """
     RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
+    # Keep consistent outputs
+    # - Generate missing .tbl file when no repetitive seqs were detected 
     if head -n 1 {output.out} | grep -q "There were no repetitive sequences detected"
-      then ln -sr {input.fa} {output.masked} \
-           && touch {output.tbl}
+    then 
+      ln -sr {input.fa} {output.masked} && touch {output.tbl}
+    fi
+    # - Unzip cat.gz file that is created if totseqlen > 10000000
+    gzippedcat=mask/{wildcards.run}_repeatmasker_{wildcards.n}.fa.cat.gz
+    if [[ -f ${gzippedcat} ]]
+    then
+      gzip -d ${gzippedcat}
     fi
     """
 
