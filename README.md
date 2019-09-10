@@ -46,8 +46,8 @@ source activate snakemake
 (Change URL accordingly if using HTTPS)
 
 ```
-git clone git@github.com:avilab/vs.git
-cd vs
+git clone git@github.com:avilab/quantify-virome.git
+cd quantify-virome
 ```
 
 ## Example
