@@ -1,4 +1,2 @@
 group	run	read_count	fq1	fq2	frac
 A	SRR5557999	3196662	ftp.sra.ebi.ac.uk/vol1/fastq/SRR555/009/SRR5557999/SRR5557999_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/SRR555/009/SRR5557999/SRR5557999_2.fastq.gz	0.01
-A	SRR5558000	3099272	ftp.sra.ebi.ac.uk/vol1/fastq/SRR555/000/SRR5558000/SRR5558000_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/SRR555/000/SRR5558000/SRR5558000_2.fastq.gz	0.01
-B	SRR5558001	3145724	ftp.sra.ebi.ac.uk/vol1/fastq/SRR555/001/SRR5558001/SRR5558001_1.fastq.gz	ftp.sra.ebi.ac.uk/vol1/fastq/SRR555/001/SRR5558001/SRR5558001_2.fastq.gz	0.01
