@@ -53,7 +53,8 @@ rule unmapped_refgenome:
     fastq = temp("preprocess/{run}_unmapped.fq"),
     fasta = temp("preprocess/{run}_unmapped.fa")
   params:
-    reformat_fasta_extra = "uniquenames"
+    reformat_fasta_extra = "uniquenames",
+    extra = "-Xmx48000m"
   wrapper:
     "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped"
 
@@ -135,10 +136,9 @@ rule repeatmasker:
       ln -sr {input.fa} {output.masked} && touch {output.tbl}
     fi
     # - Unzip cat.gz file that is created if totseqlen > 10000000
-    gzippedcat=mask/{wildcards.run}_repeatmasker_{wildcards.n}.fa.cat.gz
-    if [[ -f ${gzippedcat} ]]
+    if [[ -f mask/{wildcards.run}_repeatmasker_{wildcards.n}.fa.cat.gz ]]
     then
-      gzip -d ${gzippedcat}
+      gzip -d mask/{wildcards.run}_repeatmasker_{wildcards.n}.fa.cat.gz
     fi
     """
 
