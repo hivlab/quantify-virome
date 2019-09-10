@@ -56,7 +56,7 @@ rule unmapped_refgenome:
     reformat_fasta_extra = "uniquenames",
     extra = "-Xmx48000m"
   wrapper:
-    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped"
+    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmapped"
 
 # Run cd-hit to find and cluster duplicate reads.
 rule cd_hit:
@@ -71,7 +71,7 @@ rule cd_hit:
   log:
     "logs/{run}_cdhit.log"
   wrapper:
-    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/cdhit"
+    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/cdhit"
 
 # Tantan mask of low complexity DNA sequences
 rule tantan:
