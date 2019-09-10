@@ -16,7 +16,7 @@ rule prepare_taxonomy_data:
   output:
       expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
   wrapper:
-    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/prepare_taxonomy_data"
+    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/prepare_taxonomy_data"
 
 # Blastn, megablast and blastx input, output, and params keys must match commandline blast option names. Please see https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a for all available options.
 # Blast against nt virus database.
@@ -115,7 +115,7 @@ rule unmasked_other:
     output:
       temp("blast/{run}_candidate-viruses_{n}_unmasked.fa")
     wrapper:
-      "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmasked_viral"
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmasked_viral"
 
 # Map reads to bacterial genomes.
 rule bwa_mem_refbac:
@@ -141,7 +141,7 @@ rule unmapped_refbac:
     fastq = temp("blast/{run}_unmapped_{n}.fq"),
     fasta = temp("blast/{run}_unmapped_{n}.fa")
   wrapper:
-    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped"
+    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmapped"
 
 # Calculate bam file stats
 rule refbac_bam_stats:
@@ -163,7 +163,7 @@ rule refbac_unmapped_masked:
     output:
       temp("blast/{run}_unmapped_{n}_masked.fa")
     wrapper:
-      "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unmapped_masked_ids"
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmapped_masked_ids"
 
 # Megablast against nt database.
 rule megablast_nt:
@@ -309,7 +309,7 @@ rule query_taxid:
   output:
     "results/{run}_query-taxid.csv"
   wrapper:
-    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/unique_taxons"
+    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unique_taxons"
 
 # Collect stats.
 rule blast_stats:
