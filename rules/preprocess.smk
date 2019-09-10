@@ -136,10 +136,9 @@ rule repeatmasker:
       ln -sr {input.fa} {output.masked} && touch {output.tbl}
     fi
     # - Unzip cat.gz file that is created if totseqlen > 10000000
-    gzippedcat=mask/{wildcards.run}_repeatmasker_{wildcards.n}.fa.cat.gz
-    if [[ -f ${gzippedcat} ]]
+    if [[ -f mask/{wildcards.run}_repeatmasker_{wildcards.n}.fa.cat.gz ]]
     then
-      gzip -d ${gzippedcat}
+      gzip -d mask/{wildcards.run}_repeatmasker_{wildcards.n}.fa.cat.gz
     fi
     """
 
