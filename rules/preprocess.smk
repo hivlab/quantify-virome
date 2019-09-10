@@ -27,7 +27,7 @@ rule preprocess:
     seed = config["seed"]
   threads: 2
   wrapper:
-    "https://raw.githubusercontent.com/avilab/vs-wrappers/master/preprocess"
+    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/preprocess"
 
 # Map reads to Refgenome.
 rule bwa_mem_refgenome:
