@@ -21,7 +21,7 @@ There are two options:
 
 1. If you want to upload your results to [Zenodo](zenodo.org), then you need snakemake Zenodo remote provider, which is currently implemented in *zenodo-simple* branch in my forked snakemake repo. 
 
-First, clone snakemake Bitbucket repo and checkout *zenodo-simple* branch:
+First, clone snakemake repo and checkout *zenodo-simple* branch:
 ```
 git clone https://tpall@bitbucket.org/tpall/snakemake.git
 cd snakemake
