@@ -10,6 +10,13 @@ def concatenate_tables(input, output, sep = "\s+"):
   frames = [safely_read_csv(f, sep = sep) for f in input]
   pd.concat(frames, keys = input).to_csv(output[0], index = False)
 
+def filter_taxons(input, viruses, non_viral, sep = ","):
+  tab = safely_read_csv(f, sep = sep)
+  vir = tab[tab.superkingdom == 10239]
+  non_vir = tab[tab.superkingdom != 10239]
+  vir.to_csv(viruses[0], index = False)
+  non_vir.to_csv(non_viral[0], index = False)
+
 rule get_virus_taxids:
     output: "blast/10239.taxids"
     params:
@@ -86,37 +93,32 @@ rule parse_blastx_virus:
 
 # Filter sequences by division id.
 # Saves hits with division id
-rule classify_phages:
+rule classify_viruses:
   input:
-    [rules.parse_blastn_virus.output.mapped, rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped,
-    nodes = "taxonomy/nodes.csv"
+    [rules.parse_blastn_virus.output.mapped, rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped
   output:
-    division = temp("results/{run}_phages_{n}.csv"),
-    other = temp("blast/{run}_candidate-viruses_{n}.csv")
-  params:
-    taxdb = config["vhunter"],
-    division_id = 3
+    temp("results/{run}_viruses_{n}.csv")
   wrapper:
-    config["wrappers"]["blast_taxonomy"]
+    "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/taxonomy"
 
 # Merge virus blast results
-rule merge_classify_phages_results:
+rule merge_classify_viruses_results:
   input:
-    expand("results/{{run}}_phages_{n}.csv", n = N)
+    expand("results/{{run}}_viruses_{n}.csv", n = N)
   output:
-    "results/{run}_phages.csv"
+    "results/{run}_viruses.csv"
   run:
     concatenate_tables(input, output, sep = ",")
 
 # Filter unmasked candidate virus reads.
 rule unmasked_other:
     input:
-      rules.classify_phages.output.other,
+      rules.parse_blastx_virus.output.unmapped if config["run_blastx"] else rules.parse_blastn_virus.output.unmapped,
       rules.repeatmasker_good.output.original_filt
     output:
       temp("blast/{run}_candidate-viruses_{n}_unmasked.fa")
     wrapper:
-      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmasked_viral"
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/subset_fasta"
 
 # Map reads to bacterial genomes.
 rule bwa_mem_refbac:
@@ -164,7 +166,7 @@ rule refbac_unmapped_masked:
     output:
       temp("blast/{run}_unmapped_{n}_masked.fa")
     wrapper:
-      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmapped_masked_ids"
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/subset_fasta"
 
 # Megablast against nt database.
 rule megablast_nt:
@@ -173,16 +175,16 @@ rule megablast_nt:
     output:
       out = temp("blast/{run}_megablast-nt_{n}.tsv")
     params:
-      db = config["nt"],
+      program = "blastn",
+      db = "nt_v5",
       task = "megablast",
-      evalue = config["megablast_nt"]["evalue"],
-      word_size = config["megablast_nt"]["word_size"],
-      max_hsps = config["megablast_nt"]["max_hsps"],
-      show_gis = True,
-      num_threads = 2,
-      outfmt = rules.megablast_refgenome.params.outfmt
+      evalue = 1e-8,
+      word_size = 16,
+      max_hsps = 50,
+      outfmt = rules.blastn_virus.params.outfmt
+    threads: 2
     wrapper:
-      config["wrappers"]["blast"]
+      BLAST
 
 # Filter megablast hits for the cutoff value.
 rule parse_megablast_nt:
@@ -194,9 +196,9 @@ rule parse_megablast_nt:
       unmapped = temp("blast/{run}_megablast-nt_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
-      outfmt = rules.megablast_refgenome.params.outfmt
+      outfmt = rules.blastn_virus.params.outfmt
     wrapper:
-      config["wrappers"]["parse_blast"]
+      PARSE_BLAST
 
 # Blastn against nt database.
 rule blastn_nt:
@@ -205,15 +207,15 @@ rule blastn_nt:
     output:
       out = temp("blast/{run}_blastn-nt_{n}.tsv")
     params:
-      db = config["nt"],
+      program = "blastn",
+      db = "nt_v5",
       task = "blastn",
-      evalue = config["blastn_nt"]["evalue"],
-      max_hsps = config["blastn_nt"]["max_hsps"],
-      show_gis = True,
-      num_threads = 2,
-      outfmt = rules.megablast_refgenome.params.outfmt
+      evalue = 1e-8,
+      max_hsps = 50,
+      outfmt = rules.blastn_virus.params.outfmt
+    threads: 2
     wrapper:
-      config["wrappers"]["blast"]
+      BLAST
 
 # Filter blastn records for the cutoff value.
 rule parse_blastn_nt:
@@ -225,9 +227,9 @@ rule parse_blastn_nt:
       unmapped = temp("blast/{run}_blastn-nt_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-10,
-      outfmt = rules.megablast_refgenome.params.outfmt
+      outfmt = rules.blastn_virus.params.outfmt
     wrapper:
-      config["wrappers"]["parse_blast"]
+      PARSE_BLAST
 
 # Blastx unmapped sequences against nr database.
 rule blastx_nr:
@@ -236,15 +238,15 @@ rule blastx_nr:
     output:
       out = temp("blast/{run}_blastx-nr_{n}.tsv")
     params:
-      db = config["nr"],
-      word_size = 6,
-      evalue = config["blastx_nr"]["evalue"],
-      max_hsps = config["blastx_nr"]["max_hsps"],
-      show_gis = True,
-      num_threads = 2,
-      outfmt = rules.megablast_refgenome.params.outfmt
+      program = "blastx",
+      task = "Blastx-fast",
+      db = "nr_v5",
+      evalue = 1e-2,
+      max_hsps = 50,
+      outfmt = rules.blastn_virus.params.outfmt
+    threads: 2
     wrapper:
-      config["wrappers"]["blast"]
+      BLAST
 
 # Filter blastx records for the cutoff value.
 rule parse_blastx_nr:
@@ -256,27 +258,31 @@ rule parse_blastx_nr:
       unmapped = temp("blast/{run}_blastx-nr_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-3,
-      outfmt = rules.megablast_refgenome.params.outfmt
+      outfmt = rules.blastn_virus.params.outfmt
     wrapper:
-      config["wrappers"]["parse_blast"]
+      PARSE_BLAST
 
 # Filter sequences by division id.
 # Saves hits with division id
-rule classify_phages_viruses:
+rule classify:
   input:
-    expand("blast/{{run}}_{blastresult}_{{n}}_mapped.tsv", blastresult = BLASTNR),
-    nodes = "taxonomy/nodes.csv"
+    expand("blast/{{run}}_{blastresult}_{{n}}_mapped.tsv", blastresult = BLASTNR)
   output:
-    division = "results/{run}_phages-viruses_{n}.csv",
-    other = "results/{run}_non-viral_{n}.csv"
-  params:
-    taxdb = config["vhunter"],
-    division_id = [3, 9] # pool phages and viruses
+    temp("results/{run}_classified_{n}.csv")
   wrapper:
-    config["wrappers"]["blast_taxonomy"]
+    "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/taxonomy"
+
+rule filter_viruses:
+  input:
+    rules.classify.output
+  output:
+    viral = "results/{run}_phages-viruses_{n}.csv",
+    non_viral = "results/{run}_non-viral_{n}.csv"
+  run:
+    filter_viruses(input, output.viral, output.non_viral, sep = ",")
 
 # Merge virus blast results
-rule merge_classify_phages_viruses_results:
+rule merge_viruses:
   input:
     expand("results/{{run}}_phages-viruses_{n}.csv", n = N)
   output:
@@ -285,7 +291,7 @@ rule merge_classify_phages_viruses_results:
     concatenate_tables(input, output, sep = ",")
 
 # Merge blast results for classification
-rule merge_non_viral_results:
+rule merge_non_viral:
   input:
     expand("results/{{run}}_non-viral_{n}.csv", n = N)
   output:
@@ -301,16 +307,6 @@ rule merge_unassigned:
     "results/{run}_unassigned.fa"
   shell:
     "cat {input} > {output}"
-
-# Assign unique taxons to blast queries.
-rule query_taxid:
-  input:
-    rules.merge_classify_phages_results.output,
-    rules.merge_classify_phages_viruses_results.output
-  output:
-    "results/{run}_query-taxid.csv"
-  wrapper:
-    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unique_taxons"
 
 # Collect stats.
 rule blast_stats:

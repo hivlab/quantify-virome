@@ -26,33 +26,3 @@ password: "taavi.pall@ut.ee"
 # Split fasta
 split_fasta:
     n_files: 20
-
-# Rule parameters ---------------------
-# MegaBlast against NT to remove more host sequences
-megablast_nt:
-    evalue: 1e-8
-    word_size: 16
-    max_hsps: 50
-    max_target_seqs: 5
-
-# Blastn against virus nucleotide database
-blastn_virus:
-    evalue: 1e-4
-    db_soft_mask: 100
-    max_hsps: 50
-
-# Blastx against virus protein database
-blastx_virus:
-    evalue: 1e-2
-    db_soft_mask: 100
-    max_hsps: 50
-
-# Blastn against nucleotide database
-blastn_nt:
-    evalue: 1e-8
-    max_hsps: 50
-
-# Blastx against protein database
-blastx_nr:
-    evalue: 1e-2
-    max_hsps: 50

@@ -33,13 +33,12 @@ wildcard_constraints:
     n = "\d+"
 
 # Main output files
-RESULTS = ["phages.csv", "phages-viruses.csv", "non-viral.csv", "query-taxid.csv", "unassigned.fa"]
+RESULTS = ["phages.csv", "phages-viruses.csv", "non-viral.csv", "unassigned.fa"]
 BLASTV = ["blastn-virus", "blastx-virus"] if config["run_blastx"] else ["blastn-virus"]
 BLASTNR = ["megablast-nt", "blastn-nt", "blastx-nr"] if config["run_blastx"] else ["megablast-nt", "blastn-nt"]
 BLAST = BLASTV + BLASTNR
-TAXONOMY = expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
 STATS = expand(["stats/{run}_refgenome-stats.txt", "stats/{run}_preprocess.tsv", "stats/{run}_blast.tsv"], run = RUN_IDS) + expand("stats/{run}_refbac-stats_{n}.txt", run = RUN_IDS, n = N)
-OUTPUTS = expand("results/{run}_{result}", run = RUN_IDS, result = RESULTS) + TAXONOMY + STATS
+OUTPUTS = expand("results/{run}_{result}", run = RUN_IDS, result = RESULTS) + STATS
 
 # Remote outputs
 if config["zenodo"]["deposition_id"]:
