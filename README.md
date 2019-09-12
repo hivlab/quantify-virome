@@ -41,6 +41,49 @@ conda create -n snakemake -c bioconda -c conda-forge snakemake
 source activate snakemake
 ```
 
+## Setup databases
+Together all databases will occupy ~250GB+ from your HD. 
+
+### BLAST databases
+
+1. Download BLAST version 5 databases
+
+Download version 5 BLAST databases using these instructions https://ftp.ncbi.nlm.nih.gov/blast/db/v5/blastdbv5.pdf
+
+Briefly, you can use `update_blastdb.pl` script from BLAST+ software bundle to update/download BLAST databases.
+
+To get BLAST, you can start by creating conda environment with blast+ like so:
+
+```
+conda env create -n blastenv
+conda blastenv activate
+conda install -c bioconda blast
+```
+
+Change working directory to location where you want BLAST databases to be installed, e.g. `$HOME/databases/blast`. 
+```
+mkdir -p $HOME/databases/blast
+cd $HOME/databases/blast
+```
+
+Use update_blastdb.pl (included with the BLAST+ package) to check available version 5 databases, use the --blastdb_version flag:
+```
+update_blastdb.pl --blastdb_version 5 --showall
+```
+
+Download nt_v5 and nr_v5 databases (takes time and might need restarting if connection drops):
+```
+update_blastdb.pl --blastdb_version 5 nt_v5 --decompress
+update_blastdb.pl --blastdb_version 5 nr_v5 --decompress
+```
+
+2. Setup BLASTDB environment variable
+Edit $HOME/.bashrc file to permanently add BLASTDB variable to your shell environment
+```
+echo 'export BLASTDB=$HOME/databases/blast >> $HOME/.bashrc'
+source $HOME/.bashrc
+echo $BLASTDB
+```
 
 ### Clone this repo and cd to repo
 (Change URL accordingly if using HTTPS)
