@@ -10,32 +10,32 @@ def concatenate_tables(input, output, sep = "\s+"):
   frames = [safely_read_csv(f, sep = sep) for f in input]
   pd.concat(frames, keys = input).to_csv(output[0], index = False)
 
-# Prepare taxonomy annotation tables.
-rule prepare_taxonomy_data:
-  input: config["names"], config["nodes"], config["division"]
-  output:
-      expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
-  wrapper:
-    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/prepare_taxonomy_data"
+rule get_virus_taxids:
+    output: "blast/10239.taxids"
+    params:
+       taxid = 10239
+    conda:
+        "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
+    shell:
+       "get_species_taxids.sh -t {params.taxid} > {output}"
 
 # Blastn, megablast and blastx input, output, and params keys must match commandline blast option names. Please see https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a for all available options.
 # Blast against nt virus database.
 rule blastn_virus:
     input:
-      query = rules.parse_megablast_refgenome.output.unmapped
+      query = rules.parse_megablast_refgenome.output.unmapped,
+       taxidlist = "blast/10239.taxids"
     output:
       out = temp("blast/{run}_blastn-virus_{n}.tsv")
     params:
-      db = config["virus_nt"],
-      task = "blastn",
-      evalue = config["blastn_virus"]["evalue"],
-      db_soft_mask = config["blastn_virus"]["db_soft_mask"],
-      max_hsps = config["blastn_virus"]["max_hsps"],
-      show_gis = True,
-      num_threads = 2,
-      outfmt = rules.megablast_refgenome.params.outfmt
+      program = "blastn",
+      db = "nt_v5",
+      evalue = 1e-4,
+      max_hsps = 50,
+      outfmt = "'6 qseqid sacc staxid pident length evalue'"
+    threads: 2
     wrapper:
-      config["wrappers"]["blast"]
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"
 
 # Filter blastn hits for the cutoff value.
 rule parse_blastn_virus:
@@ -47,27 +47,28 @@ rule parse_blastn_virus:
       unmapped = temp("blast/{run}_blastn-virus_{n}_unmapped.fa")
     params:
       e_cutoff = 1e-5,
-      outfmt = rules.megablast_refgenome.params.outfmt
+      outfmt = rules.blastn_virus.params.outfmt
     wrapper:
-      config["wrappers"]["parse_blast"]
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/parse"
 
 # Blastx unmapped reads against nr virus database.
 rule blastx_virus:
     input:
-      query = rules.parse_blastn_virus.output.unmapped
+      query = rules.parse_blastn_virus.output.unmapped,
+      taxidlist = "blast/10239.taxids"
     output:
       out = temp("blast/{run}_blastx-virus_{n}.tsv")
     params:
-      db = config["virus_nr"],
-      word_size = 6,
-      evalue = config["blastx_virus"]["evalue"],
-      db_soft_mask = config["blastx_virus"]["db_soft_mask"],
-      max_hsps = config["blastx_virus"]["max_hsps"],
-      show_gis = True,
-      num_threads = 2,
-      outfmt = rules.megablast_refgenome.params.outfmt
+      program = "blastx",
+      task = "Blastx-fast",
+      db = "nr_v5",
+      evalue = 1e-2,
+      db_soft_mask = 100,
+      max_hsps = 50,
+      outfmt = rules.blastn_virus.params.outfmt
+    threads: 2
     wrapper:
-      config["wrappers"]["blast"]
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"
 
 # Filter blastn hits for the cutoff value.
 rule parse_blastx_virus:
@@ -81,7 +82,7 @@ rule parse_blastx_virus:
       e_cutoff = 1e-3,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
-      config["wrappers"]["parse_blast"]
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/parse"
 
 # Filter sequences by division id.
 # Saves hits with division id
