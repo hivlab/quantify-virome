@@ -166,17 +166,16 @@ rule megablast_refgenome:
     output:
       out = temp("blast/{run}_megablast_{n}.tsv")
     params:
-      db = config["ref_genome"],
+      db = REF_GENOME,
       task = "megablast",
-      perc_identity = config["megablast_ref_genome"]["perc_identity"],
-      evalue = config["megablast_ref_genome"]["evalue"],
-      word_size = config["megablast_ref_genome"]["word_size"],
-      max_hsps = config["blastn_virus"]["max_hsps"],
-      show_gis = True,
-      num_threads = 2,
-      outfmt = "'6 qseqid sgi pident length mismatch gapopen qstart qend sstart send evalue bitscore'"
+      perc_identity = 85,
+      evalue = 1e-10,
+      word_size = 16,
+      max_hsps = 1,
+      outfmt = "'6 qseqid sseqid pident length evalue'"
+    threads: 2
     wrapper:
-      config["wrappers"]["blast"]
+      BLAST
 
 # Filter megablast records for the cutoff value
 rule parse_megablast_refgenome:
@@ -190,7 +189,7 @@ rule parse_megablast_refgenome:
       e_cutoff = 1e-10,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
-      config["wrappers"]["parse_blast"]
+      PARSE_BLAST
 
 # Collect stats from preprocess outputs.
 rule preprocess_stats:
@@ -207,7 +206,7 @@ rule preprocess_stats:
   params:
     extra = "-T"
   wrapper:
-    config["wrappers"]["stats"]
+    STATS
 
 # Refgenome mapping stats.
 rule refgenome_bam_stats:
