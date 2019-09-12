@@ -15,7 +15,7 @@ shell.executable("bash")
 
 # Load configuration file with sample and path info
 configfile: "config.yaml"
-validate(config, "schemas/config.schema.yaml")
+#validate(config, "schemas/config.schema.yaml")
 
 # Load runs and groups
 RUNS = pd.read_csv(config["samples"], sep = "\s+").set_index("run", drop = False)
