@@ -166,6 +166,7 @@ rule megablast_refgenome:
     output:
       out = temp("blast/{run}_megablast_{n}.tsv")
     params:
+      program = "blastn",
       db = REF_GENOME,
       task = "megablast",
       perc_identity = 85,
