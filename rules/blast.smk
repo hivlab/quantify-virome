@@ -320,7 +320,7 @@ rule blast_stats:
   params:
     extra = "-T"
   wrapper:
-    config["wrappers"]["stats"]
+    STATS
 
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
