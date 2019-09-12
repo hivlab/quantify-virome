@@ -80,7 +80,7 @@ update_blastdb.pl --blastdb_version 5 nr_v5 --decompress
 2. Setup BLASTDB environment variable
 Edit $HOME/.bashrc file to permanently add BLASTDB variable to your shell environment
 ```
-echo 'export BLASTDB=$HOME/databases/blast >> $HOME/.bashrc'
+echo 'export BLASTDB=$HOME/databases/blast' >> $HOME/.bashrc
 source $HOME/.bashrc
 echo $BLASTDB
 ```
@@ -88,9 +88,9 @@ echo $BLASTDB
 ### Download reference genome databases
 1. Human reference genome.
 
-Create a directory for the reference genome sequence file.
-Human refgenome human_g1k_v37.fasta.gz sequences file can be obtained like so:
+First, create a directory for the reference genome sequence file, e.g `mkdir -p $HOME/databases/ref_genomes && cd $HOME/databases/ref_genomes`.
 
+Then, human refgenome human_g1k_v37.fasta.gz sequences file can be obtained like so:
 ```
 wget --continue ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
 ```
@@ -105,6 +105,13 @@ wget --recursive --continue ftp://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/*
 
 Unzip the files and concatenate all the files into a single file.
 Use "bwa index" command to create index for the BWA algorithm.
+
+3. Add paths to `human_g1k_v37.fasta` and `Bacteria_ref_genome.fna` to environment variables.
+```
+echo 'export REF_GENOME_HUMAN=$HOME/databases/ref_genomes/human_g1k_v37.fasta' >> $HOME/.bashrc
+echo 'export REF_BACTERIA=$HOME/databases/bacteria_ref_sequence/Bacteria_ref_genome.fna' >> $HOME/.bashrc
+source $HOME/.bashrc
+```
 
 ## Install workflow 
 

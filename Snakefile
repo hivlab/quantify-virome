@@ -55,6 +55,10 @@ rule all:
     input:
         OUTPUTS
 
+# Path to reference genomes
+REF_GENOME = os.getenv("REF_GENOME_HUMAN")
+REF_BACTERIA = os.getenv("REF_BACTERIA")
+
 # Rules
 include: "rules/preprocess.smk"
 include: "rules/blast.smk"

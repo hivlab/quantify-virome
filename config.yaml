@@ -27,27 +27,6 @@ password: "taavi.pall@ut.ee"
 split_fasta:
     n_files: 20
 
-# Path to RepeatMasker Repbase file (path/to/RMRBSeqs.embl)
-repbase_file: /gpfs/hpchome/radko/Libraries/RMRBSeqs.embl
-
-# Path to reference genome
-ref_genome: /gpfs/hpc/repository/VirusSeeker/databases/ref_genomes/human_g1k_v37.fasta
-ref_bacteria: /gpfs/hpc/repository/VirusSeeker/databases/bacteria_ref_sequence/Bacteria_ref_genome.fna
-
-# Path to virus database
-virus_nt: /gpfs/hpc/repository/VirusSeeker/databases/VirusDBNT_20160802/VirusDBNT_20160802_ID98.fa
-virus_nr: /gpfs/hpc/repository/VirusSeeker/databases/VirusDBNR_20160802/VirusDBNR_20160802_ID98.fa
-
-# Path to taxonomy database
-vhunter: /gpfs/hpc/repository/VirusSeeker/databases/taxdump_300817/vhunter.db
-names: /gpfs/hpc/repository/VirusSeeker/databases/taxdump_300817/names.dmp
-nodes: /gpfs/hpc/repository/VirusSeeker/databases/taxdump_300817/nodes.dmp
-division: /gpfs/hpc/repository/VirusSeeker/databases/taxdump_300817/division.dmp
-
-# Paths to nt and nr blast database to be used for environment variable
-nt: /gpfs/hpc/repository/VirusSeeker/databases/nt/nt
-nr: /gpfs/hpc/repository/VirusSeeker/databases/nr/nr
-
 # Rule parameters ---------------------
 # Modify these settings only when you know what you are doing
 # Filter repeatmasker and tantan output
