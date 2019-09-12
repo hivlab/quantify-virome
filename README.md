@@ -85,7 +85,30 @@ source $HOME/.bashrc
 echo $BLASTDB
 ```
 
-### Clone this repo and cd to repo
+### Download reference genome databases
+1. Human reference genome.
+
+Create a directory for the reference genome sequence file.
+Human refgenome human_g1k_v37.fasta.gz sequences file can be obtained like so:
+
+```
+wget --continue ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+```
+
+2. Bacterial reference genome sequences.
+
+Create a directory for the bacteria reference sequence files.
+Download all *genomic.fna.gz files to the directory by using command.
+```
+wget --recursive --continue ftp://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/*genomic.fna.gz
+```
+
+Unzip the files and concatenate all the files into a single file.
+Use "bwa index" command to create index for the BWA algorithm.
+
+## Install workflow 
+
+Clone this repo and cd to repo
 (Change URL accordingly if using HTTPS)
 
 ```
