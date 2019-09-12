@@ -127,7 +127,7 @@ rule bwa_mem_refbac:
     output:
       temp("blast/{run}_bac-mapped_{n}.bam")
     params:
-      index = config["ref_bacteria"],
+      index = REF_BACTERIA,
       extra = "-k 15",
       sort = "none"
     log:
