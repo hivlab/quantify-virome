@@ -64,14 +64,14 @@ def file_exists(file):
 
 # Path to reference genomes
 REF_GENOME = os.getenv("REF_GENOME_HUMAN")
-file_exists(REF_GENOME)
+# file_exists(REF_GENOME)
 REF_BACTERIA = os.getenv("REF_BACTERIA")
-file_exists(REF_BACTERIA)
+# file_exists(REF_BACTERIA)
 
 # Wrappers
-BLAST = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"
+BLAST_QUERY = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"
 PARSE_BLAST = "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/parse"
-STATS = "https://bitbucket.org/tpall/snakemake-wrappers/raw/e7699c0ae37a999909fb764c91723d46ded7461c/bio/seqkit/stats"
+SEQ_STATS = "https://bitbucket.org/tpall/snakemake-wrappers/raw/e7699c0ae37a999909fb764c91723d46ded7461c/bio/seqkit/stats"
 
 # Rules
 include: "rules/preprocess.smk"

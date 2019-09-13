@@ -176,7 +176,7 @@ rule megablast_refgenome:
       outfmt = "'6 qseqid sseqid pident length evalue'"
     threads: 2
     wrapper:
-      BLAST
+      BLAST_QUERY
 
 # Filter megablast records for the cutoff value
 rule parse_megablast_refgenome:
@@ -207,7 +207,7 @@ rule preprocess_stats:
   params:
     extra = "-T"
   wrapper:
-    STATS
+    SEQ_STATS
 
 # Refgenome mapping stats.
 rule refgenome_bam_stats:

@@ -42,7 +42,7 @@ rule blastn_virus:
       outfmt = "'6 qseqid sacc staxid pident length evalue'"
     threads: 2
     wrapper:
-      "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"
+      BLAST_QUERY
 
 # Filter blastn hits for the cutoff value.
 rule parse_blastn_virus:
@@ -56,7 +56,7 @@ rule parse_blastn_virus:
       e_cutoff = 1e-5,
       outfmt = rules.blastn_virus.params.outfmt
     wrapper:
-      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/parse"
+      PARSE_BLAST
 
 # Blastx unmapped reads against nr virus database.
 rule blastx_virus:
@@ -75,7 +75,7 @@ rule blastx_virus:
       outfmt = rules.blastn_virus.params.outfmt
     threads: 2
     wrapper:
-      "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"
+      BLAST_QUERY
 
 # Filter blastn hits for the cutoff value.
 rule parse_blastx_virus:
@@ -89,7 +89,7 @@ rule parse_blastx_virus:
       e_cutoff = 1e-3,
       outfmt = rules.megablast_refgenome.params.outfmt
     wrapper:
-      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/parse"
+      PARSE_BLAST
 
 # Filter sequences by division id.
 # Saves hits with division id
@@ -184,7 +184,7 @@ rule megablast_nt:
       outfmt = rules.blastn_virus.params.outfmt
     threads: 2
     wrapper:
-      BLAST
+      BLAST_QUERY
 
 # Filter megablast hits for the cutoff value.
 rule parse_megablast_nt:
@@ -215,7 +215,7 @@ rule blastn_nt:
       outfmt = rules.blastn_virus.params.outfmt
     threads: 2
     wrapper:
-      BLAST
+      BLAST_QUERY
 
 # Filter blastn records for the cutoff value.
 rule parse_blastn_nt:
@@ -246,7 +246,7 @@ rule blastx_nr:
       outfmt = rules.blastn_virus.params.outfmt
     threads: 2
     wrapper:
-      BLAST
+      BLAST_QUERY
 
 # Filter blastx records for the cutoff value.
 rule parse_blastx_nr:
@@ -320,7 +320,7 @@ rule blast_stats:
   params:
     extra = "-T"
   wrapper:
-    STATS
+    SEQ_STATS
 
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
