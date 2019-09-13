@@ -15,7 +15,7 @@ shell.executable("bash")
 
 # Load configuration file with sample and path info
 configfile: "config.yaml"
-#validate(config, "schemas/config.schema.yaml")
+validate(config, "schemas/config.schema.yaml")
 
 # Load runs and groups
 RUNS = pd.read_csv(config["samples"], sep = "\s+").set_index("run", drop = False)
@@ -54,9 +54,19 @@ rule all:
     input:
         OUTPUTS
 
+# Check file exists
+def file_exists(file):
+    try:
+        with open(file, 'r') as fh:
+            # file is set up correctly
+    except FileNotFoundError:
+        # Could not find file
+
 # Path to reference genomes
 REF_GENOME = os.getenv("REF_GENOME_HUMAN")
+file_exists(REF_GENOME)
 REF_BACTERIA = os.getenv("REF_BACTERIA")
+file_exists(REF_BACTERIA)
 
 # Wrappers
 BLAST = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"

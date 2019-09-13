@@ -1,6 +1,4 @@
 
-# Global parameters -------------------
-
 # Set seed for fastq downsampling
 seed: 561837
 
@@ -9,6 +7,7 @@ seed: 561837
 # fq1 and fq2 - paths to paired-end fastq file
 # frac - fraction of reads to sample. Set it to 0 or >=1 for no downsampling. Check and set also seed in config.yml to make results reproducible.
 samples: "samples.tsv"
+# Set remote to True when sample paths point to ftp site
 remote: True
 
 # Option to save time by not running blastx
