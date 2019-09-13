@@ -99,7 +99,7 @@ rule classify_viruses:
   output:
     temp("results/{run}_viruses_{n}.csv")
   wrapper:
-    "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/taxonomy"
+    BLAST_TAXONOMY
 
 # Merge virus blast results
 rule merge_classify_viruses_results:
@@ -118,7 +118,7 @@ rule unmasked_other:
     output:
       temp("blast/{run}_candidate-viruses_{n}_unmasked.fa")
     wrapper:
-      "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/subset_fasta"
+      SUBSET_FASTA
 
 # Map reads to bacterial genomes.
 rule bwa_mem_refbac:
@@ -144,7 +144,7 @@ rule unmapped_refbac:
     fastq = temp("blast/{run}_unmapped_{n}.fq"),
     fasta = temp("blast/{run}_unmapped_{n}.fa")
   wrapper:
-    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmapped"
+    BWA_UNMAPPED
 
 # Calculate bam file stats
 rule refbac_bam_stats:
@@ -166,7 +166,7 @@ rule refbac_unmapped_masked:
     output:
       temp("blast/{run}_unmapped_{n}_masked.fa")
     wrapper:
-      "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/subset_fasta"
+      SUBSET_FASTA
 
 # Megablast against nt database.
 rule megablast_nt:
@@ -270,8 +270,9 @@ rule classify:
   output:
     temp("results/{run}_classified_{n}.csv")
   wrapper:
-    "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/taxonomy"
+    BLAST_TAXONOMY
 
+# Split classification rule output into viruses and non-viral
 rule filter_viruses:
   input:
     rules.classify.output

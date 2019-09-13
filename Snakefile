@@ -69,8 +69,12 @@ REF_BACTERIA = os.getenv("REF_BACTERIA")
 # file_exists(REF_BACTERIA)
 
 # Wrappers
+LN_FILTER = "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
+BWA_UNMAPPED = "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmapped"
 BLAST_QUERY = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"
 PARSE_BLAST = "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/parse"
+BLAST_TAXONOMY = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/taxonomy"
+SUBSET_FASTA = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/subset_fasta"
 SEQ_STATS = "https://bitbucket.org/tpall/snakemake-wrappers/raw/e7699c0ae37a999909fb764c91723d46ded7461c/bio/seqkit/stats"
 
 # Rules

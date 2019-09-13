@@ -56,7 +56,7 @@ rule unmapped_refgenome:
     reformat_fasta_extra = "uniquenames",
     extra = "-Xmx48000m"
   wrapper:
-    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmapped"
+    BWA_UNMAPPED
 
 # Run cd-hit to find and cluster duplicate reads.
 rule cd_hit:
@@ -96,7 +96,7 @@ rule tantan_good:
     min_length = 50,
     por_n = 40
   wrapper:
-    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
+    LN_FILTER
 
 # Split reads to smaller chunks for Repeatmasker
 rule split_fasta:
@@ -157,7 +157,7 @@ rule repeatmasker_good:
     min_length = 50,
     por_n = 40
   wrapper:
-    "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
+    LN_FILTER
 
 # MegaBlast against reference genome to remove host sequences
 rule megablast_refgenome:
