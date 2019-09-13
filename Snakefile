@@ -58,9 +58,9 @@ rule all:
 def file_exists(file):
     try:
         with open(file, 'r') as fh:
-            # file is set up correctly
+            print("{} is set up correctly".format(file))
     except FileNotFoundError:
-        # Could not find file
+        ("Could not find {}").format(file)
 
 # Path to reference genomes
 REF_GENOME = os.getenv("REF_GENOME_HUMAN")
