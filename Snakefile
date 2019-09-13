@@ -33,7 +33,7 @@ wildcard_constraints:
     n = "\d+"
 
 # Main output files
-RESULTS = ["phages.csv", "phages-viruses.csv", "non-viral.csv", "unassigned.fa"]
+RESULTS = ["viruses.csv", "phages-viruses.csv", "non-viral.csv", "unassigned.fa"]
 BLASTV = ["blastn-virus", "blastx-virus"] if config["run_blastx"] else ["blastn-virus"]
 BLASTNR = ["megablast-nt", "blastn-nt", "blastx-nr"] if config["run_blastx"] else ["megablast-nt", "blastn-nt"]
 BLAST = BLASTV + BLASTNR
