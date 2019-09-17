@@ -66,7 +66,7 @@ rule blastn_virus:
       evalue = 1e-4,
       max_hsps = 50,
       outfmt = "'6 qseqid sacc staxid pident length evalue'"
-    threads: 2
+    threads: 8
     wrapper:
       BLAST_QUERY
 
@@ -99,7 +99,7 @@ rule blastx_virus:
       db_soft_mask = 100,
       max_hsps = 50,
       outfmt = rules.blastn_virus.params.outfmt
-    threads: 2
+    threads: 8
     wrapper:
       BLAST_QUERY
 
@@ -158,7 +158,7 @@ rule bwa_mem_refbac:
       sort = "none"
     log:
       "logs/{run}_bwa-map-refbac_{n}.log"
-    threads: 2
+    threads: 8
     wrapper:
       "0.32.0/bio/bwa/mem"
 
@@ -208,7 +208,7 @@ rule megablast_nt:
       word_size = 16,
       max_hsps = 50,
       outfmt = rules.blastn_virus.params.outfmt
-    threads: 2
+    threads: 8
     wrapper:
       BLAST_QUERY
 
@@ -240,7 +240,7 @@ rule blastn_nt:
       evalue = 1e-8,
       max_hsps = 50,
       outfmt = rules.blastn_virus.params.outfmt
-    threads: 2
+    threads: 8
     wrapper:
       BLAST_QUERY
 
@@ -271,7 +271,7 @@ rule blastx_nr:
       evalue = 1e-2,
       max_hsps = 50,
       outfmt = rules.blastn_virus.params.outfmt
-    threads: 2
+    threads: 8
     wrapper:
       BLAST_QUERY
 

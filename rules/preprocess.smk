@@ -25,7 +25,7 @@ rule preprocess:
     bbduk = "qtrim=r trimq=10 maq=10 minlen=100",
     frac = lambda wildcards: get_frac(wildcards),
     seed = config["seed"]
-  threads: 2
+  threads: 8
   wrapper:
     "https://raw.githubusercontent.com/avilab/virome-wrappers/master/preprocess"
 
@@ -41,7 +41,7 @@ rule bwa_mem_refgenome:
     sort = "none"
   log:
     "logs/{run}_bwa_map_refgenome.log"
-  threads: 2
+  threads: 8
   wrapper:
     "0.32.0/bio/bwa/mem"
 
@@ -67,7 +67,7 @@ rule cd_hit:
     clstr = temp("cdhit/{run}_cdhit.fa.clstr")
   params:
     extra = "-c 0.984 -G 0 -n 10 -d 0 -aS 0.984 -r 1 -M 0"
-  threads: 2
+  threads: 8
   log:
     "logs/{run}_cdhit.log"
   wrapper:
@@ -123,7 +123,7 @@ rule repeatmasker:
     tbl = "mask/{run}_repeatmasker_{n}.fa.tbl"
   params:
     outdir = "mask"
-  threads: 2
+  threads: 8
   singularity:
     "shub://tpall/repeatmasker-singularity"
   shell:
@@ -174,7 +174,7 @@ rule megablast_refgenome:
       word_size = 16,
       max_hsps = 1,
       outfmt = "'6 qseqid sseqid pident length evalue'"
-    threads: 2
+    threads: 8
     wrapper:
       BLAST_QUERY
 
