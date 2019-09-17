@@ -26,6 +26,32 @@ rule get_virus_taxids:
     shell:
        "get_species_taxids.sh -t {params.taxid} > {output}"
 
+rule get_human_taxids:
+    output: "blast/9606.taxids"
+    params:
+       taxid = 9606
+    conda:
+        "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
+    shell:
+       "get_species_taxids.sh -t {params.taxid} > {output}"
+
+rule get_bacterial_taxids:
+    output: "blast/bacterial.taxids"
+    params:
+       taxid = 2
+    conda:
+        "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
+    shell:
+       "get_species_taxids.sh -t {params.taxid} > {output}"
+
+rule merge_taxidlists:
+    input: 
+      "blast/9606.taxids", "blast/bacterial.taxids"
+    output:
+      "blast/human_and_bacteria.taxids"
+    shell:
+      "cat {input[0]} {input[1]} > {output}"
+
 # Blastn, megablast and blastx input, output, and params keys must match commandline blast option names. Please see https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a for all available options.
 # Blast against nt virus database.
 rule blastn_virus:
@@ -203,7 +229,8 @@ rule parse_megablast_nt:
 # Blastn against nt database.
 rule blastn_nt:
     input:
-      query = rules.parse_megablast_nt.output.unmapped
+      query = rules.parse_megablast_nt.output.unmapped,
+      negative_taxidlist = "blast/human_and_bacteria.taxids"
     output:
       out = temp("blast/{run}_blastn-nt_{n}.tsv")
     params:
