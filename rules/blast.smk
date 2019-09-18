@@ -44,13 +44,26 @@ rule get_bacterial_taxids:
     shell:
        "get_species_taxids.sh -t {params.taxid} > {output}"
 
+get_uncultured_taxids:
+    output: "blast/uncultured.taxids"
+    conda:
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/filter/masked/environment.yaml"
+    run: 
+      from Bio import Entrez
+      Entrez.email = config["password"]
+      resp = Entrez.esearch(db = "taxonomy", term = '"environmental samples"[organism] OR metagenomes[orgn]')
+      cont = Entrez.read(resp)
+      with open(output, "w") as f:
+        for item in cont["IdList"]:
+          f.write("{}\n".format(item))
+
 rule merge_taxidlists:
     input: 
-      "blast/9606.taxids", "blast/bacterial.taxids"
+      "blast/9606.taxids", "blast/bacterial.taxids", "blast/uncultured.taxids"
     output:
-      "blast/human_and_bacteria.taxids"
+      "blast/negative.taxids"
     shell:
-      "cat {input[0]} {input[1]} > {output}"
+      "cat {input} > {output}"
 
 # Blastn, megablast and blastx input, output, and params keys must match commandline blast option names. Please see https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a for all available options.
 # Blast against nt virus database.
@@ -197,7 +210,8 @@ rule refbac_unmapped_masked:
 # Megablast against nt database.
 rule megablast_nt:
     input:
-      query = rules.refbac_unmapped_masked.output
+      query = rules.refbac_unmapped_masked.output,
+      negative_taxidlist = "blast/negative.taxids"
     output:
       out = temp("blast/{run}_megablast-nt_{n}.tsv")
     params:
@@ -230,7 +244,7 @@ rule parse_megablast_nt:
 rule blastn_nt:
     input:
       query = rules.parse_megablast_nt.output.unmapped,
-      negative_taxidlist = "blast/human_and_bacteria.taxids"
+      negative_taxidlist = "blast/negative.taxids"
     output:
       out = temp("blast/{run}_blastn-nt_{n}.tsv")
     params:
@@ -261,7 +275,8 @@ rule parse_blastn_nt:
 # Blastx unmapped sequences against nr database.
 rule blastx_nr:
     input:
-      query = rules.parse_blastn_nt.output.unmapped
+      query = rules.parse_blastn_nt.output.unmapped,
+      negative_taxidlist = "blast/negative.taxids"
     output:
       out = temp("blast/{run}_blastx-nr_{n}.tsv")
     params:
