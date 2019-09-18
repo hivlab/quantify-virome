@@ -46,16 +46,12 @@ rule get_bacterial_taxids:
 
 rule get_uncultured_taxids:
     output: "blast/uncultured.taxids"
+    params:
+      email = config["password"]
     conda:
       "https://raw.githubusercontent.com/avilab/virome-wrappers/master/filter/masked/environment.yaml"
-    run: 
-      from Bio import Entrez
-      Entrez.email = config["password"]
-      resp = Entrez.esearch(db = "taxonomy", term = '"environmental samples"[organism] OR metagenomes[orgn]')
-      cont = Entrez.read(resp)
-      with open(output, "w") as f:
-        for item in cont["IdList"]:
-          f.write("{}\n".format(item))
+    shell:
+      "python get_uncultured_taxids.py"
 
 rule merge_taxidlists:
     input: 
