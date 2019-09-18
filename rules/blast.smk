@@ -44,7 +44,7 @@ rule get_bacterial_taxids:
     shell:
        "get_species_taxids.sh -t {params.taxid} > {output}"
 
-get_uncultured_taxids:
+rule get_uncultured_taxids:
     output: "blast/uncultured.taxids"
     conda:
       "https://raw.githubusercontent.com/avilab/virome-wrappers/master/filter/masked/environment.yaml"
