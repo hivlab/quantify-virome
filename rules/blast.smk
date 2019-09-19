@@ -11,7 +11,7 @@ def concatenate_tables(input, output, sep = "\s+"):
   pd.concat(frames, keys = input).to_csv(output[0], index = False)
 
 def filter_viruses(input, viruses, non_viral, sep = ","):
-  tab = safely_read_csv(input, sep = sep)
+  tab = safely_read_csv(input[0], sep = sep)
   vir = tab[tab.superkingdom == 10239]
   non_vir = tab[tab.superkingdom != 10239]
   vir.to_csv(viruses[0], index = False)
@@ -310,33 +310,23 @@ rule classify:
   wrapper:
     BLAST_TAXONOMY
 
-# Split classification rule output into viruses and non-viral
-rule filter_viruses:
+rule merge_classified:
   input:
-    rules.classify.output
-  output:
-    viral = "results/{run}_phages-viruses_{n}.csv",
-    non_viral = "results/{run}_non-viral_{n}.csv"
-  run:
-    filter_viruses(input, output.viral, output.non_viral, sep = ",")
-
-# Merge virus blast results
-rule merge_viruses:
-  input:
-    expand("results/{{run}}_phages-viruses_{n}.csv", n = N)
+    expand("results/{{run}}_classified_{n}.csv", n = N)
   output:
     "results/{run}_phages-viruses.csv"
   run:
     concatenate_tables(input, output, sep = ",")
 
-# Merge blast results for classification
-rule merge_non_viral:
+# Split classification rule output into viruses and non-viral
+rule filter_viruses:
   input:
-    expand("results/{{run}}_non-viral_{n}.csv", n = N)
+    rules.merge_classified.output
   output:
-    "results/{run}_non-viral.csv"
+    viral = "results/{run}_phages-viruses.csv",
+    non_viral = "results/{run}_non-viral.csv"
   run:
-    concatenate_tables(input, output, sep = ",")
+    filter_viruses(input, output.viral, output.non_viral, sep = ",")
 
 # Merge unassigned sequences
 rule merge_unassigned:
