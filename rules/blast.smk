@@ -14,8 +14,8 @@ def filter_viruses(input, viruses, non_viral, sep = ","):
   tab = safely_read_csv(input, sep = sep)
   vir = tab[tab.superkingdom == 10239]
   non_vir = tab[tab.superkingdom != 10239]
-  vir.to_csv(viruses, index = False)
-  non_vir.to_csv(non_viral, index = False)
+  vir.to_csv(viruses[0], index = False)
+  non_vir.to_csv(non_viral[0], index = False)
 
 rule get_virus_taxids:
     output: "blast/10239.taxids"
