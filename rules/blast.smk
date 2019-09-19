@@ -11,11 +11,11 @@ def concatenate_tables(input, output, sep = "\s+"):
   pd.concat(frames, keys = input).to_csv(output[0], index = False)
 
 def filter_viruses(input, viruses, non_viral, sep = ","):
-  tab = safely_read_csv(f, sep = sep)
+  tab = safely_read_csv(input, sep = sep)
   vir = tab[tab.superkingdom == 10239]
   non_vir = tab[tab.superkingdom != 10239]
-  vir.to_csv(viruses[0], index = False)
-  non_vir.to_csv(non_viral[0], index = False)
+  vir.to_csv(viruses, index = False)
+  non_vir.to_csv(non_viral, index = False)
 
 rule get_virus_taxids:
     output: "blast/10239.taxids"
