@@ -10,7 +10,7 @@ def concatenate_tables(input, output, sep = "\s+"):
   frames = [safely_read_csv(f, sep = sep) for f in input]
   pd.concat(frames, keys = input).to_csv(output[0], index = False)
 
-def filter_taxons(input, viruses, non_viral, sep = ","):
+def filter_viruses(input, viruses, non_viral, sep = ","):
   tab = safely_read_csv(f, sep = sep)
   vir = tab[tab.superkingdom == 10239]
   non_vir = tab[tab.superkingdom != 10239]
