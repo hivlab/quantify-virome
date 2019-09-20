@@ -314,7 +314,7 @@ rule merge_classified:
   input:
     expand("results/{{run}}_classified_{n}.csv", n = N)
   output:
-    "results/{run}_phages-viruses.csv"
+    "results/{run}_classified.csv"
   run:
     concatenate_tables(input, output, sep = ",")
 
