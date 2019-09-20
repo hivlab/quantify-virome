@@ -14,8 +14,8 @@ def filter_viruses(input, viruses, non_viral, sep = ","):
   tab = safely_read_csv(input[0], sep = sep)
   vir = tab[tab.superkingdom == 10239]
   non_vir = tab[tab.superkingdom != 10239]
-  vir.to_csv(viruses[0], index = False)
-  non_vir.to_csv(non_viral[0], index = False)
+  vir.to_csv(viruses, index = False)
+  non_vir.to_csv(non_viral, index = False)
 
 rule get_virus_taxids:
     output: "blast/10239.taxids"
@@ -326,7 +326,11 @@ rule filter_viruses:
     viral = "results/{run}_phages-viruses.csv",
     non_viral = "results/{run}_non-viral.csv"
   run:
-    filter_viruses(input, output.viral, output.non_viral, sep = ",")
+    tab = safely_read_csv(input, sep = ",")
+    vir = tab[tab.superkingdom == 10239]
+    non_vir = tab[tab.superkingdom != 10239]
+    vir.to_csv(output.viral, index = False)
+    non_vir.to_csv(output.non_viral, index = False)
 
 # Merge unassigned sequences
 rule merge_unassigned:
