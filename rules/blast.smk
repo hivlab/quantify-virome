@@ -326,7 +326,7 @@ rule filter_viruses:
     viral = "results/{run}_phages-viruses.csv",
     non_viral = "results/{run}_non-viral.csv"
   run:
-    tab = safely_read_csv(input, sep = ",")
+    tab = safely_read_csv(input[0], sep = ",")
     vir = tab[tab.superkingdom == 10239]
     non_vir = tab[tab.superkingdom != 10239]
     vir.to_csv(output.viral, index = False)
