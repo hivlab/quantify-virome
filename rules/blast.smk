@@ -6,16 +6,14 @@ def safely_read_csv(path, **kwargs):
   except pd.errors.EmptyDataError:
     pass
 
-def concatenate_tables(input, output, sep = "\s+"):
-  frames = [safely_read_csv(f, sep = sep) for f in input]
-  pd.concat(frames, keys = input).to_csv(output[0], index = False)
+RANKS_OF_INTEREST = ['superkingdom', 'order', 'family', 'genus', 'species']
 
-def filter_viruses(input, viruses, non_viral, sep = ","):
-  tab = safely_read_csv(input[0], sep = sep)
-  vir = tab[tab.superkingdom == 10239]
-  non_vir = tab[tab.superkingdom != 10239]
-  vir.to_csv(viruses, index = False)
-  non_vir.to_csv(non_viral, index = False)
+def concatenate_tables(input, output, sep = "\s+", cols_to_integer = None):
+  frames = [safely_read_csv(f, sep = sep) for f in input]
+  frames_concatenated = pd.concat(frames, keys = input)
+  if cols_to_integer:
+    frames_concatenated = frames_concatenated[cols_to_integer].apply(lambda x: pd.Series(x, dtype = "Int64"))
+  frames_concatenated.to_csv(output[0], index = False)
 
 rule get_virus_taxids:
     output: "blast/10239.taxids"
@@ -142,8 +140,10 @@ rule merge_classify_viruses_results:
     expand("results/{{run}}_viruses_{n}.csv", n = N)
   output:
     "results/{run}_viruses.csv"
+  params: 
+    ranks = RANKS_OF_INTEREST
   run:
-    concatenate_tables(input, output, sep = ",")
+    concatenate_tables(input, output, sep = ",", cols_to_integer = params.ranks)
 
 # Filter unmasked candidate virus reads.
 rule unmasked_other:
@@ -315,8 +315,10 @@ rule merge_classified:
     expand("results/{{run}}_classified_{n}.csv", n = N)
   output:
     "results/{run}_classified.csv"
+  params: 
+    ranks = RANKS_OF_INTEREST
   run:
-    concatenate_tables(input, output, sep = ",")
+    concatenate_tables(input, output, sep = ",", cols_to_integer = params.ranks)
 
 # Split classification rule output into viruses and non-viral
 rule filter_viruses:
@@ -325,10 +327,14 @@ rule filter_viruses:
   output:
     viral = "results/{run}_phages-viruses.csv",
     non_viral = "results/{run}_non-viral.csv"
+  params: 
+    ranks = RANKS_OF_INTEREST
   run:
     tab = safely_read_csv(input[0], sep = ",")
     vir = tab[tab.superkingdom == 10239]
     non_vir = tab[tab.superkingdom != 10239]
+    vir = vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
+    non_vir = non_vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
     vir.to_csv(output.viral, index = False)
     non_vir.to_csv(output.non_viral, index = False)
 
