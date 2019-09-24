@@ -70,6 +70,7 @@ REF_BACTERIA = os.getenv("REF_BACTERIA")
 
 # Wrappers
 LN_FILTER = "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
+RM = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/repeatmasker"
 BWA_UNMAPPED = "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmapped"
 BLAST_QUERY = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"
 PARSE_BLAST = "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/parse"

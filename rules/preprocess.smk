@@ -122,25 +122,12 @@ rule repeatmasker:
     cat = temp("mask/{run}_repeatmasker_{n}.fa.cat"),
     tbl = "mask/{run}_repeatmasker_{n}.fa.tbl"
   params:
-    outdir = "mask"
+    extra = "-qq"
   threads: 8
   singularity:
     "shub://tpall/repeatmasker-singularity"
-  shell:
-    """
-    RepeatMasker -qq -pa {threads} {input.fa} -dir {params.outdir}
-    # Keep consistent outputs
-    # - Generate missing .tbl file when no repetitive seqs were detected 
-    if head -n 1 {output.out} | grep -q "There were no repetitive sequences detected"
-    then 
-      ln -sr {input.fa} {output.masked} && touch {output.tbl}
-    fi
-    # - Unzip cat.gz file that is created if totseqlen > 10000000
-    if [[ -f mask/{wildcards.run}_repeatmasker_{wildcards.n}.fa.cat.gz ]]
-    then
-      gzip -d mask/{wildcards.run}_repeatmasker_{wildcards.n}.fa.cat.gz
-    fi
-    """
+  wrapper:
+    RM
 
 # Filter repeatmasker output
 # 1) Sequences > 50 nt of consecutive sequence without N
