@@ -126,7 +126,7 @@ rule repeatmasker:
   threads: 8
   singularity:
     "shub://tpall/repeatmasker-singularity:latest@conda"
-  script:
+  wrapper:
     RM
 
 # Filter repeatmasker output
