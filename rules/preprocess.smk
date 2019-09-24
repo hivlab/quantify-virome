@@ -126,7 +126,7 @@ rule repeatmasker:
   threads: 8
   singularity:
     "shub://tpall/repeatmasker-singularity"
-  wrapper:
+  script:
     RM
 
 # Filter repeatmasker output
