@@ -12,7 +12,7 @@ def concatenate_tables(input, output, sep = "\s+", cols_to_integer = None):
   frames = [safely_read_csv(f, sep = sep) for f in input]
   frames_concatenated = pd.concat(frames, keys = input)
   if cols_to_integer:
-    frames_concatenated = frames_concatenated[cols_to_integer].apply(lambda x: pd.Series(x, dtype = "Int64"))
+    frames_concatenated[cols_to_integer] = frames_concatenated[cols_to_integer].apply(lambda x: pd.Series(x, dtype = "Int64"))
   frames_concatenated.to_csv(output[0], index = False)
 
 rule get_virus_taxids:
@@ -333,8 +333,8 @@ rule filter_viruses:
     tab = safely_read_csv(input[0], sep = ",")
     vir = tab[tab.superkingdom == 10239]
     non_vir = tab[tab.superkingdom != 10239]
-    vir = vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
-    non_vir = non_vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
+    vir[params.ranks] = vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
+    non_vir[params.ranks] = non_vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
     vir.to_csv(output.viral, index = False)
     non_vir.to_csv(output.non_viral, index = False)
 
