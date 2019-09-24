@@ -125,8 +125,8 @@ rule repeatmasker:
     extra = "-qq"
   threads: 8
   singularity:
-    "docker://taavipall/repeatmasker-image:conda"
-  script:
+    "shub://tpall/repeatmasker-singularity"
+  wrapper:
     RM
 
 # Filter repeatmasker output
