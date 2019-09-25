@@ -182,6 +182,7 @@ rule parse_megablast_refgenome:
 # Collect stats from preprocess outputs.
 rule preprocess_stats:
   input:
+    rules.preprocess.input,
     rules.preprocess.output.trimmed,
     rules.unmapped_refgenome.output,
     expand("blast/{{run}}_refgenome-megablast_{n}_unmapped.fa", n = N),
