@@ -22,7 +22,7 @@ rule preprocess:
     trimmed = temp("preprocess/{run}_trimmed.fq"),
     sampled = temp("preprocess/{run}_sample.fq")
   params:
-    bbduk = "qtrim=r trimq=10 maq=10 minlen=100",
+    bbduk = "qtrim=rl trimq=10 maq=10 minlength=70 tpe=t tbo=t",
     frac = lambda wildcards: get_frac(wildcards),
     seed = config["seed"]
   threads: 8
@@ -122,7 +122,7 @@ rule repeatmasker:
     cat = temp("mask/{run}_repeatmasker_{n}.fa.cat"),
     tbl = "mask/{run}_repeatmasker_{n}.fa.tbl"
   params:
-    outdir = "mask"
+    extra = "-qq"
   threads: 8
   singularity:
     "shub://tpall/repeatmasker-singularity:latest@conda"
