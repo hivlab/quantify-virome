@@ -22,7 +22,7 @@ rule preprocess:
     trimmed = temp("preprocess/{run}_trimmed.fq"),
     sampled = temp("preprocess/{run}_sample.fq")
   params:
-    bbduk = "qtrim=r trimq=10 maq=10 minlen=100",
+    bbduk = "qtrim=rl trimq=10 maq=10 minlength=70 tpe=t tbo=t",
     frac = lambda wildcards: get_frac(wildcards),
     seed = config["seed"]
   threads: 8
