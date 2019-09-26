@@ -125,8 +125,8 @@ rule repeatmasker:
     extra = "-qq"
   threads: 8
   singularity:
-    "shub://tpall/repeatmasker-singularity:latest@conda"
-  wrapper:
+    "shub://tpall/repeatmasker-singularity"
+  script:
     RM
 
 # Filter repeatmasker output
@@ -182,7 +182,6 @@ rule parse_megablast_refgenome:
 # Collect stats from preprocess outputs.
 rule preprocess_stats:
   input:
-    rules.preprocess.input,
     rules.preprocess.output.trimmed,
     rules.unmapped_refgenome.output,
     expand("blast/{{run}}_refgenome-megablast_{n}_unmapped.fa", n = N),
