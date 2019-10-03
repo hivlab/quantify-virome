@@ -67,6 +67,7 @@ REF_GENOME = os.getenv("REF_GENOME_HUMAN")
 # file_exists(REF_GENOME)
 REF_BACTERIA = os.getenv("REF_BACTERIA")
 # file_exists(REF_BACTERIA)
+TAXON_DB = os.getenv("TAXON_DB")
 
 # Wrappers
 LN_FILTER = "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"

@@ -131,6 +131,8 @@ rule classify_viruses:
     [rules.parse_blastn_virus.output.mapped, rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped
   output:
     temp("results/{run}_viruses_{n}.csv")
+  params:
+    dbfile = TAXON_DB
   wrapper:
     BLAST_TAXONOMY
 
@@ -307,6 +309,8 @@ rule classify:
     expand("blast/{{run}}_{blastresult}_{{n}}_mapped.tsv", blastresult = BLASTNR)
   output:
     temp("results/{run}_classified_{n}.csv")
+  params:
+    dbfile = TAXON_DB
   wrapper:
     BLAST_TAXONOMY
 
