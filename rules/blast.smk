@@ -8,7 +8,7 @@ def safely_read_csv(path, **kwargs):
 
 RANKS_OF_INTEREST = ['superkingdom', 'order', 'family', 'genus', 'species']
 
-def concatenate_tables(input, output, sep = "\s+", cols_to_integer = None):
+def concatenate_tables(input, sep = "\s+", cols_to_integer = None):
   frames = [safely_read_csv(f, sep = sep) for f in input]
   frames_concatenated = pd.concat(frames, keys = input)
   if cols_to_integer:
