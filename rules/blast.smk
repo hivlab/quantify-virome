@@ -126,12 +126,17 @@ rule parse_blastx_virus:
 
 # Filter sequences by division id.
 # Saves hits with division id
+# pp_sway - maximum difference of hit from top hit pident to consider for consensus taxonomy, percent points.
+# ranks_of_interest - taxonomic ranks to be included in results. E.g, subspecies will be demoted to species.
+# dbfile - path to etetoolkit taxon.sqlite database. Default location is $HOME/.etetoolkit/taxon.sqlite. Plese see http://etetoolkit.org/docs/latest/tutorial/tutorial_ncbitaxonomy.html for more information. 
 rule classify_viruses:
   input:
     [rules.parse_blastn_virus.output.mapped, rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped
   output:
     temp("results/{run}_viruses_{n}.csv")
   params:
+    pp_sway = 1, 
+    ranks_of_interest = RANKS_OF_INTEREST,
     dbfile = TAXON_DB
   wrapper:
     BLAST_TAXONOMY
@@ -310,6 +315,8 @@ rule classify:
   output:
     temp("results/{run}_classified_{n}.csv")
   params:
+    pp_sway = 1, 
+    ranks_of_interest = RANKS_OF_INTEREST,
     dbfile = TAXON_DB
   wrapper:
     BLAST_TAXONOMY
@@ -331,16 +338,16 @@ rule filter_viruses:
   output:
     viral = "results/{run}_phages-viruses.csv",
     non_viral = "results/{run}_non-viral.csv"
-  params: 
+  params:
     ranks = RANKS_OF_INTEREST
   run:
     tab = safely_read_csv(input[0], sep = ",")
-    vir = tab[tab.superkingdom == 10239]
-    non_vir = tab[tab.superkingdom != 10239]
-    vir[params.ranks] = vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
-    non_vir[params.ranks] = non_vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
-    vir.to_csv(output.viral, index = False)
-    non_vir.to_csv(output.non_viral, index = False)
+        vir = tab[tab.superkingdom == 10239]
+        non_vir = tab[tab.superkingdom != 10239]
+        vir[params.ranks] = vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
+        non_vir[params.ranks] = non_vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
+        vir.to_csv(output.viral, index = False)
+        non_vir.to_csv(output.non_viral, index = False)
 
 # Merge unassigned sequences
 rule merge_unassigned:
