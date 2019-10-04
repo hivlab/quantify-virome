@@ -13,7 +13,7 @@ def concatenate_tables(input, output, sep = "\s+", cols_to_integer = None):
   frames_concatenated = pd.concat(frames, keys = input)
   if cols_to_integer:
     frames_concatenated[cols_to_integer] = frames_concatenated[cols_to_integer].apply(lambda x: pd.Series(x, dtype = "Int64"))
-  frames_concatenated.to_csv(output[0], index = False)
+  return(frames_concatenated)
 
 rule get_virus_taxids:
     output: "blast/10239.taxids"
@@ -140,17 +140,6 @@ rule classify_viruses:
     dbfile = TAXON_DB
   wrapper:
     BLAST_TAXONOMY
-
-# Merge virus blast results
-rule merge_classify_viruses_results:
-  input:
-    expand("results/{{run}}_viruses_{n}.csv", n = N)
-  output:
-    "results/{run}_viruses.csv"
-  params: 
-    ranks = RANKS_OF_INTEREST
-  run:
-    concatenate_tables(input, output, sep = ",", cols_to_integer = params.ranks)
 
 # Filter unmasked candidate virus reads.
 rule unmasked_other:
@@ -309,11 +298,11 @@ rule parse_blastx_nr:
 
 # Filter sequences by division id.
 # Saves hits with division id
-rule classify:
+rule classify_all:
   input:
     expand("blast/{{run}}_{blastresult}_{{n}}_mapped.tsv", blastresult = BLASTNR)
   output:
-    temp("results/{run}_classified_{n}.csv")
+    temp("results/{run}_all_{n}.csv")
   params:
     pp_sway = 1, 
     ranks_of_interest = RANKS_OF_INTEREST,
@@ -321,33 +310,21 @@ rule classify:
   wrapper:
     BLAST_TAXONOMY
 
-rule merge_classified:
-  input:
-    expand("results/{{run}}_classified_{n}.csv", n = N)
-  output:
-    "results/{run}_classified.csv"
-  params: 
-    ranks = RANKS_OF_INTEREST
-  run:
-    concatenate_tables(input, output, sep = ",", cols_to_integer = params.ranks)
-
-# Split classification rule output into viruses and non-viral
+# Split classification rule outputs into viruses and non-viral
 rule filter_viruses:
   input:
-    rules.merge_classified.output
+    expand("results/{{run}}_{classified}_{n}.csv", n = N, classified = ["viruses", "all"])
   output:
-    viral = "results/{run}_phages-viruses.csv",
+    viral = "results/{run}_viruses.csv",
     non_viral = "results/{run}_non-viral.csv"
   params:
     ranks = RANKS_OF_INTEREST
   run:
-    tab = safely_read_csv(input[0], sep = ",")
-        vir = tab[tab.superkingdom == 10239]
-        non_vir = tab[tab.superkingdom != 10239]
-        vir[params.ranks] = vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
-        non_vir[params.ranks] = non_vir[params.ranks].apply(lambda x: pd.Series(x, dtype = "Int64"))
-        vir.to_csv(output.viral, index = False)
-        non_vir.to_csv(output.non_viral, index = False)
+    tab = concatenate_tables(input, sep = ",", cols_to_integer = params.ranks)
+    vir = tab[tab.superkingdom == 10239]
+    non_vir = tab[tab.superkingdom != 10239]
+    vir.to_csv(output.viral, index = False)
+    non_vir.to_csv(output.non_viral, index = False)
 
 # Merge unassigned sequences
 rule merge_unassigned:
