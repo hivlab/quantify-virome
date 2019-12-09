@@ -64,7 +64,7 @@ rule merge_taxidlists:
 rule blastn_virus:
     input:
       query = rules.parse_megablast_refgenome.output.unmapped,
-       taxidlist = "blast/10239.taxids"
+      taxidlist = "blast/10239.taxids"
     output:
       out = temp("blast/{run}_blastn-virus_{n}.tsv")
     params:
