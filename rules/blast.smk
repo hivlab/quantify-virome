@@ -12,11 +12,12 @@ def concatenate_tables(input, output, sep = "\s+"):
 
 # Prepare taxonomy annotation tables.
 rule prepare_taxonomy_data:
-  input: config["names"], config["nodes"], config["division"]
-  output:
+    input: 
+      config["names"], config["nodes"], config["division"]
+    output:
       expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
-  wrapper:
-    "https://raw.githubusercontent.com/avilab/virome-wrappers/master/prepare_taxonomy_data"
+    wrapper:
+      "https://raw.githubusercontent.com/avilab/virome-wrappers/master/prepare_taxonomy_data"
 
 # Blastn, megablast and blastx input, output, and params keys must match commandline blast option names. Please see https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a for all available options.
 # Blast against nt virus database.
