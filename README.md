@@ -1,5 +1,5 @@
 
-[![Travis-CI Build Status](https://travis-ci.org/<USERNAME>/<REPO>.svg?branch=master)](https://travis-ci.org/<USERNAME>/<REPO>)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3697729.svg)](https://doi.org/10.5281/zenodo.3697729)
 
 Snakemake implementation of [VirusSeeker Virome workflow](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5326578/). 
 
