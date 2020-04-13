@@ -220,15 +220,32 @@ rule qtrim:
 rule concatenate:
     input:
       rules.merge.output.out, rules.qtrim.output.out
+    output:
+      temp("output/{run}/concatenated.fq.gz")
+    shell:
+      "cat {input} > {output}"
+
+
+rule fastqtofasta:
     input:
-      
+        rules.concatenate.output[0]
+    output:
+        out = temp("output/{run}/concatenated.fa")
+    params:
+        extra = "-Xmg4g"
+    resources:
+        runtime = 20,
+        mem_mb = 4000
+    log:
+        "output/{run}/log/fastqtofasta.txt"
+    wrapper:
+        WRAPPER_PREFIX + "master/bbtools/reformat"
 
 
-
-# Run cd-hit to find and cluster duplicate reads.
+# Run cd-hit to find and cluster duplicate sequences
 rule cd_hit:
   input:
-    rules.unmapped_refgenome.output.fasta
+    rules.fastqtofasta.output.out
   output:
     repres = temp("cdhit/{run}_cdhit.fa"),
     clstr = temp("cdhit/{run}_cdhit.fa.clstr")
