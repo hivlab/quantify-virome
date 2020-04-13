@@ -63,7 +63,7 @@ def file_exists(file):
         ("Could not find {}").format(file)
 
 # Path to reference genomes
-REF_GENOME = os.getenv("REF_GENOME_HUMAN")
+HOST_GENOME = os.getenv("REF_GENOME_HUMAN")
 # file_exists(REF_GENOME)
 REF_BACTERIA = os.getenv("REF_BACTERIA")
 # file_exists(REF_BACTERIA)
