@@ -50,6 +50,9 @@ if config["zenodo"]["deposition_id"]:
     ZENOUTPUTS = ZEN.remote(expand(["results/{run}_counts.tgz", "stats/{run}_stats.tgz"], run = RUN_IDS))
     OUTPUTS = OUTPUTS + ZENOUTPUTS
 
+# Report
+report: "report/workflow.rst"
+
 rule all:
     input:
         OUTPUTS
@@ -70,14 +73,14 @@ REF_BACTERIA = os.getenv("REF_BACTERIA")
 TAXON_DB = os.getenv("TAXON_DB")
 
 # Wrappers
-LN_FILTER = "https://raw.githubusercontent.com/avilab/snakemake-wrappers/master/filter/masked"
-RM = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/repeatmasker/wrapper.py"
-BWA_UNMAPPED = "https://raw.githubusercontent.com/avilab/virome-wrappers/master/unmapped"
-BLAST_QUERY = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/query"
-PARSE_BLAST = "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/parse"
-BLAST_TAXONOMY = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/blast/taxonomy"
-SUBSET_FASTA = "https://raw.githubusercontent.com/avilab/virome-wrappers/blast5/subset_fasta"
-SEQ_STATS = "https://bitbucket.org/tpall/snakemake-wrappers/raw/e7699c0ae37a999909fb764c91723d46ded7461c/bio/seqkit/stats"
+WRAPPER_PREFIX = "https://raw.githubusercontent.com/avilab/virome-wrappers/"
+LN_FILTER = WRAPPER_PREFIX + "master/filter/masked"
+RM = WRAPPER_PREFIX + "master/repeatmasker/wrapper.py"
+BWA_UNMAPPED = WRAPPER_PREFIX + "master/unmapped"
+BLAST_QUERY = WRAPPER_PREFIX + "master/blast/query"
+PARSE_BLAST = WRAPPER_PREFIX + "master/blast/parse"
+BLAST_TAXONOMY = WRAPPER_PREFIX + "master/blast/taxonomy"
+SUBSET_FASTA = WRAPPER_PREFIX + "master/subset_fasta"
 
 # Rules
 include: "rules/preprocess.smk"
