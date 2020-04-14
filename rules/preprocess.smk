@@ -172,7 +172,7 @@ rule correct3:
 
 rule normalize:
     input:
-        rules.correct3.output.out
+        input = rules.correct3.output.out
     output:
         out = temp("output/{run}/normalized.fq.gz")
     params:
@@ -180,7 +180,7 @@ rule normalize:
     log: 
         "output/{run}/log/normalize.log"
     resources:
-        runtime = 30,
+        runtime = lambda wildcards, attempt: 30 + (attempt * 30),
         mem_mb = 16000
     wrapper:
         WRAPPER_PREFIX + "master/bbtools/bbnorm"
@@ -188,7 +188,7 @@ rule normalize:
 
 rule merge:
     input:
-        rules.normalize.output.out
+        input = rules.normalize.output.out
     output:
         out = temp("output/{run}/merged.fq.gz"),
         outu = temp("output/{run}/unmerged.fq.gz"),
