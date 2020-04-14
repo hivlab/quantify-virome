@@ -197,7 +197,7 @@ rule refbac_unmapped_masked:
 rule megablast_nt:
     input:
         query = rules.refbac_unmapped_masked.output,
-        negative_taxidlist = "blast/negative.taxids"
+        negative_taxidlist = "output/blast/negative.taxids"
     output:
          out = temp("output/{run}/megablast-nt_{n}.tsv")
     params:
