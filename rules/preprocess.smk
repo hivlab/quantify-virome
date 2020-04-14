@@ -24,7 +24,7 @@ rule interleave:
         lhist = "output/{run}/lhist.txt",
         gchist = "output/{run}/gchist.txt"
     params:
-        extra = "-Xmg4g"
+        extra = "-Xmx4g"
     resources:
         runtime = 20,
         mem_mb = 4000
@@ -39,7 +39,7 @@ rule clumpify:
     output:
         out = temp("output/{run}/clumpify.fq.gz")
     params:
-        extra = "dedupe optical" # suppress assertions
+        extra = "dedupe optical -Xmx4g" # suppress assertions
     resources:
         runtime = 20,
         mem_mb = 4000
@@ -55,7 +55,7 @@ rule filterbytile:
     output:
         out = temp("output/{run}/filterbytile.fq.gz")
     params:
-        extra = "-Xmg4g"
+        extra = "-Xmx4g"
     resources:
         runtime = 20,
         mem_mb = 4000
@@ -71,7 +71,7 @@ rule trim:
     output:
         out = temp("output/{run}/trimmed.fq.gz")
     params:
-        extra = "ktrim=r k=23 mink=11 hdist=1 tbo tpe minlen=70 ref=adapters ftm=5 ordered"
+        extra = "ktrim=r k=23 mink=11 hdist=1 tbo tpe minlen=70 ref=adapters ftm=5 ordered -Xmx4g"
     resources:
         runtime = 20,
         mem_mb = 4000
@@ -87,7 +87,7 @@ rule artifacts:
     output:
         out = "output/{run}/filtered.fq.gz"
     params:
-        extra = "k=31 ref=artifacts,phix ordered cardinality"
+        extra = "k=31 ref=artifacts,phix ordered cardinality -Xmx4g"
     resources:
         runtime = 20,
         mem_mb = 4000
@@ -156,7 +156,7 @@ rule correct3:
     output:
         out = temp("output/{run}/ecct.fq.gz")
     params:
-        extra = "ecc k=62 ordered"
+        extra = "ecc k=62 ordered -Xmx16g"
     log: 
         "output/{run}/log/correct3.log"
     resources:
@@ -172,7 +172,7 @@ rule normalize:
     output:
         out = temp("output/{run}/normalized.fq.gz")
     params:
-        extra = "target=100"
+        extra = "target=100 -Xmx16g"
     log: 
         "output/{run}/log/normalize.log"
     resources:
@@ -207,7 +207,7 @@ rule qtrim:
     output:
         out = temp("output/{run}/qtrimmed.fq.gz")
     params:
-        extra = "qtrim=r trimq=10 minlen=70 ordered"
+        extra = "qtrim=r trimq=10 minlen=70 ordered -Xmx4g"
     resources:
         runtime = 20,
         mem_mb = 4000
@@ -234,7 +234,7 @@ rule fastqtofasta:
     output:
         out = temp("output/{run}/concatenated.fa")
     params:
-        extra = "-Xmg4g"
+        extra = "-Xmx4g"
     resources:
         runtime = 20
     log:
