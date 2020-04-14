@@ -37,7 +37,7 @@ RESULTS = ["viruses.csv", "non-viral.csv", "unassigned.fa"]
 BLASTV = ["blastn-virus", "blastx-virus"] if config["run_blastx"] else ["blastn-virus"]
 BLASTNR = ["megablast-nt", "blastn-nt", "blastx-nr"] if config["run_blastx"] else ["megablast-nt", "blastn-nt"]
 BLAST = BLASTV + BLASTNR
-STATS = expand(["stats/{run}_refgenome-stats.txt", "stats/{run}_preprocess.tsv", "stats/{run}_blast.tsv"], run = RUN_IDS) + expand("stats/{run}_refbac-stats_{n}.txt", run = RUN_IDS, n = N)
+STATS = expand(["output/{run}/multiqc.html"], run = RUN_IDS) + expand("stats/{run}_refbac-stats_{n}.txt", run = RUN_IDS, n = N)
 OUTPUTS = expand("results/{run}_{result}", run = RUN_IDS, result = RESULTS) + STATS
 
 # Remote outputs

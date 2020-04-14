@@ -335,19 +335,6 @@ rule merge_unassigned:
   shell:
     "cat {input} > {output}"
 
-# Collect stats.
-rule blast_stats:
-  input:
-    expand(["blast/{{run}}_{blastresult}_{n}_unmapped.fa",
-    "blast/{{run}}_candidate-viruses_{n}_unmasked.fa",
-    "blast/{{run}}_unmapped_{n}.fa",
-    "blast/{{run}}_unmapped_{n}_masked.fa"], blastresult = BLAST, n = N)
-  output:
-    "stats/{run}_blast.tsv"
-  params:
-    extra = "-T"
-  wrapper:
-    SEQ_STATS
 
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
