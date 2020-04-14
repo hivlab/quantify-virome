@@ -41,7 +41,7 @@ rule clumpify:
     output:
         out = temp("output/{run}/clumpify.fq.gz")
     params:
-        extra = "dedupe optical -Xmx4g" # suppress assertions
+        extra = "dedupe optical -Xmx4g -da" # suppress assertions
     resources:
         runtime = 20,
         mem_mb = 4000
@@ -57,7 +57,7 @@ rule filterbytile:
     output:
         out = temp("output/{run}/filterbytile.fq.gz")
     params:
-        extra = "-Xmx4g"
+        extra = "-Xmx4g -da"
     resources:
         runtime = 20,
         mem_mb = 4000
@@ -73,7 +73,7 @@ rule trim:
     output:
         out = temp("output/{run}/trimmed.fq.gz")
     params:
-        extra = "ktrim=r k=23 mink=11 hdist=1 tbo tpe minlen=70 ref=adapters ftm=5 ordered -Xmx4g"
+        extra = "ktrim=r k=23 mink=11 hdist=1 tbo tpe minlen=70 ref=adapters ftm=5 ordered -Xmx4g -da"
     resources:
         runtime = 20,
         mem_mb = 4000
@@ -89,7 +89,7 @@ rule artifacts:
     output:
         out = "output/{run}/filtered.fq.gz"
     params:
-        extra = "k=31 ref=artifacts,phix ordered cardinality -Xmx4g"
+        extra = "k=31 ref=artifacts,phix ordered cardinality -Xmx4g -da"
     resources:
         runtime = 20,
         mem_mb = 4000
