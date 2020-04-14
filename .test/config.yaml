@@ -9,7 +9,7 @@ seed: 561837
 # fq1 and fq2 - paths to paired-end fastq file
 # frac - fraction of reads to sample. Set it to 0 or >=1 for no downsampling. Check and set also seed in config.yml to make results reproducible.
 samples: "samples.tsv"
-remote: True
+remote: False
 
 # Option to save time by not running blastx
 run_blastx: False
