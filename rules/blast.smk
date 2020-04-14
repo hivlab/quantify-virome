@@ -27,9 +27,9 @@ rule get_virus_taxids:
     shell:
        "get_species_taxids.sh -t {params.taxid} > {output}"
 
-rule get_human_taxids:
+rule get_negative_taxids:
     output: 
-        "blast/9606.taxids"
+        "blast/{taxid}.taxids"
     params:
        taxid = 9606
     conda:
@@ -39,33 +39,10 @@ rule get_human_taxids:
     shell:
        "get_species_taxids.sh -t {params.taxid} > {output}"
 
-rule get_bacterial_taxids:
-    output: 
-        "blast/2.taxids"
-    params:
-       taxid = 2
-    conda:
-        "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
-    resources:
-        runtime = 20
-    shell:
-       "get_species_taxids.sh -t {params.taxid} > {output}"
-
-rule get_unclassified_taxids:
-    output: 
-        "blast/12908.taxids"
-    params:
-       taxid = 12908
-    conda:
-        "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
-    resources:
-        runtime = 20
-    shell:
-       "get_species_taxids.sh -t {params.taxid} > {output}"
 
 rule merge_taxidlists:
     input:
-        "blast/9606.taxids", "blast/2.taxids", "blast/12908.taxids"
+        expand("blast/{taxid}.taxids", taxid = [9606, 2, 12908])
     output:
         "blast/negative.taxids"
     resources:
