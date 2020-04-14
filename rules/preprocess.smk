@@ -110,8 +110,10 @@ rule maphost:
         statsfile = "output/{run}/maphost.txt"
     params:
         extra = "nodisk -Xmx24g"
+    log: 
+        "output/{run}/log/maphost.log"
     resources:
-        runtime = 30,
+        runtime = 60,
         mem_mb = 24000
     threads: 4
     wrapper:

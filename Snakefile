@@ -24,9 +24,6 @@ RUN_IDS = RUNS.index.tolist()
 N_FILES = config["split_fasta"]["n_files"]
 N = list(range(1, N_FILES + 1, 1))
 
-# Create slurm logs dir
-if not os.path.exists("logs/slurm"):
-    os.makedirs("logs/slurm")
 
 wildcard_constraints:
     run = "[a-zA-Z0-9]+",
