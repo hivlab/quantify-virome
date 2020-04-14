@@ -167,9 +167,9 @@ rule mapbact:
         input = rules.unmasked_other.output,
         ref = REF_BACTERIA
     output:
-        outu = temp("output/{run}/unmapbact.fa"),
-        outm = temp("output/{run}/mapbact.fa"),
-        statsfile = "output/{run}/mapbact.txt"
+        outu = temp("output/{run}/unmapbact_{n}.fa"),
+        outm = temp("output/{run}/mapbact_{n}.fa"),
+        statsfile = "output/{run}/mapbact_{n}.txt"
     params:
         extra = "nodisk -Xmx24g"
     resources:
