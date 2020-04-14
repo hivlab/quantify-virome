@@ -160,57 +160,30 @@ rule unmasked_other:
     wrapper:
         SUBSET_FASTA
 
-# Map reads to bacterial genomes.
-rule bwa_mem_refbac:
+
+# Map reads to bacterial genomes
+rule mapbact:
     input:
-        reads = [rules.unmasked_other.output]
+        input = rules.unmasked_other.output,
+        ref = REF_BACTERIA
     output:
-        temp("blast/{run}_bac-mapped_{n}.bam")
+        outu = temp("output/{run}/unmapbact.fa"),
+        outm = temp("output/{run}/mapbact.fa"),
+        statsfile = "output/{run}/mapbact.txt"
     params:
-        index = REF_BACTERIA,
-        extra = "-k 15",
-        sort = "none"
-    log:
-        "logs/{run}_bwa-map-refbac_{n}.log"
-    threads: 4
+        extra = "nodisk -Xmx24g"
     resources:
         runtime = 60,
-        mem_mb = 16000
+        mem_mb = 24000
+    threads: 4
     wrapper:
-        "0.32.0/bio/bwa/mem"
+        WRAPPER_PREFIX + "master/bbtools/bbwrap"
 
-# Extract unmapped reads and convert to fasta.
-rule unmapped_refbac:
-    input:
-        rules.bwa_mem_refbac.output
-    output:
-        fastq = temp("blast/{run}_unmapped_{n}.fq"),
-        fasta = temp("blast/{run}_unmapped_{n}.fa")
-    resources:
-        runtime = 30,
-        mem_mb = 4000
-    wrapper:
-        BWA_UNMAPPED
-
-# Calculate bam file stats
-rule refbac_bam_stats:
-    input:
-        rules.bwa_mem_refbac.output
-    output:
-        "stats/{run}_refbac-stats_{n}.txt"
-    params:
-        extra = "-f 4",
-        region = ""
-    resources:
-        runtime = 20,
-        mem_mb = 4000
-    wrapper:
-        "0.32.0/bio/samtools/stats"
 
 # Subset repeatmasker masked reads using unmapped reads.
 rule refbac_unmapped_masked:
     input:
-        rules.unmapped_refbac.output.fasta,
+        rules.mapbact.output.outu,
         rules.repeatmasker_good.output.masked_filt
     output:
         temp("blast/{run}_unmapped_{n}_masked.fa")

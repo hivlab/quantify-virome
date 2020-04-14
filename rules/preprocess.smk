@@ -433,7 +433,9 @@ rule fastqc:
 rule multiqc:
     input:
         "output/{run}/fastq_screen.txt",
-        "output/{run}/fastqc.zip"
+        "output/{run}/fastqc.zip",
+        "output/{run}/maphost.txt",
+        "output/{run}/mapbact.txt"
     output:
         report("output/{run}/multiqc.html", caption = "report/multiqc.rst", category = "Quality control")
     log:
