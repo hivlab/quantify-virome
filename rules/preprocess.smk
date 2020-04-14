@@ -248,8 +248,8 @@ rule cd_hit:
     input:
         rules.fastqtofasta.output.out
     output:
-        repres = temp("cdhit/{run}_cdhit.fa"),
-        clstr = temp("cdhit/{run}_cdhit.fa.clstr")
+        repres = temp("output/{run}/cdhit.fa"),
+        clstr = temp("output/{run}/cdhit.fa.clstr")
     params:
         extra = "-c 0.984 -G 0 -n 10 -d 0 -aS 0.984 -r 1 -M 0"
     log:
@@ -267,7 +267,7 @@ rule tantan:
     input:
         rules.cd_hit.output.repres
     output:
-        temp("mask/{run}_tantan.fasta")
+        temp("output/{run}/tantan.fa")
     params:
         extra = "-x N" # mask low complexity using N
     resources:
@@ -284,7 +284,7 @@ rule tantan_good:
     input:
         masked = rules.tantan.output
     output:
-        masked_filt = temp("mask/{run}_tantangood.fasta")
+        masked_filt = temp("output/{run}/tantangood.fa")
     params:
         min_length = 50,
         por_n = 40
@@ -299,7 +299,7 @@ rule split_fasta:
     input:
         rules.tantan_good.output
     output:
-        temp(expand("mask/{{run}}_repeatmasker_{n}.fa", n = N))
+        temp(expand("output/{{run}}/repeatmasker_{n}.fa", n = N))
     params:
         config["split_fasta"]["n_files"]
     resources:
@@ -314,12 +314,12 @@ rule split_fasta:
 # If no repetitive sequences were detected symlink output to input file
 rule repeatmasker:
     input:
-        fa = "mask/{run}_repeatmasker_{n}.fa"
+        fa = "output/{run}/repeatmasker_{n}.fa"
     output:
-        masked = temp("mask/{run}_repeatmasker_{n}.fa.masked"),
-        out = temp("mask/{run}_repeatmasker_{n}.fa.out"),
-        cat = temp("mask/{run}_repeatmasker_{n}.fa.cat"),
-        tbl = "mask/{run}_repeatmasker_{n}.fa.tbl"
+        masked = temp("output/{run}/repeatmasker_{n}.fa.masked"),
+        out = temp("output/{run}/repeatmasker_{n}.fa.out"),
+        cat = temp("output/{run}/repeatmasker_{n}.fa.cat"),
+        tbl = "output/{run}/repeatmasker_{n}.fa.tbl"
     params:
         extra = "-qq"
     threads: 4
@@ -341,8 +341,8 @@ rule repeatmasker_good:
         masked = rules.repeatmasker.output.masked,
         original = rules.repeatmasker.input.fa
     output:
-        masked_filt = temp("mask/{run}_repmaskedgood_{n}.fa"),
-        original_filt = temp("mask/{run}_unmaskedgood_{n}.fa")
+        masked_filt = temp("output/{run}/repmaskedgood_{n}.fa"),
+        original_filt = temp("output/{run}/unmaskedgood_{n}.fa")
     params:
         min_length = 50,
         por_n = 40
@@ -357,7 +357,7 @@ rule megablast_refgenome:
     input:
         query = rules.repeatmasker_good.output.masked_filt
     output:
-        out = temp("blast/{run}_megablast_{n}.tsv")
+        out = temp("output/{run}/megablast_{n}.tsv")
     params:
         program = "blastn",
         db = HOST_GENOME,
@@ -380,8 +380,8 @@ rule parse_megablast_refgenome:
         blast_result = rules.megablast_refgenome.output.out,
         query = rules.repeatmasker_good.output.masked_filt
     output:
-        mapped = temp("blast/{run}_refgenome-megablast_{n}_known-host.tsv"),
-        unmapped = temp("blast/{run}_refgenome-megablast_{n}_unmapped.fa")
+        mapped = temp("output/{run}/refgenome-megablast_{n}_known-host.tsv"),
+        unmapped = temp("output/{run}/refgenome-megablast_{n}_unmapped.fa")
     params:
         e_cutoff = 1e-10,
         outfmt = rules.megablast_refgenome.params.outfmt
