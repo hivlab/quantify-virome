@@ -37,8 +37,8 @@ RESULTS = ["viruses.csv", "non-viral.csv", "unassigned.fa"]
 BLASTV = ["blastn-virus", "blastx-virus"] if config["run_blastx"] else ["blastn-virus"]
 BLASTNR = ["megablast-nt", "blastn-nt", "blastx-nr"] if config["run_blastx"] else ["megablast-nt", "blastn-nt"]
 BLAST = BLASTV + BLASTNR
-STATS = expand(["output/{run}/multiqc.html"], run = RUN_IDS) + expand("stats/{run}_refbac-stats_{n}.txt", run = RUN_IDS, n = N)
-OUTPUTS = expand("results/{run}_{result}", run = RUN_IDS, result = RESULTS) + STATS
+STATS = expand(["output/{run}/multiqc.html"], run = RUN_IDS)
+OUTPUTS = expand("output/{run}/{result}", run = RUN_IDS, result = RESULTS) + STATS
 
 # Remote outputs
 if config["zenodo"]["deposition_id"]:
@@ -47,7 +47,7 @@ if config["zenodo"]["deposition_id"]:
     # Setup Zenodo RemoteProvider
     ZEN = ZENRemoteProvider(deposition = config["zenodo"]["deposition_id"], access_token = os.environ["ZENODO_PAT"])
     # Append uploads
-    ZENOUTPUTS = ZEN.remote(expand(["results/{run}_counts.tgz", "stats/{run}_stats.tgz"], run = RUN_IDS))
+    ZENOUTPUTS = ZEN.remote(expand("output/{run}/counts.tgz", run = RUN_IDS))
     OUTPUTS = OUTPUTS + ZENOUTPUTS
 
 # Report
