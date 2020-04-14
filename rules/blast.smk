@@ -31,7 +31,7 @@ rule get_negative_taxids:
     output: 
         "blast/{taxid}.taxids"
     params:
-       taxid = 9606
+       taxid = lambda wildcards: wildcards.taxid
     conda:
         "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
     resources:
