@@ -140,7 +140,7 @@ rule correct1:
 
 rule correct2:
     input:
-        rules.correct1.output.out
+        input = rules.correct1.output.out
     output:
         out = temp("output/{run}/eccc.fq.gz")
     params:
