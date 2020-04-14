@@ -11,7 +11,7 @@ def get_frac(wildcards):
     frac = RUNS.loc[wildcards.run, ['frac']][0]
     return frac
 
-
+# Convert reads to interleaved format
 rule interleave:
     input:
         lambda wildcards: FTP.remote(get_fastq(wildcards), immediate_close=True) if config["remote"] else get_fastq(wildcards)
@@ -33,9 +33,11 @@ rule interleave:
     wrapper:
         WRAPPER_PREFIX + "master/bbtools/reformat"
 
+
+# Remove PCR and optical duplicates
 rule clumpify:
     input:
-        rules.interleave.output.out
+        input = rules.interleave.output.out
     output:
         out = temp("output/{run}/clumpify.fq.gz")
     params:
