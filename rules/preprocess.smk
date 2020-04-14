@@ -222,6 +222,8 @@ rule concatenate:
       rules.merge.output.out, rules.qtrim.output.out
     output:
       temp("output/{run}/concatenated.fq.gz")
+    resources:
+        runtime = 10
     shell:
       "cat {input} > {output}"
 
@@ -234,8 +236,7 @@ rule fastqtofasta:
     params:
         extra = "-Xmg4g"
     resources:
-        runtime = 20,
-        mem_mb = 4000
+        runtime = 20
     log:
         "output/{run}/log/fastqtofasta.txt"
     wrapper:
@@ -244,57 +245,67 @@ rule fastqtofasta:
 
 # Run cd-hit to find and cluster duplicate sequences
 rule cd_hit:
-  input:
-    rules.fastqtofasta.output.out
-  output:
-    repres = temp("cdhit/{run}_cdhit.fa"),
-    clstr = temp("cdhit/{run}_cdhit.fa.clstr")
-  params:
-    extra = "-c 0.984 -G 0 -n 10 -d 0 -aS 0.984 -r 1 -M 0"
-  threads: 8
-  log:
-    "logs/{run}_cdhit.log"
-  wrapper:
-    WRAPPER_PREFIX + "master/cdhit"
+    input:
+        rules.fastqtofasta.output.out
+    output:
+        repres = temp("cdhit/{run}_cdhit.fa"),
+        clstr = temp("cdhit/{run}_cdhit.fa.clstr")
+    params:
+        extra = "-c 0.984 -G 0 -n 10 -d 0 -aS 0.984 -r 1 -M 0"
+    log:
+        "logs/{run}_cdhit.log"
+    threads: 4
+    resources:
+        runtime = 480,
+        mem_mb = 8000
+    wrapper:
+        WRAPPER_PREFIX + "master/cdhit"
 
 
 # Tantan mask of low complexity DNA sequences
 rule tantan:
-  input:
-    rules.cd_hit.output.repres
-  output:
-    temp("mask/{run}_tantan.fasta")
-  params:
-    extra = "-x N" # mask low complexity using N
-  wrapper:
-    "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/tantan"
+    input:
+        rules.cd_hit.output.repres
+    output:
+        temp("mask/{run}_tantan.fasta")
+    params:
+        extra = "-x N" # mask low complexity using N
+    resources:
+        runtime = 20,
+        mem_mb = 4000
+    wrapper:
+        "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/tantan"
 
 
 # Filter tantan output
 # 1) Sequences > 50 nt of consecutive sequence without N
 # 2) Sequences with >= 40% of total length of being masked
 rule tantan_good:
-  input:
-    masked = rules.tantan.output
-  output:
-    masked_filt = temp("mask/{run}_tantangood.fasta")
-  params:
-    min_length = 50,
-    por_n = 40
-  wrapper:
-    LN_FILTER
+    input:
+        masked = rules.tantan.output
+    output:
+        masked_filt = temp("mask/{run}_tantangood.fasta")
+    params:
+        min_length = 50,
+        por_n = 40
+    resources:
+        runtime = 20
+    wrapper:
+        LN_FILTER
 
 
 # Split reads to smaller chunks for Repeatmasker
 rule split_fasta:
-  input:
-    rules.tantan_good.output
-  output:
-    temp(expand("mask/{{run}}_repeatmasker_{n}.fa", n = N))
-  params:
-    config["split_fasta"]["n_files"]
-  wrapper:
-    "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/split-fasta"
+    input:
+        rules.tantan_good.output
+    output:
+        temp(expand("mask/{{run}}_repeatmasker_{n}.fa", n = N))
+    params:
+        config["split_fasta"]["n_files"]
+    resources:
+        runtime = 20
+    wrapper:
+        "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/split-fasta"
 
 
 # Repeatmasker
@@ -302,20 +313,23 @@ rule split_fasta:
 # must have file extension '.masked'
 # If no repetitive sequences were detected symlink output to input file
 rule repeatmasker:
-  input:
-    fa = "mask/{run}_repeatmasker_{n}.fa"
-  output:
-    masked = temp("mask/{run}_repeatmasker_{n}.fa.masked"),
-    out = temp("mask/{run}_repeatmasker_{n}.fa.out"),
-    cat = temp("mask/{run}_repeatmasker_{n}.fa.cat"),
-    tbl = "mask/{run}_repeatmasker_{n}.fa.tbl"
-  params:
-    extra = "-qq"
-  threads: 8
-  singularity:
-    "shub://tpall/repeatmasker-singularity"
-  script:
-    RM
+    input:
+        fa = "mask/{run}_repeatmasker_{n}.fa"
+    output:
+        masked = temp("mask/{run}_repeatmasker_{n}.fa.masked"),
+        out = temp("mask/{run}_repeatmasker_{n}.fa.out"),
+        cat = temp("mask/{run}_repeatmasker_{n}.fa.cat"),
+        tbl = "mask/{run}_repeatmasker_{n}.fa.tbl"
+    params:
+        extra = "-qq"
+    threads: 4
+    resources:
+        runtime = 750,
+        mem_mb = 8000
+    singularity:
+        "shub://tpall/repeatmasker-singularity"
+    script:
+        RM
 
 
 # Filter repeatmasker output
@@ -323,52 +337,58 @@ rule repeatmasker:
 # 2) Sequences with >= 40% of total length of being masked
 # input, output, and params names must match function arguments
 rule repeatmasker_good:
-  input:
-    masked = rules.repeatmasker.output.masked,
-    original = rules.repeatmasker.input.fa
-  output:
-    masked_filt = temp("mask/{run}_repmaskedgood_{n}.fa"),
-    original_filt = temp("mask/{run}_unmaskedgood_{n}.fa")
-  params:
-    min_length = 50,
-    por_n = 40
-  wrapper:
-    LN_FILTER
+    input:
+        masked = rules.repeatmasker.output.masked,
+        original = rules.repeatmasker.input.fa
+    output:
+        masked_filt = temp("mask/{run}_repmaskedgood_{n}.fa"),
+        original_filt = temp("mask/{run}_unmaskedgood_{n}.fa")
+    params:
+        min_length = 50,
+        por_n = 40
+    resources:
+        runtime = 20
+    wrapper:
+        LN_FILTER
 
 
 # MegaBlast against reference genome to remove host sequences
 rule megablast_refgenome:
     input:
-      query = rules.repeatmasker_good.output.masked_filt
+        query = rules.repeatmasker_good.output.masked_filt
     output:
-      out = temp("blast/{run}_megablast_{n}.tsv")
+        out = temp("blast/{run}_megablast_{n}.tsv")
     params:
-      program = "blastn",
-      db = HOST_GENOME,
-      task = "megablast",
-      perc_identity = 85,
-      evalue = 1e-10,
-      word_size = 16,
-      max_hsps = 1,
-      outfmt = "'6 qseqid sseqid pident length evalue'"
-    threads: 8
+        program = "blastn",
+        db = HOST_GENOME,
+        task = "megablast",
+        perc_identity = 85,
+        evalue = 1e-10,
+        word_size = 16,
+        max_hsps = 1,
+        outfmt = "'6 qseqid sseqid pident length evalue'"
+    threads: 4
+    resources:
+        runtime = 30
     wrapper:
-      BLAST_QUERY
+        BLAST_QUERY
 
 
 # Filter megablast records for the cutoff value
 rule parse_megablast_refgenome:
     input:
-      blast_result = rules.megablast_refgenome.output.out,
-      query = rules.repeatmasker_good.output.masked_filt
+        blast_result = rules.megablast_refgenome.output.out,
+        query = rules.repeatmasker_good.output.masked_filt
     output:
-      mapped = temp("blast/{run}_refgenome-megablast_{n}_known-host.tsv"),
-      unmapped = temp("blast/{run}_refgenome-megablast_{n}_unmapped.fa")
+        mapped = temp("blast/{run}_refgenome-megablast_{n}_known-host.tsv"),
+        unmapped = temp("blast/{run}_refgenome-megablast_{n}_unmapped.fa")
     params:
-      e_cutoff = 1e-10,
-      outfmt = rules.megablast_refgenome.params.outfmt
+        e_cutoff = 1e-10,
+        outfmt = rules.megablast_refgenome.params.outfmt
+    resources:
+        runtime = 20
     wrapper:
-      PARSE_BLAST
+        PARSE_BLAST
 
 
 # QC

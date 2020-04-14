@@ -16,343 +16,414 @@ def concatenate_tables(input, sep = "\s+", cols_to_integer = None):
   return(frames_concatenated)
 
 rule get_virus_taxids:
-    output: "blast/10239.taxids"
+    output: 
+        "blast/10239.taxids"
     params:
        taxid = 10239
     conda:
         "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
+    resources:
+        runtime = 20
     shell:
        "get_species_taxids.sh -t {params.taxid} > {output}"
 
 rule get_human_taxids:
-    output: "blast/9606.taxids"
+    output: 
+        "blast/9606.taxids"
     params:
        taxid = 9606
     conda:
         "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
+    resources:
+        runtime = 20
     shell:
        "get_species_taxids.sh -t {params.taxid} > {output}"
 
 rule get_bacterial_taxids:
-    output: "blast/2.taxids"
+    output: 
+        "blast/2.taxids"
     params:
        taxid = 2
     conda:
         "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
+    resources:
+        runtime = 20
     shell:
        "get_species_taxids.sh -t {params.taxid} > {output}"
 
 rule get_unclassified_taxids:
-    output: "blast/12908.taxids"
+    output: 
+        "blast/12908.taxids"
     params:
        taxid = 12908
     conda:
         "https://raw.githubusercontent.com/avilab/virome-wrappers/master/blast/query/environment.yaml"
+    resources:
+        runtime = 20
     shell:
        "get_species_taxids.sh -t {params.taxid} > {output}"
 
 rule merge_taxidlists:
-    input: 
-      "blast/9606.taxids", "blast/2.taxids", "blast/12908.taxids"
+    input:
+        "blast/9606.taxids", "blast/2.taxids", "blast/12908.taxids"
     output:
-      "blast/negative.taxids"
+        "blast/negative.taxids"
+    resources:
+        runtime = 10
     shell:
-      "cat {input} > {output}"
+        "cat {input} > {output}"
 
 # Blastn, megablast and blastx input, output, and params keys must match commandline blast option names. Please see https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a for all available options.
 # Blast against nt virus database.
 rule blastn_virus:
     input:
-      query = rules.parse_megablast_refgenome.output.unmapped,
-      taxidlist = "blast/10239.taxids"
+        query = rules.parse_megablast_refgenome.output.unmapped,
+        taxidlist = "blast/10239.taxids"
     output:
-      out = temp("blast/{run}_blastn-virus_{n}.tsv")
+        out = temp("blast/{run}_blastn-virus_{n}.tsv")
     params:
-      program = "blastn",
-      db = "nt_v5",
-      evalue = 1e-4,
-      max_hsps = 50,
-      outfmt = "'6 qseqid sacc staxid pident length evalue'"
-    threads: 8
+        program = "blastn",
+        db = "nt_v5",
+        evalue = 1e-4,
+        max_hsps = 50,
+        outfmt = "'6 qseqid sacc staxid pident length evalue'"
+    threads: 4
+    resources:
+        runtime = 70,
+        mem_mb = 4000
     wrapper:
-      BLAST_QUERY
+        BLAST_QUERY
 
 # Filter blastn hits for the cutoff value.
 rule parse_blastn_virus:
     input:
-      query = rules.parse_megablast_refgenome.output.unmapped,
-      blast_result = rules.blastn_virus.output.out
+        query = rules.parse_megablast_refgenome.output.unmapped,
+        blast_result = rules.blastn_virus.output.out
     output:
-      mapped = temp("blast/{run}_blastn-virus_{n}_mapped.tsv"),
-      unmapped = temp("blast/{run}_blastn-virus_{n}_unmapped.fa")
+        mapped = temp("blast/{run}_blastn-virus_{n}_mapped.tsv"),
+        unmapped = temp("blast/{run}_blastn-virus_{n}_unmapped.fa")
     params:
-      e_cutoff = 1e-5,
-      outfmt = rules.blastn_virus.params.outfmt
+        e_cutoff = 1e-5,
+        outfmt = rules.blastn_virus.params.outfmt
+    resources:
+        runtime = 20,
+        mem_mb = 4000
     wrapper:
-      PARSE_BLAST
+        PARSE_BLAST
 
 # Blastx unmapped reads against nr virus database.
 rule blastx_virus:
     input:
-      query = rules.parse_blastn_virus.output.unmapped,
-      taxidlist = "blast/10239.taxids"
+        query = rules.parse_blastn_virus.output.unmapped,
+        taxidlist = "blast/10239.taxids"
     output:
-      out = temp("blast/{run}_blastx-virus_{n}.tsv")
+        out = temp("blast/{run}_blastx-virus_{n}.tsv")
     params:
-      program = "blastx",
-      task = "Blastx-fast",
-      db = "nr_v5",
-      evalue = 1e-2,
-      db_soft_mask = 100,
-      max_hsps = 50,
-      outfmt = rules.blastn_virus.params.outfmt
-    threads: 8
+        program = "blastx",
+        task = "Blastx-fast",
+        db = "nr_v5",
+        evalue = 1e-2,
+        db_soft_mask = 100,
+        max_hsps = 50,
+        outfmt = rules.blastn_virus.params.outfmt
+    threads: 4
+    resources:
+        runtime = 480,
+        mem_mb = 4000
     wrapper:
-      BLAST_QUERY
+        BLAST_QUERY
 
 # Filter blastn hits for the cutoff value.
 rule parse_blastx_virus:
     input:
-      query = rules.blastx_virus.input.query,
-      blast_result = rules.blastx_virus.output.out
+        query = rules.blastx_virus.input.query,
+        blast_result = rules.blastx_virus.output.out
     output:
-      mapped = temp("blast/{run}_blastx-virus_{n}_mapped.tsv"),
-      unmapped = temp("blast/{run}_blastx-virus_{n}_unmapped.fa")
+        mapped = temp("blast/{run}_blastx-virus_{n}_mapped.tsv"),
+        unmapped = temp("blast/{run}_blastx-virus_{n}_unmapped.fa")
     params:
-      e_cutoff = 1e-3,
-      outfmt = rules.megablast_refgenome.params.outfmt
+        e_cutoff = 1e-3,
+        outfmt = rules.megablast_refgenome.params.outfmt
+    resources:
+        runtime = 20,
+        mem_mb = 4000
     wrapper:
-      PARSE_BLAST
+        PARSE_BLAST
 
 # Filter sequences by division id.
 # Saves hits with division id
 # pp_sway - maximum difference of hit from top hit pident to consider for consensus taxonomy, percent points.
 # ranks_of_interest - taxonomic ranks to be included in results. E.g, subspecies will be demoted to species.
-# dbfile - path to etetoolkit taxon.sqlite database. Default location is $HOME/.etetoolkit/taxon.sqlite. Plese see http://etetoolkit.org/docs/latest/tutorial/tutorial_ncbitaxonomy.html for more information. 
+# dbfile - path to etetoolkit taxon.sqlite database. Default location is $HOME/.etetoolkit/taxon.sqlite. Plese see http://etetoolkit.org/docs/latest/tutorial/tutorial_ncbitaxonomy.html for more information.
 rule classify_viruses:
-  input:
-    [rules.parse_blastn_virus.output.mapped, rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped
-  output:
-    temp("results/{run}_viruses_{n}.csv")
-  params:
-    pp_sway = 1, 
-    ranks_of_interest = RANKS_OF_INTEREST,
-    dbfile = TAXON_DB
-  wrapper:
-    BLAST_TAXONOMY
+    input:
+        [rules.parse_blastn_virus.output.mapped, rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped
+    output:
+        temp("results/{run}_viruses_{n}.csv")
+    params:
+        pp_sway = 1,
+        ranks_of_interest = RANKS_OF_INTEREST,
+        dbfile = TAXON_DB
+    resources:
+        runtime = 20,
+        mem_mb = 4000
+    wrapper:
+        BLAST_TAXONOMY
 
 # Filter unmasked candidate virus reads.
 rule unmasked_other:
     input:
-      rules.parse_blastx_virus.output.unmapped if config["run_blastx"] else rules.parse_blastn_virus.output.unmapped,
-      rules.repeatmasker_good.output.original_filt
+        rules.parse_blastx_virus.output.unmapped if config["run_blastx"] else rules.parse_blastn_virus.output.unmapped,
+        rules.repeatmasker_good.output.original_filt
     output:
-      temp("blast/{run}_candidate-viruses_{n}_unmasked.fa")
+        temp("blast/{run}_candidate-viruses_{n}_unmasked.fa")
+    resources:
+        runtime = 20,
+        mem_mb = 4000
     wrapper:
-      SUBSET_FASTA
+        SUBSET_FASTA
 
 # Map reads to bacterial genomes.
 rule bwa_mem_refbac:
     input:
-      reads = [rules.unmasked_other.output]
+        reads = [rules.unmasked_other.output]
     output:
-      temp("blast/{run}_bac-mapped_{n}.bam")
+        temp("blast/{run}_bac-mapped_{n}.bam")
     params:
-      index = REF_BACTERIA,
-      extra = "-k 15",
-      sort = "none"
+        index = REF_BACTERIA,
+        extra = "-k 15",
+        sort = "none"
     log:
-      "logs/{run}_bwa-map-refbac_{n}.log"
-    threads: 8
+        "logs/{run}_bwa-map-refbac_{n}.log"
+    threads: 4
+    resources:
+        runtime = 60,
+        mem_mb = 16000
     wrapper:
-      "0.32.0/bio/bwa/mem"
+        "0.32.0/bio/bwa/mem"
 
 # Extract unmapped reads and convert to fasta.
 rule unmapped_refbac:
-  input:
-    rules.bwa_mem_refbac.output
-  output:
-    fastq = temp("blast/{run}_unmapped_{n}.fq"),
-    fasta = temp("blast/{run}_unmapped_{n}.fa")
-  wrapper:
-    BWA_UNMAPPED
+    input:
+        rules.bwa_mem_refbac.output
+    output:
+        fastq = temp("blast/{run}_unmapped_{n}.fq"),
+        fasta = temp("blast/{run}_unmapped_{n}.fa")
+    resources:
+        runtime = 30,
+        mem_mb = 4000
+    wrapper:
+        BWA_UNMAPPED
 
 # Calculate bam file stats
 rule refbac_bam_stats:
     input:
-      rules.bwa_mem_refbac.output
+        rules.bwa_mem_refbac.output
     output:
-      "stats/{run}_refbac-stats_{n}.txt"
+        "stats/{run}_refbac-stats_{n}.txt"
     params:
-      extra = "-f 4",
-      region = ""
+        extra = "-f 4",
+        region = ""
+    resources:
+        runtime = 20,
+        mem_mb = 4000
     wrapper:
         "0.32.0/bio/samtools/stats"
 
 # Subset repeatmasker masked reads using unmapped reads.
 rule refbac_unmapped_masked:
     input:
-      rules.unmapped_refbac.output.fasta,
-      rules.repeatmasker_good.output.masked_filt
+        rules.unmapped_refbac.output.fasta,
+        rules.repeatmasker_good.output.masked_filt
     output:
-      temp("blast/{run}_unmapped_{n}_masked.fa")
+        temp("blast/{run}_unmapped_{n}_masked.fa")
+    resources:
+        runtime = 20,
+        mem_mb = 4000
     wrapper:
-      SUBSET_FASTA
+        SUBSET_FASTA
 
 # Megablast against nt database.
 rule megablast_nt:
     input:
-      query = rules.refbac_unmapped_masked.output,
-      negative_taxidlist = "blast/negative.taxids"
+        query = rules.refbac_unmapped_masked.output,
+        negative_taxidlist = "blast/negative.taxids"
     output:
-      out = temp("blast/{run}_megablast-nt_{n}.tsv")
+         out = temp("blast/{run}_megablast-nt_{n}.tsv")
     params:
-      program = "blastn",
-      db = "nt_v5",
-      task = "megablast",
-      evalue = 1e-8,
-      word_size = 16,
-      max_hsps = 50,
-      outfmt = rules.blastn_virus.params.outfmt
-    threads: 8
+        program = "blastn",
+        db = "nt_v5",
+        task = "megablast",
+        evalue = 1e-8,
+        word_size = 16,
+        max_hsps = 50,
+        outfmt = rules.blastn_virus.params.outfmt
+    threads: 4
+    resources:
+        runtime = 240,
+        mem_mb = 40000
     wrapper:
-      BLAST_QUERY
+        BLAST_QUERY
 
 # Filter megablast hits for the cutoff value.
 rule parse_megablast_nt:
     input:
-      query = rules.refbac_unmapped_masked.output,
-      blast_result = rules.megablast_nt.output.out
+        query = rules.refbac_unmapped_masked.output,
+        blast_result = rules.megablast_nt.output.out
     output:
-      mapped = temp("blast/{run}_megablast-nt_{n}_mapped.tsv"),
-      unmapped = temp("blast/{run}_megablast-nt_{n}_unmapped.fa")
+        mapped = temp("blast/{run}_megablast-nt_{n}_mapped.tsv"),
+        unmapped = temp("blast/{run}_megablast-nt_{n}_unmapped.fa")
     params:
-      e_cutoff = 1e-10,
-      outfmt = rules.blastn_virus.params.outfmt
+        e_cutoff = 1e-10,
+        outfmt = rules.blastn_virus.params.outfmt
+    resources:
+        runtime = 20
     wrapper:
-      PARSE_BLAST
+        PARSE_BLAST
 
 # Blastn against nt database.
 rule blastn_nt:
     input:
-      query = rules.parse_megablast_nt.output.unmapped,
-      negative_taxidlist = "blast/negative.taxids"
+        query = rules.parse_megablast_nt.output.unmapped,
+        negative_taxidlist = "blast/negative.taxids"
     output:
-      out = temp("blast/{run}_blastn-nt_{n}.tsv")
+        out = temp("blast/{run}_blastn-nt_{n}.tsv")
     params:
-      program = "blastn",
-      db = "nt_v5",
-      task = "blastn",
-      evalue = 1e-8,
-      max_hsps = 50,
-      outfmt = rules.blastn_virus.params.outfmt
-    threads: 8
+        program = "blastn",
+        db = "nt_v5",
+        task = "blastn",
+        evalue = 1e-8,
+        max_hsps = 50,
+        outfmt = rules.blastn_virus.params.outfmt
+    threads: 4
+    resources:
+        runtime = 120,
+        mem_mb = 40000
     wrapper:
-      BLAST_QUERY
+        BLAST_QUERY
 
 # Filter blastn records for the cutoff value.
 rule parse_blastn_nt:
     input:
-      query = rules.blastn_nt.input.query,
-      blast_result = rules.blastn_nt.output.out
+        query = rules.blastn_nt.input.query,
+        blast_result = rules.blastn_nt.output.out
     output:
-      mapped = temp("blast/{run}_blastn-nt_{n}_mapped.tsv"),
-      unmapped = temp("blast/{run}_blastn-nt_{n}_unmapped.fa")
+        mapped = temp("blast/{run}_blastn-nt_{n}_mapped.tsv"),
+        unmapped = temp("blast/{run}_blastn-nt_{n}_unmapped.fa")
     params:
-      e_cutoff = 1e-10,
-      outfmt = rules.blastn_virus.params.outfmt
+        e_cutoff = 1e-10,
+        outfmt = rules.blastn_virus.params.outfmt
+    resources:
+        runtime = 20
     wrapper:
-      PARSE_BLAST
+        PARSE_BLAST
 
 # Blastx unmapped sequences against nr database.
 rule blastx_nr:
     input:
-      query = rules.parse_blastn_nt.output.unmapped,
-      negative_taxidlist = "blast/negative.taxids"
+        query = rules.parse_blastn_nt.output.unmapped,
+        negative_taxidlist = "blast/negative.taxids"
     output:
-      out = temp("blast/{run}_blastx-nr_{n}.tsv")
+        out = temp("blast/{run}_blastx-nr_{n}.tsv")
     params:
-      program = "blastx",
-      task = "Blastx-fast",
-      db = "nr_v5",
-      evalue = 1e-2,
-      max_hsps = 50,
-      outfmt = rules.blastn_virus.params.outfmt
-    threads: 8
+        program = "blastx",
+        task = "Blastx-fast",
+        db = "nr_v5",
+        evalue = 1e-2,
+        max_hsps = 50,
+        outfmt = rules.blastn_virus.params.outfmt
+    threads: 4
+    resources:
+        runtime = 240,
+        mem_mb = 40000
     wrapper:
       BLAST_QUERY
 
 # Filter blastx records for the cutoff value.
 rule parse_blastx_nr:
     input:
-      query = rules.blastx_nr.input.query,
-      blast_result = rules.blastx_nr.output.out
+        query = rules.blastx_nr.input.query,
+        blast_result = rules.blastx_nr.output.out
     output:
-      mapped = temp("blast/{run}_blastx-nr_{n}_mapped.tsv"),
-      unmapped = temp("blast/{run}_blastx-nr_{n}_unmapped.fa")
+        mapped = temp("blast/{run}_blastx-nr_{n}_mapped.tsv"),
+        unmapped = temp("blast/{run}_blastx-nr_{n}_unmapped.fa")
     params:
-      e_cutoff = 1e-3,
-      outfmt = rules.blastn_virus.params.outfmt
+        e_cutoff = 1e-3,
+        outfmt = rules.blastn_virus.params.outfmt
+    resources:
+        runtime = 30
     wrapper:
-      PARSE_BLAST
+        PARSE_BLAST
 
 # Filter sequences by division id.
 # Saves hits with division id
 rule classify_all:
-  input:
-    expand("blast/{{run}}_{blastresult}_{{n}}_mapped.tsv", blastresult = BLASTNR)
-  output:
-    temp("results/{run}_all_{n}.csv")
-  params:
-    pp_sway = 1, 
-    ranks_of_interest = RANKS_OF_INTEREST,
-    dbfile = TAXON_DB
-  wrapper:
-    BLAST_TAXONOMY
+    input:
+        expand("blast/{{run}}_{blastresult}_{{n}}_mapped.tsv", blastresult = BLASTNR)
+    output:
+        temp("results/{run}_all_{n}.csv")
+    params:
+        pp_sway = 1,
+        ranks_of_interest = RANKS_OF_INTEREST,
+        dbfile = TAXON_DB
+    resources:
+        runtime = 30
+    wrapper:
+        BLAST_TAXONOMY
 
 # Split classification rule outputs into viruses and non-viral
 rule filter_viruses:
-  input:
-    expand("results/{{run}}_{classified}_{n}.csv", n = N, classified = ["viruses", "all"])
-  output:
-    viral = "results/{run}_viruses.csv",
-    non_viral = "results/{run}_non-viral.csv"
-  params:
-    ranks = RANKS_OF_INTEREST
-  run:
-    tab = concatenate_tables(input, sep = ",", cols_to_integer = params.ranks)
-    vir = tab[tab.superkingdom == 10239]
-    non_vir = tab[tab.superkingdom != 10239]
-    vir.to_csv(output.viral, index = False)
-    non_vir.to_csv(output.non_viral, index = False)
+    input:
+        expand("results/{{run}}_{classified}_{n}.csv", n = N, classified = ["viruses", "all"])
+    output:
+        viral = "results/{run}_viruses.csv",
+        non_viral = "results/{run}_non-viral.csv"
+    params:
+        ranks = RANKS_OF_INTEREST
+    resources:
+        runtime = 30,
+        mem_mb = 4000
+    run:
+        tab = concatenate_tables(input, sep = ",", cols_to_integer = params.ranks)
+        vir = tab[tab.superkingdom == 10239]
+        non_vir = tab[tab.superkingdom != 10239]
+        vir.to_csv(output.viral, index = False)
+        non_vir.to_csv(output.non_viral, index = False)
+
 
 # Merge unassigned sequences
 rule merge_unassigned:
-  input:
-    expand("blast/{{run}}_blast{type}_{n}_unmapped.fa", type = "x-nr" if config["run_blastx"] else "n-nt", n = N)
-  output:
-    "results/{run}_unassigned.fa"
-  shell:
-    "cat {input} > {output}"
+    input:
+        expand("blast/{{run}}_blast{type}_{n}_unmapped.fa", type = "x-nr" if config["run_blastx"] else "n-nt", n = N)
+    output:
+        "results/{run}_unassigned.fa"
+    resources:
+        runtime = 20
+    shell:
+        "cat {input} > {output}"
 
 
 # Upload results to Zenodo.
 if config["zenodo"]["deposition_id"]:
-  rule upload_results:
-    input:
-      expand("results/{{run}}_{result}", result = RESULTS)
-    output:
-      ZEN.remote("results/{run}_counts.tgz")
-    shell:
-      "tar czvf {output} {input}"
+    rule upload_results:
+        input:
+            expand("results/{{run}}_{result}", result = RESULTS)
+        output:
+            ZEN.remote("results/{run}_counts.tgz")
+        resources:
+            runtime = 20
+        shell:
+            "tar czvf {output} {input}"
 
-  rule upload_stats:
-    input:
-      "stats/{run}_refgenome-stats.txt",
-      "stats/{run}_preprocess.tsv",
-      "stats/{run}_blast.tsv",
-      expand("stats/{{run}}_refbac-stats_{n}.txt", n = N)
-    output:
-      ZEN.remote("stats/{run}_stats.tgz")
-    shell:
-      "tar czvf {output} {input}"
+    rule upload_stats:
+        input:
+            "stats/{run}_refgenome-stats.txt",
+            "stats/{run}_preprocess.tsv",
+            "stats/{run}_blast.tsv",
+            expand("stats/{{run}}_refbac-stats_{n}.txt", n = N)
+        output:
+            ZEN.remote("stats/{run}_stats.tgz")
+        resources:
+            runtime = 20
+        shell:
+            "tar czvf {output} {input}"
