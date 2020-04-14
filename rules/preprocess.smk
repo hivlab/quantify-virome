@@ -156,7 +156,7 @@ rule correct2:
 
 rule correct3:
     input:
-        rules.correct2.output.out
+        input = rules.correct2.output.out
     output:
         out = temp("output/{run}/ecct.fq.gz")
     params:
