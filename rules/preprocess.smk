@@ -43,7 +43,7 @@ rule clumpify:
     params:
         extra = "dedupe optical -Xmx4g -da" # suppress assertions
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     log: 
         "output/{run}/log/clumpify.log"
@@ -53,7 +53,7 @@ rule clumpify:
 
 rule filterbytile:
     input:
-        rules.clumpify.output.out
+        input = rules.clumpify.output.out
     output:
         out = temp("output/{run}/filterbytile.fq.gz")
     params:
