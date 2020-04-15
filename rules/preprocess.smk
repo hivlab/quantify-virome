@@ -183,7 +183,7 @@ rule merge:
         "output/{run}/log/merge.log"
     resources:
         runtime = 30,
-        mem_mb = 8000
+        mem_mb = 16000
     threads: 4
     wrapper:
         WRAPPER_PREFIX + "master/bbtools/bbmerge"
