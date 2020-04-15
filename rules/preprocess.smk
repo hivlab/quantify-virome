@@ -170,25 +170,9 @@ rule correct3:
         WRAPPER_PREFIX + "master/bbtools/tadpole"
 
 
-rule normalize:
-    input:
-        rules.correct3.output.out
-    output:
-        out = temp("output/{run}/normalized.fq.gz")
-    params:
-        extra = "target=100 -Xmx16g"
-    log: 
-        "output/{run}/log/normalize.log"
-    resources:
-        runtime = 30,
-        mem_mb = 16000
-    wrapper:
-        WRAPPER_PREFIX + "master/bbtools/bbnorm"
-
-
 rule merge:
     input:
-        rules.normalize.output.out
+        input = rules.correct3.output.out
     output:
         out = temp("output/{run}/merged.fq.gz"),
         outu = temp("output/{run}/unmerged.fq.gz"),
