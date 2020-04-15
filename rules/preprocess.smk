@@ -178,7 +178,7 @@ rule merge:
         outu = temp("output/{run}/unmerged.fq.gz"),
         ihist = "output/{run}/ihist.txt"
     params:
-        extra = "strict k=93 extend2=80 rem ordered -Xmx8g"
+        extra = "strict k=93 extend2=80 rem ordered -Xmx16g"
     log: 
         "output/{run}/log/merge.log"
     resources:
