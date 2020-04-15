@@ -75,7 +75,7 @@ rule trim:
     params:
         extra = "ktrim=r k=23 mink=11 hdist=1 tbo tpe minlen=70 ref=adapters ftm=5 ordered -Xmx4g -da"
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     log: 
         "output/{run}/log/trim.log"
@@ -91,7 +91,7 @@ rule artifacts:
     params:
         extra = "k=31 ref=artifacts,phix ordered cardinality -Xmx4g -da"
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     log: 
         "output/{run}/log/artifacts.log"
@@ -113,7 +113,7 @@ rule maphost:
     log: 
         "output/{run}/log/maphost.log"
     resources:
-        runtime = 60,
+        runtime = lambda wildcards, attempt: 40 + (attempt * 20),
         mem_mb = 24000
     threads: 4
     wrapper:
@@ -131,7 +131,7 @@ rule correct1:
     log: 
         "output/{run}/log/correct1.log"
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     threads: 4
     wrapper:
@@ -148,7 +148,7 @@ rule correct2:
     log: 
         "output/{run}/log/correct2.log"
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     wrapper:
         WRAPPER_PREFIX + "master/bbtools/clumpify"
@@ -164,7 +164,7 @@ rule correct3:
     log: 
         "output/{run}/log/correct3.log"
     resources:
-        runtime = 30,
+        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 16000
     wrapper:
         WRAPPER_PREFIX + "master/bbtools/tadpole"
@@ -182,7 +182,7 @@ rule merge:
     log: 
         "output/{run}/log/merge.log"
     resources:
-        runtime = 30,
+        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 16000
     threads: 4
     wrapper:
@@ -197,7 +197,7 @@ rule qtrim:
     params:
         extra = "qtrim=r trimq=10 minlen=70 ordered -Xmx4g"
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     log: 
         "output/{run}/log/qtrim.log"
