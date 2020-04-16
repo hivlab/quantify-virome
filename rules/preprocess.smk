@@ -105,8 +105,8 @@ rule maphost:
         input = rules.artifacts.output.out,
         ref = HOST_GENOME
     output:
-        outu = temp("output/{run}/unmaphost.fq.gz"),
-        outm = temp("output/{run}/maphost.fq.gz"),
+        outu = "output/{run}/unmaphost.fq.gz",
+        outm = "output/{run}/maphost.fq.gz",
         statsfile = "output/{run}/maphost.txt"
     params:
         extra = "nodisk -Xmx24g"
@@ -122,7 +122,7 @@ rule maphost:
 
 rule correct1:
     input:
-        rules.maphost.output.outu
+        input = rules.maphost.output.outu
     output:
         out = temp("output/{run}/ecco.fq.gz"),
         ihist = "output/{run}/ihist.txt"
