@@ -113,7 +113,7 @@ rule maphost:
     log: 
         "output/{run}/log/maphost.log"
     resources:
-        runtime = lambda wildcards, attempt: 40 + (attempt * 20),
+        runtime = lambda wildcards, attempt: 120 + (attempt * 60),
         mem_mb = 24000
     threads: 4
     wrapper:
@@ -131,7 +131,7 @@ rule correct1:
     log: 
         "output/{run}/log/correct1.log"
     resources:
-        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
+        runtime = lambda wildcards, attempt: 60 + (attempt * 20),
         mem_mb = 4000
     threads: 4
     wrapper:
@@ -148,7 +148,7 @@ rule correct2:
     log: 
         "output/{run}/log/correct2.log"
     resources:
-        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
+        runtime = lambda wildcards, attempt: 60 + (attempt * 20),
         mem_mb = 4000
     wrapper:
         WRAPPER_PREFIX + "master/bbtools/clumpify"
@@ -164,7 +164,7 @@ rule correct3:
     log: 
         "output/{run}/log/correct3.log"
     resources:
-        runtime = lambda wildcards, attempt: 20 + (attempt * 20),
+        runtime = lambda wildcards, attempt: 60 + (attempt * 20),
         mem_mb = 16000
     wrapper:
         WRAPPER_PREFIX + "master/bbtools/tadpole"
@@ -291,7 +291,7 @@ rule split_fasta:
     params:
         config["split_fasta"]["n_files"]
     resources:
-        runtime = 20
+        runtime = 60
     wrapper:
         "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/split-fasta"
 
