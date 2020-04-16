@@ -337,7 +337,7 @@ rule repeatmasker_good:
     resources:
         runtime = 20
     wrapper:
-        LN_FILTER
+        WRAPPER_PREFIX + "master/filter/masked"
 
 
 # MegaBlast against reference genome to remove host sequences
