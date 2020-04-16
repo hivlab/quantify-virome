@@ -291,7 +291,7 @@ rule split_fasta:
     params:
         config["split_fasta"]["n_files"]
     resources:
-        runtime = 60
+        runtime = lambda wildcards, attempt: 60 + (attempt * 30) 
     wrapper:
         "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/split-fasta"
 
