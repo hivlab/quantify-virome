@@ -127,7 +127,7 @@ rule correct1:
         out = temp("output/{run}/ecco.fq.gz"),
         ihist = "output/{run}/ihist.txt"
     params:
-        extra = "ecco mix vstrict ordered -Xmx4g"
+        extra = "ecco mix vstrict ordered -Xmx4g -da"
     log: 
         "output/{run}/log/correct1.log"
     resources:
@@ -144,7 +144,7 @@ rule correct2:
     output:
         out = temp("output/{run}/eccc.fq.gz")
     params:
-        extra = "passes=4 reorder"
+        extra = "passes=4 reorder -Xmx4g -da"
     log: 
         "output/{run}/log/correct2.log"
     resources:
@@ -160,7 +160,7 @@ rule correct3:
     output:
         out = temp("output/{run}/ecct.fq.gz")
     params:
-        extra = "ecc k=62 ordered -Xmx16g"
+        extra = "ecc k=62 ordered -Xmx16g -da"
     log: 
         "output/{run}/log/correct3.log"
     resources:
@@ -262,7 +262,7 @@ rule tantan:
         runtime = 20,
         mem_mb = 4000
     wrapper:
-        "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/tantan"
+        WRAPPER_PREFIX + "master/tantan"
 
 
 # Filter tantan output
@@ -279,7 +279,7 @@ rule tantan_good:
     resources:
         runtime = 20
     wrapper:
-        LN_FILTER
+        WRAPPER_PREFIX + "master/filter/masked"
 
 
 # Split reads to smaller chunks for Repeatmasker
@@ -293,7 +293,7 @@ rule split_fasta:
     resources:
         runtime = lambda wildcards, attempt: 60 + (attempt * 30) 
     wrapper:
-        "https://bitbucket.org/tpall/snakemake-wrappers/raw/7e681180a5607f20594b3070f8eced7ccd245a89/bio/split-fasta"
+        WRAPPER_PREFIX + "master/split-fasta"
 
 
 # Repeatmasker
@@ -317,7 +317,7 @@ rule repeatmasker:
     singularity:
         "shub://tpall/repeatmasker-singularity"
     script:
-        RM
+        WRAPPER_PREFIX + "master/repeatmasker/wrapper.py"
 
 
 # Filter repeatmasker output

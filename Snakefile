@@ -73,8 +73,6 @@ CPNDB = os.getenv("CPNDB")
 
 # Wrappers
 WRAPPER_PREFIX = "https://raw.githubusercontent.com/avilab/virome-wrappers/"
-LN_FILTER = WRAPPER_PREFIX + "master/filter/masked"
-RM = WRAPPER_PREFIX + "master/repeatmasker/wrapper.py"
 BWA_UNMAPPED = WRAPPER_PREFIX + "master/unmapped"
 BLAST_QUERY = WRAPPER_PREFIX + "master/blast/query"
 PARSE_BLAST = WRAPPER_PREFIX + "master/blast/parse"
