@@ -144,12 +144,12 @@ rule correct2:
     output:
         out = temp("output/{run}/eccc.fq.gz")
     params:
-        extra = "passes=4 reorder -Xmx4g -da"
+        extra = "passes=4 reorder -Xmx16g -da"
     log: 
         "output/{run}/log/correct2.log"
     resources:
         runtime = lambda wildcards, attempt: 60 + (attempt * 20),
-        mem_mb = 4000
+        mem_mb = 16000
     wrapper:
         WRAPPER_PREFIX + "master/bbtools/clumpify"
 
@@ -244,8 +244,8 @@ rule cd_hit:
         "logs/{run}_cdhit.log"
     threads: 4
     resources:
-        runtime = 480,
-        mem_mb = 8000
+        runtime = 2880,
+        mem_mb = 14000
     wrapper:
         WRAPPER_PREFIX + "master/cdhit"
 
@@ -259,8 +259,8 @@ rule tantan:
     params:
         extra = "-x N" # mask low complexity using N
     resources:
-        runtime = 20,
-        mem_mb = 4000
+        runtime = 120,
+        mem_mb = 8000
     wrapper:
         WRAPPER_PREFIX + "master/tantan"
 
@@ -277,7 +277,7 @@ rule tantan_good:
         min_length = 50,
         por_n = 40
     resources:
-        runtime = 20
+        runtime = 120
     wrapper:
         WRAPPER_PREFIX + "master/filter/masked"
 
@@ -291,7 +291,7 @@ rule split_fasta:
     params:
         config["split_fasta"]["n_files"]
     resources:
-        runtime = lambda wildcards, attempt: 60 + (attempt * 30) 
+        runtime = lambda wildcards, attempt: 90 + (attempt * 30) 
     wrapper:
         WRAPPER_PREFIX + "master/split-fasta"
 
@@ -312,8 +312,8 @@ rule repeatmasker:
         extra = "-qq"
     threads: 4
     resources:
-        runtime = 750,
-        mem_mb = 8000
+        runtime = lambda wildcards, attempt: attempt * 1440,
+        mem_mb = 16000
     singularity:
         "shub://tpall/repeatmasker-singularity"
     script:
@@ -335,7 +335,7 @@ rule repeatmasker_good:
         min_length = 50,
         por_n = 40
     resources:
-        runtime = 20
+        runtime = 120
     wrapper:
         WRAPPER_PREFIX + "master/filter/masked"
 
@@ -357,7 +357,7 @@ rule megablast_refgenome:
         outfmt = "'6 qseqid sseqid pident length evalue'"
     threads: 4
     resources:
-        runtime = 30
+        runtime = lambda wildcards, attempt: 90 + (attempt * 30),
     wrapper:
         BLAST_QUERY
 
@@ -374,7 +374,7 @@ rule parse_megablast_refgenome:
         e_cutoff = 1e-10,
         outfmt = rules.megablast_refgenome.params.outfmt
     resources:
-        runtime = 20
+        runtime = 120
     wrapper:
         PARSE_BLAST
 
@@ -398,7 +398,7 @@ rule fastq_screen:
         fastq_screen_config = fastq_screen_config,
         subset = 100000
     resources:
-        runtime = 30,
+        runtime = 120,
         mem_mb = 8000    
     threads: 4
     wrapper:
@@ -412,7 +412,7 @@ rule fastqc:
         html = "output/{run}/fastqc.html",
         zip = "output/{run}/fastqc.zip"
     resources:
-        runtime = 20,
+        runtime = 120,
         mem_mb = 4000    
     wrapper:
         "0.27.1/bio/fastqc"
@@ -429,7 +429,7 @@ rule multiqc:
     log:
         "output/{run}/log/multiqc.log"
     resources:
-        runtime = 20,
+        runtime = 120,
         mem_mb = 4000    
     wrapper:
       WRAPPER_PREFIX + "master/multiqc"
