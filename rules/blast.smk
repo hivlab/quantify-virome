@@ -66,7 +66,7 @@ rule blastn_virus:
         outfmt = "'6 qseqid sacc staxid pident length evalue'"
     threads: 4
     resources:
-        runtime = 70,
+        runtime = lambda wildcards, attempt: attempt * 240,
         mem_mb = 4000
     wrapper:
         BLAST_QUERY
@@ -105,7 +105,7 @@ rule blastx_virus:
         outfmt = rules.blastn_virus.params.outfmt
     threads: 4
     resources:
-        runtime = 480,
+        runtime = lambda wildcards, attempt: attempt * 480,,
         mem_mb = 4000
     wrapper:
         BLAST_QUERY
@@ -210,7 +210,7 @@ rule megablast_nt:
         outfmt = rules.blastn_virus.params.outfmt
     threads: 4
     resources:
-        runtime = 240,
+        runtime = lambda wildcards, attempt: attempt * 240,
         mem_mb = 40000
     wrapper:
         BLAST_QUERY
@@ -247,7 +247,7 @@ rule blastn_nt:
         outfmt = rules.blastn_virus.params.outfmt
     threads: 4
     resources:
-        runtime = 120,
+        runtime = lambda wildcards, attempt: attempt * 240,
         mem_mb = 40000
     wrapper:
         BLAST_QUERY
@@ -284,7 +284,7 @@ rule blastx_nr:
         outfmt = rules.blastn_virus.params.outfmt
     threads: 4
     resources:
-        runtime = 240,
+        runtime = lambda wildcards, attempt: attempt * 480,
         mem_mb = 40000
     wrapper:
       BLAST_QUERY
@@ -317,7 +317,7 @@ rule classify_all:
         ranks_of_interest = RANKS_OF_INTEREST,
         dbfile = TAXON_DB
     resources:
-        runtime = 30
+        runtime = lambda wildcards, attempt: attempt * 120,
     wrapper:
         BLAST_TAXONOMY
 
@@ -331,7 +331,7 @@ rule filter_viruses:
     params:
         ranks = RANKS_OF_INTEREST
     resources:
-        runtime = 30,
+        runtime = lambda wildcards, attempt: attempt * 120,
         mem_mb = 4000
     run:
         tab = concatenate_tables(input, sep = ",", cols_to_integer = params.ranks)
@@ -348,7 +348,7 @@ rule merge_unassigned:
     output:
         "output/{run}/unassigned.fa"
     resources:
-        runtime = 20
+        runtime = lambda wildcards, attempt: attempt * 120,
     shell:
         "cat {input} > {output}"
 
@@ -361,6 +361,6 @@ if config["zenodo"]["deposition_id"]:
         output:
             ZEN.remote("output/{run}/counts.tgz")
         resources:
-            runtime = 20
+            runtime = lambda wildcards, attempt: attempt * 120,
         shell:
             "tar czvf {output} {input}"
