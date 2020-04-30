@@ -83,7 +83,7 @@ rule parse_blastn_virus:
         e_cutoff = 1e-5,
         outfmt = rules.blastn_virus.params.outfmt
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: attempt * 120,
         mem_mb = 4000
     wrapper:
         PARSE_BLAST
@@ -105,7 +105,7 @@ rule blastx_virus:
         outfmt = rules.blastn_virus.params.outfmt
     threads: 4
     resources:
-        runtime = lambda wildcards, attempt: attempt * 480,,
+        runtime = lambda wildcards, attempt: attempt * 480,
         mem_mb = 4000
     wrapper:
         BLAST_QUERY
@@ -122,7 +122,7 @@ rule parse_blastx_virus:
         e_cutoff = 1e-3,
         outfmt = rules.megablast_refgenome.params.outfmt
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: attempt * 120,
         mem_mb = 4000
     wrapper:
         PARSE_BLAST
@@ -142,7 +142,7 @@ rule classify_viruses:
         ranks_of_interest = RANKS_OF_INTEREST,
         dbfile = TAXON_DB
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: attempt * 120,
         mem_mb = 4000
     wrapper:
         BLAST_TAXONOMY
@@ -155,7 +155,7 @@ rule unmasked_other:
     output:
         temp("output/{run}/candidate-viruses_{n}_unmasked.fa")
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: attempt * 120,
         mem_mb = 4000
     wrapper:
         SUBSET_FASTA
@@ -173,7 +173,7 @@ rule mapbact:
     params:
         extra = "nodisk -Xmx24g"
     resources:
-        runtime = 60,
+        runtime = lambda wildcards, attempt: attempt * 120,
         mem_mb = 24000
     threads: 4
     wrapper:
@@ -188,7 +188,7 @@ rule refbac_unmapped_masked:
     output:
         temp("output/{run}/unmapped_{n}_masked.fa")
     resources:
-        runtime = 20,
+        runtime = lambda wildcards, attempt: attempt * 120,
         mem_mb = 4000
     wrapper:
         SUBSET_FASTA
@@ -227,7 +227,7 @@ rule parse_megablast_nt:
         e_cutoff = 1e-10,
         outfmt = rules.blastn_virus.params.outfmt
     resources:
-        runtime = 20
+        runtime = lambda wildcards, attempt: attempt * 120
     wrapper:
         PARSE_BLAST
 
@@ -264,7 +264,7 @@ rule parse_blastn_nt:
         e_cutoff = 1e-10,
         outfmt = rules.blastn_virus.params.outfmt
     resources:
-        runtime = 20
+        runtime = lambda wildcards, attempt: attempt * 120
     wrapper:
         PARSE_BLAST
 
@@ -301,7 +301,7 @@ rule parse_blastx_nr:
         e_cutoff = 1e-3,
         outfmt = rules.blastn_virus.params.outfmt
     resources:
-        runtime = 30
+        runtime = lambda wildcards, attempt: attempt * 120
     wrapper:
         PARSE_BLAST
 
