@@ -321,8 +321,8 @@ rule repeatmasker:
 
 
 # Filter repeatmasker output
-# 1) Sequences > 50 nt of consecutive sequence without N
-# 2) Sequences with >= 40% of total length of being masked
+# 1) Sequences > min_length nt of consecutive sequence without N
+# 2) Sequences with >= % of total length of being masked
 # input, output, and params names must match function arguments
 rule repeatmasker_good:
     input:
@@ -332,8 +332,8 @@ rule repeatmasker_good:
         masked_filt = temp("output/{run}/repmaskedgood_{n}.fa"),
         original_filt = temp("output/{run}/unmaskedgood_{n}.fa")
     params:
-        min_length = 50,
-        por_n = 40
+        min_length = 100,
+        por_n = 30
     resources:
         runtime = 120
     wrapper:
