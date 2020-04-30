@@ -66,7 +66,7 @@ rule blastn_virus:
         outfmt = "'6 qseqid sacc staxid pident length evalue'"
     threads: 4
     resources:
-        runtime = lambda wildcards, attempt: attempt * 240,
+        runtime = lambda wildcards, attempt: attempt * 480,
         mem_mb = 4000
     wrapper:
         BLAST_QUERY
