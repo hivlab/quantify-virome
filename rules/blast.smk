@@ -171,10 +171,10 @@ rule mapbact:
         outm = temp("output/{run}/mapbact_{n}.fa"),
         statsfile = "output/{run}/mapbact_{n}.txt"
     params:
-        extra = "nodisk -Xmx24g"
+        extra = "nodisk -Xmx36g"
     resources:
         runtime = lambda wildcards, attempt: attempt * 120,
-        mem_mb = 24000
+        mem_mb = 36000
     threads: 4
     wrapper:
         WRAPPER_PREFIX + "master/bbtools/bbwrap"
