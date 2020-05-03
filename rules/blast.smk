@@ -211,7 +211,7 @@ rule megablast_nt:
     threads: 4
     resources:
         runtime = lambda wildcards, attempt: attempt * 240,
-        mem_mb = 40000
+        mem_mb = lambda wildcards, attempt: 20000 + (attempt * 20000)
     wrapper:
         BLAST_QUERY
 
