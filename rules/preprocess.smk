@@ -270,7 +270,7 @@ rule tantan:
 # 2) Sequences with >= 40% of total length of being masked
 rule tantan_good:
     input:
-        masked = rules.tantan.output
+        masked = rules.tantan.output[0]
     output:
         masked_filt = temp("output/{run}/tantangood.fa")
     params:
@@ -285,7 +285,7 @@ rule tantan_good:
 # Split reads to smaller chunks for Repeatmasker
 rule split_fasta:
     input:
-        rules.tantan_good.output
+        rules.tantan_good.output.masked_filt
     output:
         temp(expand("output/{{run}}/repeatmasker_{n}.fa", n = N))
     params:
