@@ -41,8 +41,81 @@ conda create -n snakemake -c bioconda -c conda-forge snakemake
 source activate snakemake
 ```
 
+## Setup databases
+Together all databases will occupy ~250GB+ from your HD. 
 
-### Clone this repo and cd to repo
+### BLAST databases
+
+1. Download BLAST version 5 databases
+
+Download version 5 BLAST databases using these instructions https://ftp.ncbi.nlm.nih.gov/blast/db/v5/blastdbv5.pdf
+
+Briefly, you can use `update_blastdb.pl` script from BLAST+ software bundle to update/download BLAST databases.
+
+To get BLAST, you can start by creating conda environment with blast+ like so:
+
+```
+conda env create -n blastenv
+conda blastenv activate
+conda install -c bioconda blast
+```
+
+Change working directory to location where you want BLAST databases to be installed, e.g. `$HOME/databases/blast`. 
+```
+mkdir -p $HOME/databases/blast
+cd $HOME/databases/blast
+```
+
+Use update_blastdb.pl (included with the BLAST+ package) to check available version 5 databases, use the --blastdb_version flag:
+```
+update_blastdb.pl --blastdb_version 5 --showall
+```
+
+Download nt_v5 and nr_v5 databases (takes time and might need restarting if connection drops):
+```
+update_blastdb.pl --blastdb_version 5 nt_v5 --decompress
+update_blastdb.pl --blastdb_version 5 nr_v5 --decompress
+```
+
+2. Setup BLASTDB environment variable
+Edit $HOME/.bashrc file to permanently add BLASTDB variable to your shell environment
+```
+echo 'export BLASTDB=$HOME/databases/blast' >> $HOME/.bashrc
+source $HOME/.bashrc
+echo $BLASTDB
+```
+
+### Download reference genome databases
+1. Human reference genome.
+
+First, create a directory for the reference genome sequence file, e.g `mkdir -p $HOME/databases/ref_genomes && cd $HOME/databases/ref_genomes`.
+
+Then, human refgenome human_g1k_v37.fasta.gz sequences file can be obtained like so:
+```
+wget --continue ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+```
+
+2. Bacterial reference genome sequences.
+
+Create a directory for the bacteria reference sequence files.
+Download all *genomic.fna.gz files to the directory by using command.
+```
+wget --recursive --continue ftp://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/*genomic.fna.gz
+```
+
+Unzip the files and concatenate all the files into a single file.
+Use "bwa index" command to create index for the BWA algorithm.
+
+3. Add paths to `human_g1k_v37.fasta` and `Bacteria_ref_genome.fna` to environment variables.
+```
+echo 'export REF_GENOME_HUMAN=$HOME/databases/ref_genomes/human_g1k_v37.fasta' >> $HOME/.bashrc
+echo 'export REF_BACTERIA=$HOME/databases/bacteria_ref_sequence/Bacteria_ref_genome.fna' >> $HOME/.bashrc
+source $HOME/.bashrc
+```
+
+## Install workflow 
+
+Clone this repo and cd to repo
 (Change URL accordingly if using HTTPS)
 
 ```

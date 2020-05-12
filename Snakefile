@@ -24,22 +24,18 @@ RUN_IDS = RUNS.index.tolist()
 N_FILES = config["split_fasta"]["n_files"]
 N = list(range(1, N_FILES + 1, 1))
 
-# Create slurm logs dir
-if not os.path.exists("logs/slurm"):
-    os.makedirs("logs/slurm")
 
 wildcard_constraints:
     run = "[a-zA-Z0-9]+",
     n = "\d+"
 
 # Main output files
-RESULTS = ["phages.csv", "phages-viruses.csv", "non-viral.csv", "query-taxid.csv", "unassigned.fa"]
+RESULTS = ["viruses.csv", "non-viral.csv", "unassigned.fa"]
 BLASTV = ["blastn-virus", "blastx-virus"] if config["run_blastx"] else ["blastn-virus"]
 BLASTNR = ["megablast-nt", "blastn-nt", "blastx-nr"] if config["run_blastx"] else ["megablast-nt", "blastn-nt"]
 BLAST = BLASTV + BLASTNR
-TAXONOMY = expand("taxonomy/{file}.csv", file = ["names", "nodes", "division"])
-STATS = expand(["stats/{run}_refgenome-stats.txt", "stats/{run}_preprocess.tsv", "stats/{run}_blast.tsv"], run = RUN_IDS) + expand("stats/{run}_refbac-stats_{n}.txt", run = RUN_IDS, n = N)
-OUTPUTS = expand("results/{run}_{result}", run = RUN_IDS, result = RESULTS) + TAXONOMY + STATS
+STATS = expand(["output/{run}/multiqc.html"], run = RUN_IDS)
+OUTPUTS = expand("output/{run}/{result}", run = RUN_IDS, result = RESULTS) + STATS
 
 # Remote outputs
 if config["zenodo"]["deposition_id"]:
@@ -48,12 +44,40 @@ if config["zenodo"]["deposition_id"]:
     # Setup Zenodo RemoteProvider
     ZEN = ZENRemoteProvider(deposition = config["zenodo"]["deposition_id"], access_token = os.environ["ZENODO_PAT"])
     # Append uploads
-    ZENOUTPUTS = ZEN.remote(expand(["results/{run}_counts.tgz", "stats/{run}_stats.tgz"], run = RUN_IDS))
+    ZENOUTPUTS = ZEN.remote(expand("output/{run}/counts.tgz", run = RUN_IDS))
     OUTPUTS = OUTPUTS + ZENOUTPUTS
+
+# Report
+report: "report/workflow.rst"
 
 rule all:
     input:
         OUTPUTS
+
+# Check file exists
+def file_exists(file):
+    try:
+        with open(file, 'r') as fh:
+            print("{} is set up correctly".format(file))
+    except FileNotFoundError:
+        ("Could not find {}").format(file)
+
+# Path to reference genomes
+HOST_GENOME = os.getenv("REF_GENOME_HUMAN_MASKED")
+# file_exists(REF_GENOME)
+REF_BACTERIA = os.getenv("REF_BACTERIA")
+# file_exists(REF_BACTERIA)
+TAXON_DB = os.getenv("TAXON_DB")
+RRNA_DB = os.getenv("SILVA")
+CPNDB = os.getenv("CPNDB")
+
+# Wrappers
+WRAPPER_PREFIX = "https://raw.githubusercontent.com/avilab/virome-wrappers/"
+BWA_UNMAPPED = WRAPPER_PREFIX + "master/unmapped"
+BLAST_QUERY = WRAPPER_PREFIX + "master/blast/query"
+PARSE_BLAST = WRAPPER_PREFIX + "master/blast/parse"
+BLAST_TAXONOMY = WRAPPER_PREFIX + "master/blast/taxonomy"
+SUBSET_FASTA = WRAPPER_PREFIX + "master/subset_fasta"
 
 # Rules
 include: "rules/preprocess.smk"
