@@ -350,9 +350,6 @@ rule megablast_refgenome:
         program = "blastn",
         db = HOST_GENOME,
         task = "megablast",
-        perc_identity = 85,
-        evalue = 1e-10,
-        word_size = 16,
         max_hsps = 1,
         outfmt = "'6 qseqid sseqid pident length evalue'"
     threads: 4
