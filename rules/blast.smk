@@ -50,18 +50,56 @@ rule merge_taxidlists:
     shell:
         "cat {input} > {output}"
 
+
+rule megablast_virus:
+    input:
+        query = rules.parse_megablast_refgenome.output.unmapped,
+        taxidlist = "output/blast/10239.taxids"
+    output:
+        out = temp("output/{run}/megablast-virus_{n}.tsv")
+    params:
+        program = "megablast",
+        db = "nt_v5",
+        word_size = 16,
+        evalue = 10,
+        max_hsps = 50,
+        outfmt = "'6 qseqid sacc staxid pident length evalue'"
+    threads: 4
+    resources:
+        runtime = lambda wildcards, attempt: attempt * 480,
+        mem_mb = 4000
+    wrapper:
+        BLAST_QUERY
+
+# Filter blastn hits for the cutoff value.
+rule parse_megablast_virus:
+    input:
+        query = rules.parse_megablast_refgenome.output.unmapped,
+        blast_result = rules.megablast_virus.output.out
+    output:
+        mapped = temp("output/{run}/megablast-virus_{n}_mapped.tsv"),
+        unmapped = temp("output/{run}/megablast-virus_{n}_unmapped.fa")
+    params:
+        e_cutoff = 5,
+        outfmt = rules.megablast_virus.params.outfmt
+    resources:
+        runtime = lambda wildcards, attempt: attempt * 120,
+        mem_mb = 4000
+    wrapper:
+        PARSE_BLAST
+
+
 # Blastn, megablast and blastx input, output, and params keys must match commandline blast option names. Please see https://www.ncbi.nlm.nih.gov/books/NBK279684/#appendices.Options_for_the_commandline_a for all available options.
 # Blast against nt virus database.
 rule blastn_virus:
     input:
-        query = rules.parse_megablast_refgenome.output.unmapped,
+        query = rules.parse_megablast_virus.output.unmapped,
         taxidlist = "output/blast/10239.taxids"
     output:
         out = temp("output/{run}/blastn-virus_{n}.tsv")
     params:
         program = "blastn",
         db = "nt_v5",
-        evalue = 1e-4,
         max_hsps = 50,
         outfmt = "'6 qseqid sacc staxid pident length evalue'"
     threads: 4
@@ -74,10 +112,10 @@ rule blastn_virus:
 # Filter blastn hits for the cutoff value.
 rule parse_blastn_virus:
     input:
-        query = rules.parse_megablast_refgenome.output.unmapped,
+        query = rules.parse_megablast_virus.output.unmapped,
         blast_result = rules.blastn_virus.output.out
     output:
-        mapped = temp("output/{run}/blastn-virus_{n}_mapped.tsv"),
+        mapped = temp("output/{run}/blastn-virus_{n}_hits.tsv"),
         unmapped = temp("output/{run}/blastn-virus_{n}_unmapped.fa")
     params:
         e_cutoff = 1e-5,

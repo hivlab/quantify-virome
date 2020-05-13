@@ -340,11 +340,11 @@ rule repeatmasker_good:
 
 
 # MegaBlast against reference genome to remove host sequences
-rule megablast_refgenome:
+rule megablast_host:
     input:
         query = rules.repeatmasker_good.output.masked_filt
     output:
-        out = temp("output/{run}/megablast_{n}.tsv")
+        out = temp("output/{run}/megablast-host_{n}.tsv")
     params:
         program = "blastn",
         db = HOST_GENOME,
@@ -362,11 +362,11 @@ rule megablast_refgenome:
 # Filter megablast records for the cutoff value
 rule parse_megablast_refgenome:
     input:
-        blast_result = rules.megablast_refgenome.output.out,
+        blast_result = rules.megablast_host.output.out,
         query = rules.repeatmasker_good.output.masked_filt
     output:
-        mapped = "output/{run}/refgenome-megablast_{n}_hits.tsv",
-        unmapped = temp("output/{run}/refgenome-megablast_{n}_unmapped.fa")
+        mapped = "output/{run}/megablast-host_{n}_hits.tsv",
+        unmapped = temp("output/{run}/megablast-host_{n}_unmapped.fa")
     params:
         e_cutoff = 10,
         outfmt = rules.megablast_refgenome.params.outfmt
