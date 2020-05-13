@@ -350,6 +350,8 @@ rule megablast_refgenome:
         program = "blastn",
         db = HOST_GENOME,
         task = "megablast",
+        word_size = 16,
+        evalue = 1e-3,
         max_hsps = 1,
         outfmt = "'6 qseqid sseqid pident length evalue'"
     threads: 4
@@ -368,7 +370,7 @@ rule parse_megablast_refgenome:
         mapped = temp("output/{run}/refgenome-megablast_{n}_known-host.tsv"),
         unmapped = temp("output/{run}/refgenome-megablast_{n}_unmapped.fa")
     params:
-        e_cutoff = 1e-10,
+        e_cutoff = 1e-3,
         outfmt = rules.megablast_refgenome.params.outfmt
     resources:
         runtime = 120
