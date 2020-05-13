@@ -360,7 +360,7 @@ rule megablast_host:
 
 
 # Filter megablast records for the cutoff value
-rule parse_megablast_refgenome:
+rule parse_megablast_host:
     input:
         blast_result = rules.megablast_host.output.out,
         query = rules.repeatmasker_good.output.masked_filt
@@ -369,7 +369,7 @@ rule parse_megablast_refgenome:
         unmapped = temp("output/{run}/megablast-host_{n}_unmapped.fa")
     params:
         e_cutoff = 10,
-        outfmt = rules.megablast_refgenome.params.outfmt
+        outfmt = rules.megablast_host.params.outfmt
     resources:
         runtime = 120
     wrapper:
