@@ -124,8 +124,7 @@ rule correct1:
     input:
         input = rules.maphost.output.outu
     output:
-        out = temp("output/{run}/ecco.fq.gz"),
-        ihist = "output/{run}/ihist.txt"
+        out = temp("output/{run}/ecco.fq.gz")
     params:
         extra = "ecco mix vstrict ordered -Xmx4g -da"
     log: 
