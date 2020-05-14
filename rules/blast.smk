@@ -58,7 +58,8 @@ rule megablast_virus:
     output:
         out = temp("output/{run}/megablast-virus_{n}.tsv")
     params:
-        program = "megablast",
+        program = "blastn",
+        task = "megablast",
         db = "nt_v5",
         word_size = 16,
         evalue = 10,

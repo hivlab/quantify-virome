@@ -348,8 +348,8 @@ rule megablast_host:
     shadow: "minimal"
     params:
         program = "blastn",
-        db = HOST_GENOME,
         task = "megablast",
+        db = HOST_GENOME,
         evalue = 1e-5,
         max_hsps = 1,
         outfmt = "'6 qseqid sseqid pident length evalue'"
