@@ -345,16 +345,17 @@ rule megablast_host:
         query = rules.repeatmasker_good.output.masked_filt
     output:
         out = temp("output/{run}/megablast-host_{n}.tsv")
+    shadow: "minimal"
     params:
         program = "blastn",
         db = HOST_GENOME,
         task = "megablast",
-        word_size = 16,
+        evalue = 1e-5,
         max_hsps = 1,
         outfmt = "'6 qseqid sseqid pident length evalue'"
     threads: 4
     resources:
-        runtime = lambda wildcards, attempt: 90 + (attempt * 30),
+        runtime = lambda wildcards, attempt: 90 + (attempt * 30)
     wrapper:
         BLAST_QUERY
 
@@ -368,7 +369,7 @@ rule parse_megablast_host:
         mapped = "output/{run}/megablast-host_{n}_hits.tsv",
         unmapped = temp("output/{run}/megablast-host_{n}_unmapped.fa")
     params:
-        e_cutoff = 10,
+        e_cutoff = 1e-9,
         outfmt = rules.megablast_host.params.outfmt
     resources:
         runtime = 120
