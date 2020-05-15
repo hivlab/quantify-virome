@@ -61,8 +61,7 @@ rule megablast_virus:
         program = "blastn",
         task = "megablast",
         db = "nt_v5",
-        word_size = 16,
-        evalue = 10,
+        evalue = 1e-6,
         max_hsps = 50,
         outfmt = "'6 qseqid sacc staxid pident length evalue'"
     threads: 4
