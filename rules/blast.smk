@@ -66,8 +66,8 @@ rule megablast_virus:
         outfmt = "'6 qseqid sacc staxid pident length evalue'"
     threads: 4
     resources:
-        runtime = lambda wildcards, attempt: attempt * 480,
-        mem_mb = 4000
+        runtime = 1440,
+        mem_mb = lambda wildcards, attempt: 8000 + (attempt * 8000)
     wrapper:
         BLAST_QUERY
 
