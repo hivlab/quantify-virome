@@ -350,7 +350,7 @@ rule megablast_host:
         program = "blastn",
         task = "megablast",
         db = HOST_GENOME,
-        evalue = 1e-5,
+        evalue = 1e-6,
         max_hsps = 1,
         outfmt = "'6 qseqid sseqid pident length evalue'"
     threads: 4
