@@ -66,7 +66,7 @@ rule megablast_virus:
     threads: 4
     resources:
         runtime = 1440,
-        mem_mb = 20000
+        mem_mb = lambda wildcards, attempt: 20000 + (attempt * 8000)
     wrapper:
         BLAST_QUERY
 
