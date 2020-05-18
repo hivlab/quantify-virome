@@ -66,9 +66,12 @@ rule megablast_virus:
     threads: 4
     resources:
         runtime = 1440,
-        mem_mb = lambda wildcards, attempt: 20000 + (attempt * 8000)
-    wrapper:
-        BLAST_QUERY
+        mem_mb = 28000
+    shell:
+        """
+        module load  blast-2.9.0+ \
+        && {params.program} -task {params.task} -db {params.db} -taxidlist {input.taxidlist} -query {input.query} -out {output.out} -evalue {params.evalue} -max_hsps {params.max_hsps} -outfmt {params.outfmt} -num_threads {threads}
+        """
 
 # Filter blastn hits for the cutoff value.
 rule parse_megablast_virus:
