@@ -60,13 +60,14 @@ rule megablast_virus:
         program = "blastn",
         task = "megablast",
         db = "nt_v5",
+        word_size = 20,
         evalue = 1e-6,
         max_hsps = 1,
         outfmt = "'6 qseqid sacc staxid pident length evalue'"
-    threads: 4
+    threads: 8
     resources:
-        runtime = 1440,
-        mem_mb = lambda wildcards, attempt: 20000 + (attempt * 8000)
+        runtime = 120,
+        mem_mb = 96000
     wrapper:
         BLAST_QUERY
 

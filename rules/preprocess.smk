@@ -353,7 +353,7 @@ rule megablast_host:
         evalue = 1e-6,
         max_hsps = 1,
         outfmt = "'6 qseqid sseqid pident length evalue'"
-    threads: 4
+    threads: 8
     resources:
         runtime = lambda wildcards, attempt: 90 + (attempt * 30)
     wrapper:
