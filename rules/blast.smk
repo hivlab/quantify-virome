@@ -60,14 +60,14 @@ rule megablast_virus:
         program = "blastn",
         task = "megablast",
         db = "nt_v5",
-        word_size = 20,
+        word_size = 16,
         evalue = 1e-6,
         max_hsps = 1,
         outfmt = "'6 qseqid sacc staxid pident length evalue'"
     threads: 8
     resources:
-        runtime = 120,
-        mem_mb = 96000
+        runtime = lambda wildcards, attempt: attempt * 120,
+        mem_mb = 24000
     wrapper:
         BLAST_QUERY
 
@@ -100,13 +100,14 @@ rule blastn_virus:
     params:
         program = "blastn",
         db = "nt_v5",
+        word_size = 11,
         evalue = 1e-6,
         max_hsps = 1,
         outfmt = rules.megablast_virus.params.outfmt
     threads: 4
     resources:
-        runtime = lambda wildcards, attempt: attempt * 480,
-        mem_mb = 4000
+        runtime = lambda wildcards, attempt: (attempt * 120) + 840,
+        mem_mb = 26000
     wrapper:
         BLAST_QUERY
 
@@ -116,7 +117,7 @@ rule parse_blastn_virus:
         query = rules.parse_megablast_virus.output.unmapped,
         blast_result = rules.blastn_virus.output.out
     output:
-        mapped = temp("output/{run}/blastn-virus_{n}_hits.tsv"),
+        mapped = temp("output/{run}/blastn-virus_{n}_mapped.tsv"),
         unmapped = temp("output/{run}/blastn-virus_{n}_unmapped.fa")
     params:
         e_cutoff = 1e-6,
@@ -140,7 +141,7 @@ rule blastx_virus:
         db = "nr_v5",
         evalue = 1e-2,
         db_soft_mask = 100,
-        max_hsps = 50,
+        max_hsps = 1,
         outfmt = rules.megablast_virus.params.outfmt
     threads: 4
     resources:
