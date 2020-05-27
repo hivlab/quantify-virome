@@ -174,7 +174,7 @@ rule parse_blastx_virus:
 # dbfile - path to etetoolkit taxon.sqlite database. Default location is $HOME/.etetoolkit/taxon.sqlite. Plese see http://etetoolkit.org/docs/latest/tutorial/tutorial_ncbitaxonomy.html for more information.
 rule classify_viruses:
     input:
-        [rules.parse_blastn_virus.output.mapped, rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else rules.parse_blastn_virus.output.mapped
+        [rules.parse_blastn_virus.output.mapped, rules.parse_megablast_virus.output.mapped, rules.parse_blastx_virus.output.mapped] if config["run_blastx"] else [rules.parse_blastn_virus.output.mapped, rules.parse_megablast_virus.output.mapped]
     output:
         temp("output/{run}/viruses_{n}.csv")
     params:
