@@ -54,14 +54,6 @@ rule all:
     input:
         OUTPUTS
 
-# Check file exists
-def file_exists(file):
-    try:
-        with open(file, 'r') as fh:
-            print("{} is set up correctly".format(file))
-    except FileNotFoundError:
-        ("Could not find {}").format(file)
-
 # Path to reference genomes
 HOST_GENOME = os.getenv("REF_GENOME_HUMAN_MASKED")
 # file_exists(REF_GENOME)
@@ -80,5 +72,6 @@ BLAST_TAXONOMY = WRAPPER_PREFIX + "master/blast/taxonomy"
 SUBSET_FASTA = WRAPPER_PREFIX + "master/subset_fasta"
 
 # Rules
+include: "rules/common.smk"
 include: "rules/preprocess.smk"
 include: "rules/blast.smk"

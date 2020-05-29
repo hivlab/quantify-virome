@@ -1,15 +1,6 @@
 
 FTP = FTPRemoteProvider(username = config["username"], password = config["password"])
 
-def get_fastq(wildcards):
-    """Get fraction read file paths from samples.tsv"""
-    urls = RUNS.loc[wildcards.run, ['fq1', 'fq2']]
-    return list(urls)
-
-def get_frac(wildcards):
-    """Get fraction of reads to be sampled from samples.tsv"""
-    frac = RUNS.loc[wildcards.run, ['frac']][0]
-    return frac
 
 # Convert reads to interleaved format
 rule interleave:
