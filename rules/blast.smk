@@ -197,13 +197,13 @@ rule mapbact:
         outm = temp("output/{run}/mapbact_{n}.fa"),
         statsfile = "output/{run}/mapbact_{n}.txt"
     params:
-        extra = "nodisk -Xmx60g"
+        extra = lambda wildcards, resources: f"nodisk -Xmx{resources.mem_mb / 1000:.0f}g"
     resources:
         runtime = lambda wildcards, attempt: attempt * 240,
         mem_mb = 60000
     threads: 4
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/bbwrap"
+        f"{WRAPPER_PREFIX}/master/bbtools/bbwrap"
 
 
 # Subset repeatmasker masked reads using unmapped reads.

@@ -15,14 +15,14 @@ rule interleave:
         lhist = "output/{run}/lhist.txt",
         gchist = "output/{run}/gchist.txt"
     params:
-        extra = "-Xmx4g"
+        extra = lambda wildcards, resources: f"-Xmx{resources.mem_mb / 1000:.0f}g"
     resources:
         runtime = 20,
         mem_mb = 4000
     log:
         "output/{run}/log/interleave.txt"
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/reformat"
+        f"{WRAPPER_PREFIX}/master/bbtools/reformat"
 
 
 # Remove PCR and optical duplicates
@@ -32,14 +32,14 @@ rule clumpify:
     output:
         out = temp("output/{run}/clumpify.fq.gz")
     params:
-        extra = "dedupe optical -Xmx4g -da" # suppress assertions
+        extra = lambda wildcards, resources: f"dedupe optical -Xmx{resources.mem_mb / 1000:.0f}g -da" # -da -- suppress assertions
     resources:
         runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     log: 
         "output/{run}/log/clumpify.log"
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/clumpify"
+        f"{WRAPPER_PREFIX}/master/bbtools/clumpify"
 
 
 rule filterbytile:
@@ -48,14 +48,14 @@ rule filterbytile:
     output:
         out = temp("output/{run}/filterbytile.fq.gz")
     params:
-        extra = "-Xmx4g -da"
+        extra = lambda wildcards, resources: f"-Xmx{resources.mem_mb / 1000:.0f}g -da"
     resources:
         runtime = 20,
         mem_mb = 4000
     log: 
         "output/{run}/log/filterbytile.log"
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/filterbytile"
+        f"{WRAPPER_PREFIX}/master/bbtools/filterbytile"
 
 
 rule trim:
@@ -64,14 +64,14 @@ rule trim:
     output:
         out = temp("output/{run}/trimmed.fq.gz")
     params:
-        extra = "ktrim=r k=23 mink=11 hdist=1 tbo tpe minlen=70 ref=adapters ftm=5 ordered -Xmx4g -da"
+        extra = lambda wildcards, resources: f"ktrim=r k=23 mink=11 hdist=1 tbo tpe minlen=70 ref=adapters ftm=5 ordered -Xmx{resources.mem_mb / 1000:.0f}g -da"
     resources:
         runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     log: 
         "output/{run}/log/trim.log"
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/bbduk"
+        f"{WRAPPER_PREFIX}/master/bbtools/bbduk"
 
 
 rule artifacts:
@@ -80,14 +80,14 @@ rule artifacts:
     output:
         out = "output/{run}/filtered.fq.gz"
     params:
-        extra = "k=31 ref=artifacts,phix ordered cardinality -Xmx4g -da"
+        extra = lambda wildcards, resources: f"k=31 ref=artifacts,phix ordered cardinality -Xmx{resources.mem_mb / 1000:.0f}g -da"
     resources:
         runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     log: 
         "output/{run}/log/artifacts.log"
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/bbduk"
+        f"{WRAPPER_PREFIX}/master/bbtools/bbduk"
 
 
 # Remove host sequences
@@ -100,7 +100,7 @@ rule maphost:
         outm = "output/{run}/maphost.fq.gz",
         statsfile = "output/{run}/maphost.txt"
     params:
-        extra = "nodisk -Xmx24g"
+        extra = lambda wildcards, resources: f"nodisk -Xmx{resources.mem_mb / 1000:.0f}g"
     log: 
         "output/{run}/log/maphost.log"
     resources:
@@ -108,7 +108,7 @@ rule maphost:
         mem_mb = 24000
     threads: 4
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/bbwrap"
+        f"{WRAPPER_PREFIX}/master/bbtools/bbwrap"
 
 
 rule correct1:
@@ -117,7 +117,7 @@ rule correct1:
     output:
         out = temp("output/{run}/ecco.fq.gz")
     params:
-        extra = "ecco mix vstrict ordered -Xmx4g -da"
+        extra = lambda wildcards, resources: f"ecco mix vstrict ordered -Xmx{resources.mem_mb / 1000:.0f}g -da"
     log: 
         "output/{run}/log/correct1.log"
     resources:
@@ -125,7 +125,7 @@ rule correct1:
         mem_mb = 4000
     threads: 4
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/bbmerge"
+        f"{WRAPPER_PREFIX}/master/bbtools/bbmerge"
 
 
 rule correct2:
@@ -134,14 +134,14 @@ rule correct2:
     output:
         out = temp("output/{run}/eccc.fq.gz")
     params:
-        extra = "passes=4 reorder -Xmx16g -da"
+        extra = lambda wildcards, resources: f"passes=4 reorder -Xmx{resources.mem_mb / 1000:.0f}g -da"
     log: 
         "output/{run}/log/correct2.log"
     resources:
         runtime = lambda wildcards, attempt: 60 + (attempt * 20),
         mem_mb = 16000
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/clumpify"
+        f"{WRAPPER_PREFIX}/master/bbtools/clumpify"
 
 
 rule correct3:
@@ -150,14 +150,14 @@ rule correct3:
     output:
         out = temp("output/{run}/ecct.fq.gz")
     params:
-        extra = "ecc k=62 ordered -Xmx16g -da"
+        extra = lambda wildcards, resources: f"ecc k=62 ordered -Xmx{resources.mem_mb / 1000:.0f}g -da"
     log: 
         "output/{run}/log/correct3.log"
     resources:
         runtime = lambda wildcards, attempt: 60 + (attempt * 20),
         mem_mb = 16000
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/tadpole"
+        f"{WRAPPER_PREFIX}/master/bbtools/tadpole"
 
 
 rule merge:
@@ -168,7 +168,7 @@ rule merge:
         outu = temp("output/{run}/unmerged.fq.gz"),
         ihist = "output/{run}/ihist.txt"
     params:
-        extra = "strict k=93 extend2=80 rem ordered -Xmx16g"
+        extra = lambda wildcards, resources: f"strict k=93 extend2=80 rem ordered -Xmx{resources.mem_mb / 1000:.0f}g"
     log: 
         "output/{run}/log/merge.log"
     resources:
@@ -176,7 +176,7 @@ rule merge:
         mem_mb = 16000
     threads: 4
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/bbmerge"
+        f"{WRAPPER_PREFIX}/master/bbtools/bbmerge"
 
 
 rule qtrim:
@@ -185,14 +185,14 @@ rule qtrim:
     output:
         out = temp("output/{run}/qtrimmed.fq.gz")
     params:
-        extra = "qtrim=r trimq=10 minlen=70 ordered -Xmx4g"
+        extra = lambda wildcards, resources: f"qtrim=r trimq=10 minlen=70 ordered -Xmx{resources.mem_mb / 1000:.0f}g"
     resources:
         runtime = lambda wildcards, attempt: 20 + (attempt * 20),
         mem_mb = 4000
     log: 
         "output/{run}/log/qtrim.log"
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/bbduk"
+        f"{WRAPPER_PREFIX}/master/bbtools/bbduk"
 
 
 rule concatenate:
@@ -212,13 +212,13 @@ rule fastqtofasta:
     output:
         out = temp("output/{run}/concatenated.fa")
     params:
-        extra = "-Xmx4g"
+        extra = lambda wildcards, resources: f"-Xmx{resources.mem_mb / 1000:.0f}g"
     resources:
         runtime = 20
     log:
         "output/{run}/log/fastqtofasta.txt"
     wrapper:
-        WRAPPER_PREFIX + "master/bbtools/reformat"
+        f"{WRAPPER_PREFIX}/master/bbtools/reformat"
 
 
 # Run cd-hit to find and cluster duplicate sequences
@@ -237,7 +237,7 @@ rule cd_hit:
         runtime = 2880,
         mem_mb = 14000
     wrapper:
-        WRAPPER_PREFIX + "master/cdhit"
+        f"{WRAPPER_PREFIX}/master/cdhit"
 
 
 # Tantan mask of low complexity DNA sequences
@@ -252,7 +252,7 @@ rule tantan:
         runtime = 120,
         mem_mb = 8000
     wrapper:
-        WRAPPER_PREFIX + "master/tantan"
+        f"{WRAPPER_PREFIX}/master/tantan"
 
 
 # Filter tantan output
@@ -269,7 +269,7 @@ rule tantan_good:
     resources:
         runtime = 120
     wrapper:
-        WRAPPER_PREFIX + "master/filter/masked"
+        f"{WRAPPER_PREFIX}/master/filter/masked"
 
 
 # Split reads to smaller chunks for Repeatmasker
@@ -283,7 +283,7 @@ rule split_fasta:
     resources:
         runtime = lambda wildcards, attempt: 90 + (attempt * 30) 
     wrapper:
-        WRAPPER_PREFIX + "master/split-fasta"
+        f"{WRAPPER_PREFIX}/master/split-fasta"
 
 
 # Repeatmasker
@@ -307,7 +307,7 @@ rule repeatmasker:
     singularity:
         "shub://tpall/repeatmasker-singularity"
     script:
-        WRAPPER_PREFIX + "master/repeatmasker/wrapper.py"
+        f"{WRAPPER_PREFIX}/master/repeatmasker/wrapper.py"
 
 
 # Filter repeatmasker output
@@ -327,7 +327,7 @@ rule repeatmasker_good:
     resources:
         runtime = 120
     wrapper:
-        WRAPPER_PREFIX + "master/filter/masked"
+        f"{WRAPPER_PREFIX}/master/filter/masked"
 
 
 # MegaBlast against reference genome to remove host sequences
@@ -391,7 +391,7 @@ rule fastq_screen:
         mem_mb = 8000    
     threads: 4
     wrapper:
-        WRAPPER_PREFIX + "master/fastq_screen"
+        f"{WRAPPER_PREFIX}/master/fastq_screen"
 
 
 rule fastqc:
@@ -421,4 +421,4 @@ rule multiqc:
         runtime = 120,
         mem_mb = 4000    
     wrapper:
-      WRAPPER_PREFIX + "master/multiqc"
+      f"{WRAPPER_PREFIX}/master/multiqc"
